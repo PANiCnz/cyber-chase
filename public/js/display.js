@@ -50,6 +50,13 @@ const winnerName =
 let resultVisible = false;
 let resultTimer = null;
 
+function hideAnswerResult() {
+   clearTimeout(resultTimer);
+   resultTimer = null;
+   resultVisible = false;
+   answerResultOverlay.classList.add('hidden');
+}
+
 function renderMatchState(state) {
    contestantName.textContent =
       state.contestant?.name || 'Contestant';
@@ -142,6 +149,18 @@ async function updateFromApi() {
       return;
    }
 
+   if (state.roundActive && resultVisible) {
+      hideAnswerResult();
+   } else if (
+      !state.roundActive &&
+      !state.winner &&
+      state.lastRoundResult
+   ) {
+      showAnswerResult(
+         state.lastRoundResult
+      );
+   }
+
    if (!renderMatchState(state)) {
       return;
    }
@@ -154,6 +173,7 @@ async function updateFromApi() {
 
 function showAnswerResult(result) {
    clearTimeout(resultTimer);
+   resultTimer = null;
    resultVisible = true;
 
    answerResultPlayer.textContent =
@@ -185,11 +205,12 @@ function showAnswerResult(result) {
    );
    answerResultOverlay.classList.remove('hidden');
 
-   resultTimer = setTimeout(() => {
-      resultVisible = false;
-      answerResultOverlay.classList.add('hidden');
-      updateFromApi();
-   }, 1800);
+   if (result.winner) {
+      resultTimer = setTimeout(() => {
+         hideAnswerResult();
+         updateFromApi();
+      }, 1800);
+   }
 }
 
 socket.on('answerResult', showAnswerResult);

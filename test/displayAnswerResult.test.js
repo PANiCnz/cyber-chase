@@ -58,6 +58,18 @@ test("display provides correct and incorrect result messaging", () => {
         displayCss,
         /\.answer-result-overlay\.incorrect/
     );
+    assert.match(
+        displayScript,
+        /state\.lastRoundResult/
+    );
+    assert.match(
+        displayScript,
+        /state\.roundActive && resultVisible/
+    );
+    assert.doesNotMatch(
+        displayScript,
+        /}, 1800\);\s*}\s*socket\.on\('answerResult'/
+    );
 });
 
 test("display updates stable answer nodes without opacity flashing", () => {

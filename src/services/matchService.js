@@ -46,6 +46,7 @@ function startMatch(contestantName, chaser, contestantDepartment = "") {
         chaserQuestionIndex: 0,
 
         roundActive: false,
+        lastRoundResult: null,
         winner: null
     };
 
@@ -115,6 +116,7 @@ function startRound() {
     }
 
     match.roundActive = true;
+    match.lastRoundResult = null;
 
     return {
         match,
@@ -268,6 +270,10 @@ function processAnswer(
 
     const isCorrect =
         answer === correctAnswer;
+    const player = match.currentPlayer;
+    const playerName = player === "chaser"
+        ? match.chaser.name
+        : match.contestant.name;
 
     if (isCorrect) {
         markCorrect();
@@ -275,6 +281,13 @@ function processAnswer(
         markIncorrect();
     }
     match.roundActive = false;
+    match.lastRoundResult = {
+        correct: isCorrect,
+        correctAnswer,
+        player,
+        playerName,
+        timeout: false
+    };
 
     return {
         correct: isCorrect,
@@ -320,6 +333,13 @@ function processTimeout(expectedQuestionToken) {
 
     markIncorrect();
     match.roundActive = false;
+    match.lastRoundResult = {
+        correct: false,
+        correctAnswer,
+        player,
+        playerName,
+        timeout: true
+    };
 
     return {
         correct: false,

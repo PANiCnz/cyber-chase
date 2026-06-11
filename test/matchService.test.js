@@ -79,6 +79,16 @@ test("correct answers score and advance the turn", () => {
         result.match.currentPlayer,
         "chaser"
     );
+    assert.deepEqual(
+        result.match.lastRoundResult,
+        {
+            correct: true,
+            correctAnswer: answer,
+            player: "contestant",
+            playerName: "Alex",
+            timeout: false
+        }
+    );
 });
 
 test("incorrect answers preserve score and advance", () => {
@@ -105,6 +115,10 @@ test("incorrect answers preserve score and advance", () => {
     assert.equal(
         result.match.currentPlayer,
         "chaser"
+    );
+    assert.equal(
+        result.match.lastRoundResult.correct,
+        false
     );
 });
 
@@ -144,6 +158,17 @@ test("times out only the expected active question", () => {
     assert.equal(result.timeout, true);
     assert.equal(result.player, "contestant");
     assert.equal(result.playerName, "Alex");
+    assert.deepEqual(
+        match.lastRoundResult,
+        {
+            correct: false,
+            correctAnswer:
+                result.correctAnswer,
+            player: "contestant",
+            playerName: "Alex",
+            timeout: true
+        }
+    );
     assert.equal(match.currentPlayer, "chaser");
     assert.equal(
         match.contestantQuestionIndex,

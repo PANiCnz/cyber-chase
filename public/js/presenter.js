@@ -342,7 +342,8 @@ async function submitAnswer(answer) {
         correct: result.correct,
         correctAnswer: result.correctAnswer,
         player: answeringPlayer,
-        playerName
+        playerName,
+        winner: result.match.winner
     });
 
     await notifyDisplays();
