@@ -34,6 +34,10 @@ const newMatchBtn =
     document.getElementById('newMatchBtn');
 const winnerNewMatchBtn =
     document.getElementById('winnerNewMatchBtn');
+const presenterWaiting =
+    document.getElementById('presenterWaiting');
+const gameSections =
+    document.querySelectorAll('.game-section');
 const answerButtons = [
     document.getElementById('answerA'),
     document.getElementById('answerB'),
@@ -41,10 +45,34 @@ const answerButtons = [
     document.getElementById('answerD')
 ];
 let currentMatchState = null;
+let presenterRefreshRunning = false;
 
 function setAnswerButtonsDisabled(disabled) {
     for (const button of answerButtons) {
         button.disabled = disabled;
+    }
+}
+
+function showWaitingState() {
+    currentMatchState = null;
+    presenterWaiting.classList.remove('hidden');
+    newMatchBtn.classList.add('hidden');
+    presenterWinner.classList.add('hidden');
+    presenterWinnerText.textContent = '';
+    resultBanner.textContent = '';
+    setAnswerButtonsDisabled(true);
+
+    for (const section of gameSections) {
+        section.classList.add('hidden');
+    }
+}
+
+function showGameState() {
+    presenterWaiting.classList.add('hidden');
+    newMatchBtn.classList.remove('hidden');
+
+    for (const section of gameSections) {
+        section.classList.remove('hidden');
     }
 }
 
@@ -99,6 +127,9 @@ async function startNewMatch() {
         }
 
         socket.emit('newMatch');
+        showWaitingState();
+        newMatchBtn.disabled = false;
+        winnerNewMatchBtn.disabled = false;
     } catch (error) {
         resultBanner.textContent =
             error.message;
@@ -113,11 +144,12 @@ async function loadMatchProfile() {
     const state = await response.json();
 
     if (!state) {
-        window.location = '/setup.html';
+        showWaitingState();
         return null;
     }
 
     currentMatchState = state;
+    showGameState();
 
     presenterChaserName.textContent =
         state.chaser?.name || 'Chaser';
@@ -142,32 +174,44 @@ async function loadMatchProfile() {
 }
 
 async function loadQuestion() {
-    const state = await loadMatchProfile();
-
-    if (!state || state.winner) {
+    if (presenterRefreshRunning) {
         return;
     }
 
-    const response =
-        await fetch('/api/question/current');
-    const q = await response.json();
+    presenterRefreshRunning = true;
 
-    if (!q) return;
+    try {
+        const state = await loadMatchProfile();
 
-    questionCategory.textContent = q.category || '';
-    questionDifficulty.textContent =
-        q.difficulty || '';
-    questionText.textContent = q.question || '';
-    answerTextA.textContent = q.a || '';
-    answerTextB.textContent = q.b || '';
-    answerTextC.textContent = q.c || '';
-    answerTextD.textContent = q.d || '';
+        if (!state || state.winner) {
+            return;
+        }
 
-    const answerResponse =
-        await fetch('/api/question/answer');
-    const answer = await answerResponse.json();
-    correctAnswer.textContent =
-        (answer.correct || '').toUpperCase();
+        const response =
+            await fetch('/api/question/current');
+        const q = await response.json();
+
+        if (!q) return;
+
+        questionCategory.textContent =
+            q.category || '';
+        questionDifficulty.textContent =
+            q.difficulty || '';
+        questionText.textContent =
+            q.question || '';
+        answerTextA.textContent = q.a || '';
+        answerTextB.textContent = q.b || '';
+        answerTextC.textContent = q.c || '';
+        answerTextD.textContent = q.d || '';
+
+        const answerResponse =
+            await fetch('/api/question/answer');
+        const answer = await answerResponse.json();
+        correctAnswer.textContent =
+            (answer.correct || '').toUpperCase();
+    } finally {
+        presenterRefreshRunning = false;
+    }
 }
 
 async function submitAnswer(answer) {
@@ -245,8 +289,9 @@ document.addEventListener('keydown', event => {
     }
 });
 
-socket.on('gameState', loadMatchProfile);
+socket.on('gameState', loadQuestion);
 socket.on('newMatch', () => {
-    window.location = '/setup.html';
+    showWaitingState();
 });
+setInterval(loadQuestion, 2000);
 loadQuestion();

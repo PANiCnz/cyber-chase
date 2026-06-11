@@ -10,10 +10,14 @@
     <div class="header">
         <h1>CYBER CHASE</h1>
         <h2>PRESENTER CONSOLE</h2>
-        <button id="newMatchBtn" class="new-match-button">NEW MATCH</button>
+        <button id="newMatchBtn" class="new-match-button hidden">NEW MATCH</button>
     </div>
 
-    <section class="chaser-profile-panel" aria-label="Chaser profile">
+    <div id="presenterWaiting" class="waiting-panel" role="status" aria-live="polite">
+        Waiting for a match to start...
+    </div>
+
+    <section class="chaser-profile-panel game-section hidden" aria-label="Chaser profile">
         <div class="profile-label">CHASER</div>
         <div id="presenterChaserName" class="profile-name">Chaser</div>
         <div id="presenterChaserTitle" class="profile-title hidden"></div>
@@ -21,7 +25,7 @@
         <p id="presenterChaserBio" class="profile-bio hidden"></p>
     </section>
 
-    <div class="question-panel">
+    <div class="question-panel game-section hidden">
         <div id="questionCategory"></div>
         <div id="questionDifficulty"></div>
         <div id="questionText"></div>
@@ -33,7 +37,7 @@
         </div>
     </div>
 
-    <div class="answer-panel">
+    <div class="answer-panel game-section hidden">
         <h3>Select Answer Given</h3>
         <div class="controls">
             <button id="answerA">A</button>
@@ -43,7 +47,7 @@
         </div>
     </div>
 
-    <div class="answer-panel">
+    <div class="answer-panel game-section hidden">
         Correct Answer:
         <div id="correctAnswer"></div>
     </div>

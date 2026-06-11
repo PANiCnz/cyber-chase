@@ -55,7 +55,7 @@ test("server broadcasts new-match navigation", () => {
     );
 });
 
-test("presenter display and intro return to setup", () => {
+test("display and intro return to setup while presenter keeps monitoring", () => {
     assert.match(
         presenter,
         /socket\.on\('newMatch'/
@@ -69,20 +69,24 @@ test("presenter display and intro return to setup", () => {
         /socket\.on\('newMatch'/
     );
 
-    for (const script of [
-        presenter,
-        display,
-        intro
-    ]) {
+    for (const script of [display, intro]) {
         assert.match(
             script,
             /window\.location = '\/setup\.html'/
         );
     }
 
+    assert.doesNotMatch(
+        presenter,
+        /window\.location = '\/setup\.html'/
+    );
     assert.match(
         presenter,
-        /if \(!state\) \{[\s\S]*window\.location = '\/setup\.html'/
+        /showWaitingState\(\)/
+    );
+    assert.match(
+        presenter,
+        /setInterval\(loadQuestion, 2000\)/
     );
     assert.match(
         display,
@@ -96,5 +100,20 @@ test("presenter display and intro return to setup", () => {
     assert.match(
         introHtml,
         /\/socket\.io\/socket\.io\.js/
+    );
+});
+
+test("presenter provides a waiting state until a match exists", () => {
+    assert.match(
+        presenterHtml,
+        /id="presenterWaiting"/
+    );
+    assert.match(
+        presenter,
+        /if \(!state\) \{[\s\S]*showWaitingState\(\)/
+    );
+    assert.match(
+        presenter,
+        /showGameState\(\)/
     );
 });
