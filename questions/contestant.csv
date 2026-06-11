@@ -1,0 +1,6 @@
+id,category,difficulty,question,a,b,c,d,correct
+1,Passwords,Easy,What is MFA?,Multi Factor Authentication,B,C,D,a
+2,Phishing,Easy,What is phishing?,Scam,A,B,C,a
+3,MFA,Easy,Q3,A,B,C,D,a
+4,Data,Medium,Q4,A,B,C,D,a
+5,Browsing,Hard,Q5,A,B,C,D,a

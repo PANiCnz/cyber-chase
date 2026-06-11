@@ -1,0 +1,50 @@
+
+body{
+    margin:0;
+    background:linear-gradient(180deg,#08111f,#122c4a);
+    color:white;
+    font-family:Arial,sans-serif;
+    text-align:center;
+}
+
+.intro-container{
+    margin-top:80px;
+}
+
+h1{
+    color:#00b7ff;
+    font-size:5rem;
+}
+
+h2{
+    font-size:2rem;
+}
+
+.versus-panel{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:100px;
+    margin-top:80px;
+}
+
+.player{
+    font-size:3rem;
+}
+
+.player div:last-child{
+    color:#ffd400;
+    font-size:1.5rem;
+    margin-top:15px;
+}
+
+.vs{
+    font-size:5rem;
+    color:#00d084;
+}
+
+#countdown{
+    margin-top:80px;
+    font-size:6rem;
+    color:#ffd400;
+}

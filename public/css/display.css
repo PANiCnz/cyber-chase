@@ -1,0 +1,17 @@
+
+body{background:linear-gradient(180deg,#08111f,#122c4a);color:white;font-family:Arial,sans-serif;text-align:center;margin:0;padding:20px}
+.header h1{font-size:4rem;color:#00b7ff;margin:0}
+.scoreboard{display:flex;justify-content:space-around;margin-top:20px}
+.player-card{width:40%}
+.progress{height:30px;background:#23384f;border-radius:20px;overflow:hidden;margin-top:10px}
+.bar{height:100%;width:0%;background:#00d084;transition:width .5s ease}
+.turn{font-size:3rem;margin-top:25px}
+.contestant-turn{color:#00b7ff}
+.chaser-turn{color:#ff4d4f}
+.category{font-size:2rem;color:#ffd400;margin-top:20px}
+.question-panel{transition:opacity .5s ease}
+#questionText{font-size:3rem;margin-top:30px}
+#answers{font-size:2rem;line-height:2;margin-top:20px}
+.timer{font-size:5rem;margin-top:30px;color:#ffd400}
+.winner{position:fixed;inset:0;background:#08111f;display:flex;justify-content:center;align-items:center;flex-direction:column;font-size:5rem}
+.hidden{display:none}

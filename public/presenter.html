@@ -1,0 +1,43 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cyber Chase Presenter</title>
+    <link rel="stylesheet" href="/css/presenter.css">
+</head>
+<body>
+<div class="dashboard">
+    <div class="header">
+        <h1>CYBER CHASE</h1>
+        <h2>PRESENTER CONSOLE</h2>
+    </div>
+
+    <div class="question-panel">
+        <div id="questionCategory"></div>
+        <div id="questionDifficulty"></div>
+        <div id="questionText"></div>
+        <div id="answers"></div>
+    </div>
+
+    <div class="answer-panel">
+        <h3>Select Answer Given</h3>
+        <div class="controls">
+            <button id="answerA">A</button>
+            <button id="answerB">B</button>
+            <button id="answerC">C</button>
+            <button id="answerD">D</button>
+        </div>
+    </div>
+
+    <div class="answer-panel">
+        Correct Answer:
+        <div id="correctAnswer"></div>
+    </div>
+
+    <div id="resultBanner"></div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/presenter.js"></script>
+</body>
+</html>
