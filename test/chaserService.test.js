@@ -26,14 +26,19 @@ test.afterEach(() => {
     chaserService.resetCatalog();
 });
 
-test("loads the four active V3.5 chasers", () => {
+test("loads the four active fictional showcase chasers", () => {
     chaserService.loadChasers();
 
     assert.deepEqual(
         chaserService
             .listActiveChasers()
             .map(chaser => chaser.id),
-        ["rob", "julian", "albert", "noel"]
+        [
+            "maya-voss",
+            "elias-trent",
+            "nia-calder",
+            "marcus-vale"
+        ]
     );
 });
 
@@ -41,14 +46,16 @@ test("resolves active chasers by id and legacy name", () => {
     chaserService.loadChasers();
 
     assert.equal(
-        chaserService.getChaserById("ROB").name,
-        "Rob"
+        chaserService
+            .getChaserById("MAYA-VOSS")
+            .name,
+        "Maya Voss"
     );
     assert.equal(
         chaserService
-            .findChaserByName(" julian ")
+            .findChaserByName(" elias trent ")
             .id,
-        "julian"
+        "elias-trent"
     );
 });
 

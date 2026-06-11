@@ -40,10 +40,6 @@ function createPhoto(chaser) {
 function createProfileCard(chaser, index) {
   const card = document.createElement('article');
   card.className = 'chaser-card';
-  card.style.setProperty(
-    '--card-accent',
-    index % 2 === 0 ? '#00b7ff' : '#00d084'
-  );
 
   const number = document.createElement('div');
   number.className = 'profile-number';
@@ -52,6 +48,10 @@ function createProfileCard(chaser, index) {
 
   const content = document.createElement('div');
   content.className = 'profile-content';
+
+  const profileLabel = document.createElement('div');
+  profileLabel.className = 'profile-label';
+  profileLabel.textContent = 'CHASER PROFILE';
 
   const title = document.createElement('div');
   title.className = 'profile-title';
@@ -70,7 +70,13 @@ function createProfileCard(chaser, index) {
   bio.className = 'profile-bio';
   bio.textContent = chaser.bio || '';
 
-  content.append(title, name, department, bio);
+  content.append(
+    profileLabel,
+    title,
+    name,
+    department,
+    bio
+  );
   card.append(
     number,
     createPhoto(chaser),

@@ -57,6 +57,39 @@ test("setup renders image-ready profiles with placeholders", () => {
         setupCss,
         /height:100vh/
     );
+    assert.match(
+        setupCss,
+        /--chaser:#f02b2f/
+    );
+    assert.match(
+        setupCss,
+        /\.chaser-card\{[^}]*var\(--chaser\)/
+    );
+});
+
+test("setup uses fictional seeded personas and generated portraits", () => {
+    const catalog = JSON.parse(
+        read("data/chasers.json")
+    );
+
+    assert.equal(catalog.length, 4);
+    assert.deepEqual(
+        catalog.map(chaser => chaser.name),
+        [
+            "Maya Voss",
+            "Elias Trent",
+            "Nia Calder",
+            "Marcus Vale"
+        ]
+    );
+    assert.ok(
+        catalog.every(
+            chaser =>
+                chaser.image.startsWith(
+                    "/images/chasers/"
+                )
+        )
+    );
 });
 
 test("setup opens the intro when the presenter launches", () => {

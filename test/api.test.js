@@ -55,7 +55,7 @@ test("preserves match start and state response fields", async () => {
             body: JSON.stringify({
                 contestantName: "Alex",
                 contestantDepartment: "Finance",
-                chaserName: "Rob"
+                chaserName: "Maya Voss"
             })
         }
     );
@@ -67,11 +67,11 @@ test("preserves match start and state response fields", async () => {
         match.contestant.department,
         "Finance"
     );
-    assert.equal(match.chaser.id, "rob");
-    assert.equal(match.chaser.name, "Rob");
+    assert.equal(match.chaser.id, "maya-voss");
+    assert.equal(match.chaser.name, "Maya Voss");
     assert.equal(
         match.chaser.title,
-        "The Firewall"
+        "The Cipher"
     );
     assert.equal(match.currentPlayer, "contestant");
     assert.ok(
@@ -105,8 +105,8 @@ test("starts a match by chaser id and snapshots the catalog profile", async () =
             body: JSON.stringify({
                 contestantName: "Alex",
                 contestantDepartment: "Finance",
-                chaserId: "julian",
-                chaserName: "Rob"
+                chaserId: "elias-trent",
+                chaserName: "Maya Voss"
             })
         }
     );
@@ -114,11 +114,12 @@ test("starts a match by chaser id and snapshots the catalog profile", async () =
 
     assert.equal(response.status, 200);
     assert.deepEqual(match.chaser, {
-        id: "julian",
-        name: "Julian",
-        title: "The Analyst",
-        department: "Information Security",
-        bio: "Finds the signal hidden inside the noise.",
+        id: "elias-trent",
+        name: "Elias Trent",
+        title: "The Firewall",
+        department: "Network Defence",
+        bio: "Blocks weak answers at the perimeter and gives nothing away.",
+        image: "/images/chasers/elias-trent.jpg",
         score: 0
     });
 });
@@ -135,7 +136,7 @@ test("returns 404 for an unknown chaser id without falling back to name", async 
             body: JSON.stringify({
                 contestantName: "Alex",
                 chaserId: "unknown",
-                chaserName: "Rob"
+                chaserName: "Maya Voss"
             })
         }
     );
@@ -184,7 +185,7 @@ test("requires a contestant name before creating a match", async () => {
             },
             body: JSON.stringify({
                 contestantName: "   ",
-                chaserId: "rob"
+                chaserId: "maya-voss"
             })
         }
     );
@@ -226,7 +227,7 @@ test("starts a match with independent question difficulties", async () => {
             },
             body: JSON.stringify({
                 contestantName: "Alex",
-                chaserId: "rob",
+                chaserId: "maya-voss",
                 contestantDifficulty: "Medium",
                 chaserDifficulty: "Expert"
             })
@@ -264,7 +265,7 @@ test("rejects an unavailable question difficulty", async () => {
             },
             body: JSON.stringify({
                 contestantName: "Alex",
-                chaserId: "rob",
+                chaserId: "maya-voss",
                 chaserDifficulty: "Easy"
             })
         }
@@ -357,19 +358,19 @@ test("lists chasers and returns a profile by id", async () => {
 
     assert.equal(listResponse.status, 200);
     assert.equal(chasers.length, 4);
-    assert.equal(chasers[0].id, "rob");
+    assert.equal(chasers[0].id, "maya-voss");
 
     const profileResponse = await fetch(
-        `${baseUrl}/api/chasers/rob`
+        `${baseUrl}/api/chasers/maya-voss`
     );
     const profile =
         await profileResponse.json();
 
     assert.equal(profileResponse.status, 200);
-    assert.equal(profile.name, "Rob");
+    assert.equal(profile.name, "Maya Voss");
     assert.equal(
         profile.department,
-        "Information Security"
+        "Cryptography and Identity"
     );
 });
 
@@ -659,7 +660,7 @@ test("starts each valid match with a waiting question timer", async () => {
             },
             body: JSON.stringify({
                 contestantName: "Alex",
-                chaserId: "rob"
+                chaserId: "maya-voss"
             })
         }
     );

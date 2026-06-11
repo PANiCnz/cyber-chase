@@ -1,34 +1,38 @@
 [
   {
-    "id": "rob",
-    "name": "Rob",
+    "id": "maya-voss",
+    "name": "Maya Voss",
+    "title": "The Cipher",
+    "department": "Cryptography and Identity",
+    "bio": "Reads every clue, breaks every pattern, and never reveals her hand.",
+    "image": "/images/chasers/maya-voss.jpg",
+    "active": true
+  },
+  {
+    "id": "elias-trent",
+    "name": "Elias Trent",
     "title": "The Firewall",
-    "department": "Information Security",
-    "bio": "Defends the network and blocks risky moves.",
+    "department": "Network Defence",
+    "bio": "Blocks weak answers at the perimeter and gives nothing away.",
+    "image": "/images/chasers/elias-trent.jpg",
     "active": true
   },
   {
-    "id": "julian",
-    "name": "Julian",
-    "title": "The Analyst",
-    "department": "Information Security",
-    "bio": "Finds the signal hidden inside the noise.",
+    "id": "nia-calder",
+    "name": "Nia Calder",
+    "title": "The Signal",
+    "department": "Threat Intelligence",
+    "bio": "Finds the one useful signal hidden inside a storm of noise.",
+    "image": "/images/chasers/nia-calder.jpg",
     "active": true
   },
   {
-    "id": "albert",
-    "name": "Albert",
-    "title": "The Cryptographer",
-    "department": "Information Security",
-    "bio": "Turns security puzzles into plain answers.",
-    "active": true
-  },
-  {
-    "id": "noel",
-    "name": "Noel",
+    "id": "marcus-vale",
+    "name": "Marcus Vale",
     "title": "The Sentinel",
-    "department": "Information Security",
-    "bio": "Keeps watch for threats before they strike.",
+    "department": "Security Operations",
+    "bio": "Sees the threat before it moves and waits for mistakes.",
+    "image": "/images/chasers/marcus-vale.jpg",
     "active": true
   }
 ]
