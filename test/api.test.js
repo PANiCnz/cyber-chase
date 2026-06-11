@@ -171,7 +171,7 @@ test("preserves question endpoint shapes", async () => {
     matchService.startMatch("Alex", "Rob");
 
     const startResponse = await fetch(
-        `${baseUrl}/api/question/start`,
+        `${baseUrl}/api/question/start-opening`,
         { method: "POST" }
     );
     assert.equal(startResponse.status, 200);
@@ -211,7 +211,9 @@ test("preserves question endpoint shapes", async () => {
 
 test("returns 400 for invalid answers without changing the turn", async () => {
     matchService.startMatch("Alex", "Rob");
-    matchService.startRound();
+    matchService.startRound({
+        automatic: true
+    });
 
     const response = await fetch(
         `${baseUrl}/api/question/respond`,
@@ -332,7 +334,7 @@ test("timer endpoints pause resume and reset the active question", async () => {
     matchService.startMatch("Alex", "Rob");
 
     const roundResponse = await fetch(
-        `${baseUrl}/api/question/start`,
+        `${baseUrl}/api/question/start-opening`,
         { method: "POST" }
     );
     assert.equal(roundResponse.status, 200);
@@ -378,7 +380,9 @@ test("pauses the timer when an answer produces a winner", async () => {
     const match = matchService.getMatch();
     match.contestant.score = 4;
     match.currentPlayer = "contestant";
-    matchService.startRound();
+    matchService.startRound({
+        automatic: true
+    });
     timerService.startQuestion(
         matchService.getCurrentQuestionToken()
     );
@@ -423,7 +427,7 @@ test("starting a round displays its question and starts its timer", async () => 
     );
 
     const startResponse = await fetch(
-        `${baseUrl}/api/question/start`,
+        `${baseUrl}/api/question/start-opening`,
         { method: "POST" }
     );
     const started = await startResponse.json();
@@ -450,16 +454,85 @@ test("starting a round displays its question and starts its timer", async () => 
     );
 });
 
+test("automates only round one and requires manual later rounds", async () => {
+    matchService.startMatch("Alex", "Rob");
+
+    const earlyManualResponse = await fetch(
+        `${baseUrl}/api/question/start`,
+        { method: "POST" }
+    );
+    const earlyManual =
+        await earlyManualResponse.json();
+
+    assert.equal(earlyManualResponse.status, 409);
+    assert.equal(
+        earlyManual.error,
+        "First round starts after the opening countdown"
+    );
+
+    const openingResponse = await fetch(
+        `${baseUrl}/api/question/start-opening`,
+        { method: "POST" }
+    );
+    const opening = await openingResponse.json();
+
+    assert.equal(openingResponse.status, 200);
+    assert.equal(
+        opening.question.questionToken,
+        "contestant:0"
+    );
+
+    const answerResponse = await fetch(
+        `${baseUrl}/api/question/respond`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                answer:
+                    opening.question.correct,
+                questionToken:
+                    opening.question.questionToken
+            })
+        }
+    );
+
+    assert.equal(answerResponse.status, 200);
+
+    const secondOpeningResponse = await fetch(
+        `${baseUrl}/api/question/start-opening`,
+        { method: "POST" }
+    );
+    assert.equal(
+        secondOpeningResponse.status,
+        409
+    );
+
+    const manualResponse = await fetch(
+        `${baseUrl}/api/question/start`,
+        { method: "POST" }
+    );
+    const manual = await manualResponse.json();
+
+    assert.equal(manualResponse.status, 200);
+    assert.equal(
+        manual.question.questionToken,
+        "chaser:0"
+    );
+});
+
 test("does not restart an already active round", async () => {
     matchService.startMatch("Alex", "Rob");
 
     const firstResponse = await fetch(
-        `${baseUrl}/api/question/start`,
+        `${baseUrl}/api/question/start-opening`,
         { method: "POST" }
     );
     const first = await firstResponse.json();
     const secondResponse = await fetch(
-        `${baseUrl}/api/question/start`,
+        `${baseUrl}/api/question/start-opening`,
         { method: "POST" }
     );
     const second = await secondResponse.json();
@@ -502,7 +575,7 @@ test("submitting an answer pauses before the next round", async () => {
     matchService.startMatch("Alex", "Rob");
 
     const startResponse = await fetch(
-        `${baseUrl}/api/question/start`,
+        `${baseUrl}/api/question/start-opening`,
         { method: "POST" }
     );
     const started = await startResponse.json();
@@ -566,7 +639,9 @@ test("submitting an answer pauses before the next round", async () => {
 test("question expiry counts as an incorrect answer", async () => {
     matchService.startMatch("Alex", "Rob");
     const questionToken =
-        matchService.startRound()
+        matchService.startRound({
+            automatic: true
+        })
             .questionToken;
 
     timerService.startQuestion(
@@ -596,7 +671,9 @@ test("question expiry counts as an incorrect answer", async () => {
 test("rejects an answer for a question that has already expired", async () => {
     matchService.startMatch("Alex", "Rob");
     const expiredToken =
-        matchService.startRound()
+        matchService.startRound({
+            automatic: true
+        })
             .questionToken;
     matchService.processTimeout(expiredToken);
 

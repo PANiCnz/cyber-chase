@@ -32,6 +32,8 @@ const questionRoutes =
     read("src/routes/questionRoutes.js");
 const server =
     read("src/server.js");
+const intro =
+    read("public/js/intro.js");
 
 test("presenter provides round and timer controls", () => {
     assert.match(
@@ -146,6 +148,25 @@ test("only the start-round endpoint arms the question timer", () => {
     assert.match(
         timerService,
         /expirationHandler/
+    );
+});
+
+test("intro countdown automatically starts only the opening round", () => {
+    assert.match(
+        intro,
+        /let remaining = 5/
+    );
+    assert.match(
+        intro,
+        /\/api\/question\/start-opening/
+    );
+    assert.match(
+        presenter,
+        /state\?\.firstRoundPending/
+    );
+    assert.match(
+        presenter,
+        /Opening countdown in progress/
     );
 });
 

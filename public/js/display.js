@@ -99,7 +99,9 @@ function renderMatchState(state) {
    currentTurn.textContent =
       state.roundActive
          ? `${(state.currentPlayer || '').toUpperCase()} TURN`
-         : 'WAITING FOR NEXT ROUND';
+         : state.firstRoundPending
+            ? 'MATCH STARTING'
+            : 'WAITING FOR NEXT ROUND';
    currentTurn.className =
       'turn ' +
       (state.currentPlayer === 'chaser'

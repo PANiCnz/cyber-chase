@@ -46,6 +46,7 @@ function startMatch(contestantName, chaser, contestantDepartment = "") {
         chaserQuestionIndex: 0,
 
         roundActive: false,
+        firstRoundPending: true,
         lastRoundResult: null,
         winner: null
     };
@@ -88,7 +89,10 @@ function getCurrentQuestionToken() {
     return `${match.currentPlayer}:${index}`;
 }
 
-function startRound() {
+function startRound(options = {}) {
+    const automatic =
+        options.automatic === true;
+
     if (!match) {
         return {
             error: "No active match"
@@ -107,6 +111,24 @@ function startRound() {
         };
     }
 
+    if (
+        match.firstRoundPending &&
+        !automatic
+    ) {
+        return {
+            error: "First round starts after the opening countdown"
+        };
+    }
+
+    if (
+        automatic &&
+        !match.firstRoundPending
+    ) {
+        return {
+            error: "Opening round has already started"
+        };
+    }
+
     const question = getCurrentQuestion();
 
     if (!question) {
@@ -116,6 +138,7 @@ function startRound() {
     }
 
     match.roundActive = true;
+    match.firstRoundPending = false;
     match.lastRoundResult = null;
 
     return {

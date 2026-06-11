@@ -21,9 +21,11 @@ router.get("/current", (req, res) => {
     );
 });
 
-router.post("/start", (req, res) => {
+function startRound(req, res, automatic) {
     const result =
-        matchService.startRound();
+        matchService.startRound({
+            automatic
+        });
 
     if (result.error) {
         const status =
@@ -47,6 +49,14 @@ router.post("/start", (req, res) => {
         },
         timer
     });
+}
+
+router.post("/start", (req, res) => {
+    startRound(req, res, false);
+});
+
+router.post("/start-opening", (req, res) => {
+    startRound(req, res, true);
 });
 
 router.get("/upcoming", (req, res) => {

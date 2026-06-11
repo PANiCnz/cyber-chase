@@ -95,9 +95,17 @@ function renderRoundState(state) {
         active || Boolean(state?.winner)
     );
     roundWaitingText.textContent =
-        `Ready for the ${state?.currentPlayer || 'next'} round.`;
+        state?.firstRoundPending
+            ? 'Opening countdown in progress. Round one will start automatically.'
+            : `Ready for the ${state?.currentPlayer || 'next'} round.`;
     startRoundBtn.disabled =
-        active || Boolean(state?.winner);
+        active ||
+        Boolean(state?.winner) ||
+        Boolean(state?.firstRoundPending);
+    startRoundBtn.classList.toggle(
+        'hidden',
+        Boolean(state?.firstRoundPending)
+    );
     currentQuestionToken =
         active ? currentQuestionToken : null;
     setAnswerButtonsDisabled(!active);

@@ -50,14 +50,35 @@ async function loadMatch() {
 
 async function startCountdown() {
     let remaining = 5;
+    countdown.textContent = remaining;
 
-    const timer = setInterval(() => {
-        countdown.textContent = remaining;
+    const timer = setInterval(async () => {
         remaining--;
 
-        if(remaining < 0){
+        if(remaining > 0) {
+            countdown.textContent = remaining;
+            return;
+        }
+
+        if(remaining === 0){
             clearInterval(timer);
-            window.location = '/display.html';
+
+            try {
+                const response = await fetch(
+                    '/api/question/start-opening',
+                    { method: 'POST' }
+                );
+
+                if (!response.ok) {
+                    throw new Error();
+                }
+
+                socket.emit('refreshGame');
+                window.location = '/display.html';
+            } catch {
+                countdown.textContent =
+                    'Unable to start match';
+            }
         }
     },1000);
 }
