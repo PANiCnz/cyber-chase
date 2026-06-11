@@ -34,6 +34,7 @@ const answerButtons = [
     document.getElementById('answerC'),
     document.getElementById('answerD')
 ];
+let currentMatchState = null;
 
 function setAnswerButtonsDisabled(disabled) {
     for (const button of answerButtons) {
@@ -66,6 +67,8 @@ async function loadMatchProfile() {
     const state = await response.json();
 
     if (!state) return null;
+
+    currentMatchState = state;
 
     presenterChaserName.textContent =
         state.chaser?.name || 'Chaser';
@@ -119,6 +122,11 @@ async function loadQuestion() {
 }
 
 async function submitAnswer(answer) {
+    const state =
+        currentMatchState ||
+        await loadMatchProfile();
+    const answeringPlayer =
+        state?.currentPlayer;
     setAnswerButtonsDisabled(true);
 
     const response = await fetch(
@@ -144,6 +152,17 @@ async function submitAnswer(answer) {
     resultBanner.textContent = result.correct
         ? 'CORRECT'
         : `INCORRECT (Correct: ${(result.correctAnswer || '').toUpperCase()})`;
+
+    const playerName = answeringPlayer === 'chaser'
+        ? result.match.chaser.name
+        : result.match.contestant.name;
+
+    socket.emit('answerResult', {
+        correct: result.correct,
+        correctAnswer: result.correctAnswer,
+        player: answeringPlayer,
+        playerName
+    });
 
     await notifyDisplays();
 

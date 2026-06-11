@@ -40,6 +40,10 @@ io.on("connection", socket => {
         });
     });
 
+    socket.on("answerResult", result => {
+        io.emit("answerResult", result);
+    });
+
     socket.on("disconnect", () => {
         console.log(`Client disconnected: ${socket.id}`);
     });

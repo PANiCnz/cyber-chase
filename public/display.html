@@ -39,10 +39,20 @@
 
 <div id="questionPanel" class="question-panel">
   <div id="questionText"></div>
-  <div id="answers"></div>
+  <div id="answers">
+    <div>A. <span id="displayAnswerA"></span></div>
+    <div>B. <span id="displayAnswerB"></span></div>
+    <div>C. <span id="displayAnswerC"></span></div>
+    <div>D. <span id="displayAnswerD"></span></div>
+  </div>
 </div>
 
 <div id="timer" class="timer">60</div>
+<div id="answerResultOverlay" class="answer-result-overlay hidden" role="status" aria-live="assertive">
+  <div id="answerResultPlayer" class="answer-result-player"></div>
+  <div id="answerResultMessage" class="answer-result-message"></div>
+  <div id="answerResultCorrect" class="answer-result-correct hidden"></div>
+</div>
 <div id="winnerScreen" class="winner hidden" role="status" aria-live="assertive">
   <div id="winnerName"></div>
   <div>WINS!</div>

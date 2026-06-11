@@ -1,4 +1,3 @@
-
 const socket = io();
 
 const contestantName =
@@ -27,19 +26,31 @@ const questionPanel =
    document.getElementById('questionPanel');
 const questionText =
    document.getElementById('questionText');
-const answers =
-   document.getElementById('answers');
+const displayAnswerA =
+   document.getElementById('displayAnswerA');
+const displayAnswerB =
+   document.getElementById('displayAnswerB');
+const displayAnswerC =
+   document.getElementById('displayAnswerC');
+const displayAnswerD =
+   document.getElementById('displayAnswerD');
+const answerResultOverlay =
+   document.getElementById('answerResultOverlay');
+const answerResultPlayer =
+   document.getElementById('answerResultPlayer');
+const answerResultMessage =
+   document.getElementById('answerResultMessage');
+const answerResultCorrect =
+   document.getElementById('answerResultCorrect');
 const winnerScreen =
    document.getElementById('winnerScreen');
 const winnerName =
    document.getElementById('winnerName');
 
-function updateFromApi(){
- fetch('/api/match/state')
- .then(r=>r.json())
- .then(state=>{
-   if(!state) return;
+let resultVisible = false;
+let resultTimer = null;
 
+function renderMatchState(state) {
    contestantName.textContent =
       state.contestant?.name || 'Contestant';
    chaserName.textContent =
@@ -78,36 +89,95 @@ function updateFromApi(){
       chaserScore
    );
 
-   currentTurn.innerText = `${(state.currentPlayer||'').toUpperCase()} TURN`;
-   currentTurn.className = 'turn ' + ((state.currentPlayer==='chaser') ? 'chaser-turn' : 'contestant-turn');
+   currentTurn.textContent =
+      `${(state.currentPlayer || '').toUpperCase()} TURN`;
+   currentTurn.className =
+      'turn ' +
+      (state.currentPlayer === 'chaser'
+         ? 'chaser-turn'
+         : 'contestant-turn');
 
-   if(state.winner){
+   if (state.winner && !resultVisible) {
       winnerScreen.classList.remove('hidden');
       winnerName.textContent = state.winner;
       currentTurn.textContent = 'MATCH COMPLETE';
       questionPanel.classList.add('hidden');
       category.classList.add('hidden');
-      return null;
+      return false;
    }
 
    winnerScreen.classList.add('hidden');
    questionPanel.classList.remove('hidden');
    category.classList.remove('hidden');
-   return fetch('/api/question/current');
- })
- .then(r=>r?.json())
- .then(q=>{
-   if(!q) return;
-   questionPanel.style.opacity='0';
-   setTimeout(()=>{
-      category.innerText=q.category||'';
-      questionText.innerText=q.question||'';
-      answers.innerHTML=`<div>A. ${q.a||''}</div><div>B. ${q.b||''}</div><div>C. ${q.c||''}</div><div>D. ${q.d||''}</div>`;
-      questionPanel.style.opacity='1';
-   },250);
- });
+   return !resultVisible;
 }
 
+function renderQuestion(question) {
+   if (!question || resultVisible) return;
+
+   category.textContent = question.category || '';
+   questionText.textContent =
+      question.question || '';
+   displayAnswerA.textContent = question.a || '';
+   displayAnswerB.textContent = question.b || '';
+   displayAnswerC.textContent = question.c || '';
+   displayAnswerD.textContent = question.d || '';
+}
+
+async function updateFromApi() {
+   const stateResponse =
+      await fetch('/api/match/state');
+   const state = await stateResponse.json();
+
+   if (!state) return;
+
+   if (!renderMatchState(state)) {
+      return;
+   }
+
+   const questionResponse =
+      await fetch('/api/question/current');
+   const question = await questionResponse.json();
+   renderQuestion(question);
+}
+
+function showAnswerResult(result) {
+   clearTimeout(resultTimer);
+   resultVisible = true;
+
+   answerResultPlayer.textContent =
+      result.playerName ||
+      (result.player === 'chaser'
+         ? 'Chaser'
+         : 'Contestant');
+   answerResultMessage.textContent =
+      result.correct ? 'CORRECT!' : 'INCORRECT';
+   answerResultCorrect.textContent =
+      result.correct
+         ? ''
+         : `Correct answer: ${(result.correctAnswer || '').toUpperCase()}`;
+   answerResultCorrect.classList.toggle(
+      'hidden',
+      result.correct
+   );
+   answerResultOverlay.classList.toggle(
+      'correct',
+      result.correct
+   );
+   answerResultOverlay.classList.toggle(
+      'incorrect',
+      !result.correct
+   );
+   answerResultOverlay.classList.remove('hidden');
+
+   resultTimer = setTimeout(() => {
+      resultVisible = false;
+      answerResultOverlay.classList.add('hidden');
+      updateFromApi();
+   }, 1800);
+}
+
+socket.on('answerResult', showAnswerResult);
 socket.on('gameState', updateFromApi);
 setInterval(updateFromApi, 2000);
 updateFromApi();
