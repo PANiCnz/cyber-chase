@@ -10,6 +10,7 @@
     <div class="header">
         <h1>CYBER CHASE</h1>
         <h2>PRESENTER CONSOLE</h2>
+        <button id="newMatchBtn" class="new-match-button">NEW MATCH</button>
     </div>
 
     <section class="chaser-profile-panel" aria-label="Chaser profile">
@@ -48,7 +49,10 @@
     </div>
 
     <div id="resultBanner"></div>
-    <div id="presenterWinner" class="winner hidden" role="status" aria-live="polite"></div>
+    <div id="presenterWinner" class="winner hidden" role="status" aria-live="polite">
+        <div id="presenterWinnerText"></div>
+        <button id="winnerNewMatchBtn" class="winner-new-match-button">NEW MATCH</button>
+    </div>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>

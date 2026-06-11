@@ -4,6 +4,8 @@ const matchService =
     require("../services/matchService");
 const chaserService =
     require("../services/chaserService");
+const timerService =
+    require("../services/timerService");
 
 router.post("/start-match", (req, res) => {
     const {
@@ -48,6 +50,16 @@ router.post("/start-match", (req, res) => {
 
 router.get("/state", (req, res) => {
     res.json(matchService.getMatch());
+});
+
+router.post("/reset", (req, res) => {
+    matchService.resetMatch();
+    timerService.reset();
+
+    res.json({
+        match: matchService.getMatch(),
+        timer: timerService.state()
+    });
 });
 
 module.exports = router;

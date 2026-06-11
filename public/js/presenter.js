@@ -28,6 +28,12 @@ const resultBanner =
     document.getElementById('resultBanner');
 const presenterWinner =
     document.getElementById('presenterWinner');
+const presenterWinnerText =
+    document.getElementById('presenterWinnerText');
+const newMatchBtn =
+    document.getElementById('newMatchBtn');
+const winnerNewMatchBtn =
+    document.getElementById('winnerNewMatchBtn');
 const answerButtons = [
     document.getElementById('answerA'),
     document.getElementById('answerB'),
@@ -45,12 +51,12 @@ function setAnswerButtonsDisabled(disabled) {
 function renderWinner(state) {
     if (!state?.winner) {
         presenterWinner.classList.add('hidden');
-        presenterWinner.textContent = '';
+        presenterWinnerText.textContent = '';
         setAnswerButtonsDisabled(false);
         return false;
     }
 
-    presenterWinner.textContent =
+    presenterWinnerText.textContent =
         `${state.winner} WINS!`;
     presenterWinner.classList.remove('hidden');
     setAnswerButtonsDisabled(true);
@@ -61,12 +67,55 @@ async function notifyDisplays() {
     socket.emit('refreshGame');
 }
 
+async function startNewMatch() {
+    const activeMatch =
+        currentMatchState &&
+        !currentMatchState.winner;
+
+    if (
+        activeMatch &&
+        !window.confirm(
+            'End the active match and return everyone to setup?'
+        )
+    ) {
+        return;
+    }
+
+    newMatchBtn.disabled = true;
+    winnerNewMatchBtn.disabled = true;
+    resultBanner.textContent =
+        'Resetting game...';
+
+    try {
+        const response = await fetch(
+            '/api/match/reset',
+            { method: 'POST' }
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                'Unable to reset the game'
+            );
+        }
+
+        socket.emit('newMatch');
+    } catch (error) {
+        resultBanner.textContent =
+            error.message;
+        newMatchBtn.disabled = false;
+        winnerNewMatchBtn.disabled = false;
+    }
+}
+
 async function loadMatchProfile() {
     const response =
         await fetch('/api/match/state');
     const state = await response.json();
 
-    if (!state) return null;
+    if (!state) {
+        window.location = '/setup.html';
+        return null;
+    }
 
     currentMatchState = state;
 
@@ -165,6 +214,7 @@ async function submitAnswer(answer) {
     });
 
     await notifyDisplays();
+    currentMatchState = result.match;
 
     if (renderWinner(result.match)) {
         return;
@@ -181,6 +231,8 @@ answerButtons[2].onclick =
     () => submitAnswer('c');
 answerButtons[3].onclick =
     () => submitAnswer('d');
+newMatchBtn.onclick = startNewMatch;
+winnerNewMatchBtn.onclick = startNewMatch;
 
 document.addEventListener('keydown', event => {
     const key = event.key.toLowerCase();
@@ -194,4 +246,7 @@ document.addEventListener('keydown', event => {
 });
 
 socket.on('gameState', loadMatchProfile);
+socket.on('newMatch', () => {
+    window.location = '/setup.html';
+});
 loadQuestion();

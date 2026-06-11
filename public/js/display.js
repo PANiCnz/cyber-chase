@@ -129,7 +129,10 @@ async function updateFromApi() {
       await fetch('/api/match/state');
    const state = await stateResponse.json();
 
-   if (!state) return;
+   if (!state) {
+      window.location = '/setup.html';
+      return;
+   }
 
    if (!renderMatchState(state)) {
       return;
@@ -179,5 +182,8 @@ function showAnswerResult(result) {
 
 socket.on('answerResult', showAnswerResult);
 socket.on('gameState', updateFromApi);
+socket.on('newMatch', () => {
+   window.location = '/setup.html';
+});
 setInterval(updateFromApi, 2000);
 updateFromApi();

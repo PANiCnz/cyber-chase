@@ -13,12 +13,16 @@ const chaserBio =
     document.getElementById('chaserBio');
 const countdown =
     document.getElementById('countdown');
+const socket = io();
 
 async function loadMatch() {
     const res = await fetch('/api/match/state');
     const state = await res.json();
 
-    if(!state) return;
+    if(!state) {
+        window.location = '/setup.html';
+        return;
+    }
 
     contestantName.textContent =
         state.contestant?.name || 'Contestant';
@@ -60,3 +64,7 @@ async function startCountdown() {
 
 loadMatch();
 startCountdown();
+
+socket.on('newMatch', () => {
+    window.location = '/setup.html';
+});

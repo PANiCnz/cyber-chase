@@ -4,6 +4,8 @@ const assert = require("node:assert/strict");
 const { server } = require("../src/server");
 const matchService =
     require("../src/services/matchService");
+const timerService =
+    require("../src/services/timerService");
 
 let baseUrl;
 
@@ -19,6 +21,7 @@ test.before(async () => {
 
 test.beforeEach(() => {
     matchService.resetMatch();
+    timerService.reset();
 });
 
 test.after(async () => {
@@ -260,4 +263,32 @@ test("returns 404 for an unknown chaser", async () => {
         result.error,
         "Chaser not found"
     );
+});
+
+test("resets match and timer state together", async () => {
+    matchService.startMatch("Alex", "Rob");
+    matchService.markCorrect();
+    timerService.start();
+
+    const response = await fetch(
+        `${baseUrl}/api/match/reset`,
+        { method: "POST" }
+    );
+    const result = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(result.match, null);
+    assert.deepEqual(result.timer, {
+        remaining: 60,
+        running: false
+    });
+    assert.equal(matchService.getMatch(), null);
+    assert.equal(
+        matchService.getCurrentQuestion(),
+        null
+    );
+    assert.deepEqual(timerService.state(), {
+        remaining: 60,
+        running: false
+    });
 });

@@ -44,6 +44,10 @@ io.on("connection", socket => {
         io.emit("answerResult", result);
     });
 
+    socket.on("newMatch", () => {
+        io.emit("newMatch");
+    });
+
     socket.on("disconnect", () => {
         console.log(`Client disconnected: ${socket.id}`);
     });
