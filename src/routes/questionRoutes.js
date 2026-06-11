@@ -42,6 +42,15 @@ router.post("/respond", (req, res) => {
             answer
         );
 
+    if (result.error) {
+        const status =
+            result.error === "No active question"
+                ? 404
+                : 400;
+
+        return res.status(status).json(result);
+    }
+
     res.json(result);
 });
 

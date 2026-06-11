@@ -6,6 +6,7 @@ const { Server } = require("socket.io");
 const matchRoutes = require("./routes/matchRoutes");
 const questionRoutes = require("./routes/questionRoutes");
 const timerRoutes = require("./routes/timerRoutes");
+const chaserRoutes = require("./routes/chaserRoutes");
 
 const app = express();
 const server = http.createServer(app);
@@ -20,6 +21,7 @@ app.use(express.static("public"));
 app.use("/api/match", matchRoutes);
 app.use("/api/question", questionRoutes);
 app.use("/api/timer", timerRoutes);
+app.use("/api/chasers", chaserRoutes);
 
 app.get("/health", (req, res) => {
     res.json({
@@ -45,6 +47,15 @@ io.on("connection", socket => {
 
 const PORT = process.env.PORT || 3000;
 
-server.listen(PORT, () => {
-    console.log(`Cyber Chase listening on port ${PORT}`);
-});
+if (require.main === module) {
+    server.listen(PORT, () => {
+        console.log(
+            `Cyber Chase listening on port ${PORT}`
+        );
+    });
+}
+
+module.exports = {
+    app,
+    server
+};

@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "id": "rob",
+    "name": "Rob",
+    "department": "Information Security",
+    "active": true
+  },
+  {
+    "id": "julian",
+    "name": "Julian",
+    "department": "Information Security",
+    "active": true
+  },
+  {
+    "id": "albert",
+    "name": "Albert",
+    "department": "Information Security",
+    "active": true
+  },
+  {
+    "id": "noel",
+    "name": "Noel",
+    "department": "Information Security",
+    "active": true
+  }
+]

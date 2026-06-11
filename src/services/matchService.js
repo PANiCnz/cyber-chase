@@ -136,6 +136,18 @@ function processAnswer(submittedAnswer) {
         };
     }
 
+    if (
+        typeof submittedAnswer !== "string" ||
+        !["a", "b", "c", "d"].includes(
+            submittedAnswer.toLowerCase()
+        )
+    ) {
+        return {
+            correct: false,
+            error: "Answer must be A, B, C, or D"
+        };
+    }
+
     const correctAnswer =
         question.correct.toLowerCase();
 
