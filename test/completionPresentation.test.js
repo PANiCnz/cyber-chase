@@ -58,6 +58,7 @@ test("presenter renders stable answer rows without replacing HTML", () => {
 test("display shows a safe match-complete winner message", () => {
     assert.match(displayHtml, /id="winnerName"/);
     assert.match(displayHtml, /id="winnerRole"/);
+    assert.match(displayHtml, /id="winnerMessage"/);
     assert.match(displayHtml, /MATCH COMPLETE/);
     assert.match(
         displayScript,
@@ -70,6 +71,14 @@ test("display shows a safe match-complete winner message", () => {
     assert.match(
         displayScript,
         /CHASER VICTORY/
+    );
+    assert.match(
+        displayScript,
+        /You have outrun the Chaser, and you have won!/
+    );
+    assert.match(
+        displayScript,
+        /The Chaser has caught you, and your time is up\./
     );
     assert.match(
         displayScript,
@@ -86,5 +95,16 @@ test("display shows a safe match-complete winner message", () => {
     assert.doesNotMatch(
         displayScript,
         /winnerScreen\.innerHTML/
+    );
+});
+
+test("presenter places timer and chaser panels side by side", () => {
+    assert.match(
+        presenterHtml,
+        /class="game-status-grid"[\s\S]*class="timer-panel[\s\S]*class="chaser-profile-panel/
+    );
+    assert.match(
+        presenterCss,
+        /\.game-status-grid\s*\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/
     );
 });

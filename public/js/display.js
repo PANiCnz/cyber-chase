@@ -48,6 +48,8 @@ const winnerRole =
    document.getElementById('winnerRole');
 const winnerName =
    document.getElementById('winnerName');
+const winnerMessage =
+   document.getElementById('winnerMessage');
 
 let resultVisible = false;
 let resultTimer = null;
@@ -118,6 +120,9 @@ function renderMatchState(state) {
       winnerRole.textContent = contestantWon
          ? 'CONTESTANT VICTORY'
          : 'CHASER VICTORY';
+      winnerMessage.textContent = contestantWon
+         ? 'You have outrun the Chaser, and you have won!'
+         : 'The Chaser has caught you, and your time is up.';
       winnerScreen.classList.toggle(
          'contestant-winner',
          contestantWon

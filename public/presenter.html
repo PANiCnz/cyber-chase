@@ -49,27 +49,29 @@
         </div>
     </section>
 
-    <section class="timer-panel game-section hidden" aria-label="Question timer">
-        <div class="timer-label">QUESTION TIMER</div>
-        <div id="timerValue" class="timer-value" aria-live="polite">60</div>
-        <div id="timerStatus" class="timer-status">Waiting for question</div>
-        <div class="timer-controls">
-            <button id="pauseTimerBtn" type="button" disabled>PAUSE</button>
-            <button id="resetTimerBtn" type="button" disabled>RESET</button>
-        </div>
-    </section>
+    <div class="game-status-grid">
+        <section class="timer-panel game-section hidden" aria-label="Question timer">
+            <div class="timer-label">QUESTION TIMER</div>
+            <div id="timerValue" class="timer-value" aria-live="polite">60</div>
+            <div id="timerStatus" class="timer-status">Waiting for question</div>
+            <div class="timer-controls">
+                <button id="pauseTimerBtn" type="button" disabled>PAUSE</button>
+                <button id="resetTimerBtn" type="button" disabled>RESET</button>
+            </div>
+        </section>
+
+        <section class="chaser-profile-panel game-section hidden" aria-label="Chaser profile">
+            <div class="profile-label">CHASER</div>
+            <div id="presenterChaserName" class="profile-name">Chaser</div>
+            <div id="presenterChaserTitle" class="profile-title hidden"></div>
+            <div id="presenterChaserDepartment" class="profile-department">Information Security</div>
+            <p id="presenterChaserBio" class="profile-bio hidden"></p>
+        </section>
+    </div>
 
     <section id="roundWaiting" class="round-waiting game-section hidden" role="status">
         <div id="roundWaitingText">Ready for the contestant round.</div>
         <button id="startRoundBtn" type="button">START NEXT ROUND</button>
-    </section>
-
-    <section class="chaser-profile-panel game-section hidden" aria-label="Chaser profile">
-        <div class="profile-label">CHASER</div>
-        <div id="presenterChaserName" class="profile-name">Chaser</div>
-        <div id="presenterChaserTitle" class="profile-title hidden"></div>
-        <div id="presenterChaserDepartment" class="profile-department">Information Security</div>
-        <p id="presenterChaserBio" class="profile-bio hidden"></p>
     </section>
 
     <div class="question-panel game-section round-content hidden">
