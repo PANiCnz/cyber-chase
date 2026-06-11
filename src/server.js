@@ -48,6 +48,10 @@ timerService.setExpirationHandler(
 
 app.use(express.json());
 app.use(express.static("public"));
+app.use(
+    "/chaser-images",
+    express.static("data/chaser-images")
+);
 
 app.use("/api/match", matchRoutes);
 app.use("/api/question", questionRoutes);

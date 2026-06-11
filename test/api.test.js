@@ -459,6 +459,77 @@ test("manages persisted chaser profiles and availability", async () => {
     );
 });
 
+test("uploads and serves a persistent chaser image", async () => {
+    const webpHeader = Buffer.from([
+        0x52, 0x49, 0x46, 0x46,
+        0x04, 0x00, 0x00, 0x00,
+        0x57, 0x45, 0x42, 0x50
+    ]);
+    const response = await fetch(
+        `${baseUrl}/api/chasers/upload-image`,
+        {
+            method: "POST",
+            headers: {
+                "content-type": "image/webp"
+            },
+            body: webpHeader
+        }
+    );
+    const result = await response.json();
+
+    assert.equal(response.status, 201);
+    assert.match(
+        result.image,
+        /^\/chaser-images\/[a-f0-9-]+\.webp$/
+    );
+
+    const imageResponse = await fetch(
+        `${baseUrl}${result.image}`
+    );
+    const bytes = Buffer.from(
+        await imageResponse.arrayBuffer()
+    );
+
+    assert.equal(imageResponse.status, 200);
+    assert.equal(
+        imageResponse.headers.get("content-type"),
+        "image/webp"
+    );
+    assert.deepEqual(bytes, webpHeader);
+
+    fs.unlinkSync(
+        path.resolve(
+            __dirname,
+            "..",
+            "data",
+            result.image.replace(
+                "/chaser-images/",
+                "chaser-images/"
+            )
+        )
+    );
+});
+
+test("rejects invalid chaser image content", async () => {
+    const response = await fetch(
+        `${baseUrl}/api/chasers/upload-image`,
+        {
+            method: "POST",
+            headers: {
+                "content-type": "image/png"
+            },
+            body: Buffer.from("not an image")
+        }
+    );
+    const result = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.match(
+        result.error,
+        /valid JPEG, PNG, or WebP/
+    );
+});
+
 test("catalog edits do not change an active match snapshot", async () => {
     const directory = fs.mkdtempSync(
         path.join(os.tmpdir(), "cyber-chase-snapshot-")

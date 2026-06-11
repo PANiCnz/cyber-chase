@@ -24,6 +24,10 @@ const editorChaserBio =
     document.getElementById('editorChaserBio');
 const editorChaserImage =
     document.getElementById('editorChaserImage');
+const editorChaserImageUpload =
+    document.getElementById('editorChaserImageUpload');
+const editorImagePreview =
+    document.getElementById('editorImagePreview');
 const editorChaserActive =
     document.getElementById('editorChaserActive');
 const saveChaserBtn =
@@ -239,6 +243,20 @@ function renderManagerAvatar(chaser) {
     return avatar;
 }
 
+function renderEditorImage(source, alt = '') {
+    editorImagePreview.replaceChildren();
+
+    if (!source) {
+        editorImagePreview.textContent = 'NO IMAGE';
+        return;
+    }
+
+    const image = document.createElement('img');
+    image.src = source;
+    image.alt = alt;
+    editorImagePreview.appendChild(image);
+}
+
 function editChaser(chaser) {
     editorChaserId.value = chaser.id;
     editorChaserName.value = chaser.name;
@@ -249,6 +267,11 @@ function editChaser(chaser) {
     editorChaserBio.value = chaser.bio || '';
     editorChaserImage.value =
         chaser.image || '';
+    editorChaserImageUpload.value = '';
+    renderEditorImage(
+        chaser.image,
+        `${chaser.name} profile preview`
+    );
     editorChaserActive.checked =
         chaser.active === true;
     managerStatus.textContent =
@@ -261,6 +284,9 @@ function resetChaserEditor() {
     editorChaserId.value = '';
     editorChaserDepartment.value =
         'Information Security';
+    editorChaserImage.value = '';
+    editorChaserImageUpload.value = '';
+    renderEditorImage('');
     editorChaserActive.checked =
         managedChasers.filter(
             chaser => chaser.active
@@ -323,6 +349,129 @@ function renderManagedChasers() {
         `${activeCount} of 4 chasers active`;
 }
 
+function inspectImage(file) {
+    return new Promise((resolve, reject) => {
+        if (
+            ![
+                'image/jpeg',
+                'image/png',
+                'image/webp'
+            ].includes(file.type)
+        ) {
+            reject(
+                new Error(
+                    'Choose a JPEG, PNG, or WebP image.'
+                )
+            );
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            reject(
+                new Error(
+                    'The image must be 5 MB or smaller.'
+                )
+            );
+            return;
+        }
+
+        const previewUrl =
+            URL.createObjectURL(file);
+        const image = new Image();
+
+        image.onload = () => {
+            const ratio =
+                image.naturalWidth /
+                image.naturalHeight;
+
+            if (
+                image.naturalWidth < 800 ||
+                image.naturalHeight < 1000
+            ) {
+                URL.revokeObjectURL(previewUrl);
+                reject(
+                    new Error(
+                        'Use an image of at least 800 × 1000 px.'
+                    )
+                );
+                return;
+            }
+
+            if (Math.abs(ratio - 0.8) > 0.03) {
+                URL.revokeObjectURL(previewUrl);
+                reject(
+                    new Error(
+                        'Crop the image to a 4:5 portrait aspect ratio.'
+                    )
+                );
+                return;
+            }
+
+            resolve(previewUrl);
+        };
+        image.onerror = () => {
+            URL.revokeObjectURL(previewUrl);
+            reject(
+                new Error('Unable to read this image.')
+            );
+        };
+        image.src = previewUrl;
+    });
+}
+
+async function previewSelectedImage() {
+    const [file] = editorChaserImageUpload.files;
+
+    if (!file) {
+        return;
+    }
+
+    try {
+        const previewUrl = await inspectImage(file);
+        renderEditorImage(
+            previewUrl,
+            'Selected chaser profile preview'
+        );
+        managerStatus.textContent =
+            'Image ready to upload when you save.';
+    } catch (error) {
+        editorChaserImageUpload.value = '';
+        renderEditorImage(
+            editorChaserImage.value,
+            'Current chaser profile preview'
+        );
+        managerStatus.textContent = error.message;
+    }
+}
+
+async function uploadSelectedImage() {
+    const [file] = editorChaserImageUpload.files;
+
+    if (!file) {
+        return editorChaserImage.value;
+    }
+
+    const response = await fetch(
+        '/api/chasers/upload-image',
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': file.type
+            },
+            body: file
+        }
+    );
+    const result = await response.json();
+
+    if (!response.ok) {
+        throw new Error(
+            result.error || 'Unable to upload image.'
+        );
+    }
+
+    return result.image;
+}
+
 async function loadManagedChasers() {
     managerStatus.textContent =
         'Loading chaser catalog...';
@@ -366,6 +515,16 @@ async function saveChaser(event) {
         'Saving chaser...';
 
     const id = editorChaserId.value;
+    let image;
+
+    try {
+        image = await uploadSelectedImage();
+    } catch (error) {
+        managerStatus.textContent = error.message;
+        saveChaserBtn.disabled = false;
+        return;
+    }
+
     const response = await fetch(
         id
             ? `/api/chasers/${encodeURIComponent(id)}`
@@ -382,7 +541,7 @@ async function saveChaser(event) {
                 department:
                     editorChaserDepartment.value.trim(),
                 bio: editorChaserBio.value.trim(),
-                image: editorChaserImage.value.trim(),
+                image,
                 active: editorChaserActive.checked
             })
         }
@@ -910,6 +1069,10 @@ addChaserBtn.onclick = resetChaserEditor;
 chaserEditor.addEventListener(
     'submit',
     saveChaser
+);
+editorChaserImageUpload.addEventListener(
+    'change',
+    previewSelectedImage
 );
 setupChaser.addEventListener(
     'change',

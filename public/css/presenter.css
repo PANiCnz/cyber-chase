@@ -149,6 +149,55 @@ body {
     resize:vertical;
     width:100%;
 }
+.image-upload-panel{
+    align-items:start;
+    background:#08111f;
+    display:grid;
+    gap:18px;
+    grid-template-columns:150px 1fr;
+    padding:16px;
+}
+.editor-image-preview{
+    align-items:center;
+    aspect-ratio:4/5;
+    background:#122c4a;
+    color:#7f98ad;
+    display:flex;
+    font-size:.8rem;
+    font-weight:bold;
+    justify-content:center;
+    overflow:hidden;
+    text-align:center;
+    width:150px;
+}
+.editor-image-preview img{
+    height:100%;
+    object-fit:cover;
+    width:100%;
+}
+.image-file-input{
+    color:#dbe9f6;
+    max-width:100%;
+}
+.image-file-input::file-selector-button{
+    background:#1b5f8a;
+    border:0;
+    color:white;
+    cursor:pointer;
+    margin-right:12px;
+    padding:10px 14px;
+}
+.image-guidelines{
+    color:#b9cad9;
+    display:grid;
+    font-size:.9rem;
+    gap:5px;
+    line-height:1.35;
+    margin-top:14px;
+}
+.image-guidelines strong{
+    color:#ffd400;
+}
 .availability-toggle{
     align-items:center;
     display:flex;

@@ -37,9 +37,9 @@ fi
 
 cd "$REPOSITORY_DIR"
 
-if [[ -f "$BACKUP_DIR/data/chasers.json" ]]; then
-    echo "Restoring the saved chaser catalog..."
-    sudo cp "$BACKUP_DIR/data/chasers.json" "$REPOSITORY_DIR/data/chasers.json"
+if [[ -d "$BACKUP_DIR/data" ]]; then
+    echo "Restoring saved chaser data and uploaded images..."
+    sudo cp -a "$BACKUP_DIR/data/." "$REPOSITORY_DIR/data/"
 fi
 
 echo "Building the application without cache..."
