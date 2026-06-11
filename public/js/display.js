@@ -111,6 +111,14 @@ function renderMatchState(state) {
       (state.currentPlayer === 'chaser'
          ? 'chaser-turn'
          : 'contestant-turn');
+   questionPanel.classList.toggle(
+      'chaser-question',
+      state.currentPlayer === 'chaser'
+   );
+   questionPanel.classList.toggle(
+      'contestant-question',
+      state.currentPlayer !== 'chaser'
+   );
 
    if (state.winner) {
       const contestantWon =
@@ -228,6 +236,14 @@ function showAnswerResult(result) {
    answerResultOverlay.classList.toggle(
       'incorrect',
       !result.correct
+   );
+   answerResultOverlay.classList.toggle(
+      'chaser-result',
+      result.player === 'chaser'
+   );
+   answerResultOverlay.classList.toggle(
+      'contestant-result',
+      result.player !== 'chaser'
    );
    answerResultOverlay.classList.remove('hidden');
 

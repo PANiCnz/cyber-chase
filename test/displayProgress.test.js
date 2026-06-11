@@ -50,3 +50,52 @@ test("display keeps progress accessibility values in sync", () => {
     );
     assert.match(script, /'aria-valuenow'/);
 });
+
+test("display consistently maps blue to contestant and red to chaser", () => {
+    assert.match(
+        html,
+        /class="player-card contestant-card"[\s\S]*id="contestantBar"/
+    );
+    assert.match(
+        html,
+        /class="player-card chaser-card"[\s\S]*id="chaserBar"/
+    );
+    assert.match(
+        css,
+        /--contestant:#00aef3/
+    );
+    assert.match(
+        css,
+        /--chaser:#f02b2f/
+    );
+    assert.match(
+        css,
+        /\.contestant-card \.bar\{[^}]*var\(--contestant\)/
+    );
+    assert.match(
+        css,
+        /\.chaser-card \.bar\{[^}]*var\(--chaser\)/
+    );
+    assert.match(
+        script,
+        /'chaser-question'[\s\S]*state\.currentPlayer === 'chaser'/
+    );
+});
+
+test("display uses a compact 1080p question-first layout", () => {
+    assert.match(html, /class="brand-header"/);
+    assert.match(html, /class="timer-stage"/);
+    assert.equal(
+        (html.match(/class="answer-option"/g) || [])
+            .length,
+        4
+    );
+    assert.match(
+        css,
+        /\.display-shell\{[^}]*height:100vh/
+    );
+    assert.match(
+        css,
+        /#answers\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/
+    );
+});
