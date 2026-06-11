@@ -43,7 +43,10 @@
 </div>
 
 <div id="timer" class="timer">60</div>
-<div id="winnerScreen" class="winner hidden"></div>
+<div id="winnerScreen" class="winner hidden" role="status" aria-live="assertive">
+  <div id="winnerName"></div>
+  <div>WINS!</div>
+</div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/display.js"></script>

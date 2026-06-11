@@ -1,4 +1,3 @@
-
 const socket = io();
 
 const presenterChaserName =
@@ -9,17 +8,64 @@ const presenterChaserDepartment =
     document.getElementById('presenterChaserDepartment');
 const presenterChaserBio =
     document.getElementById('presenterChaserBio');
+const questionCategory =
+    document.getElementById('questionCategory');
+const questionDifficulty =
+    document.getElementById('questionDifficulty');
+const questionText =
+    document.getElementById('questionText');
+const answerTextA =
+    document.getElementById('answerTextA');
+const answerTextB =
+    document.getElementById('answerTextB');
+const answerTextC =
+    document.getElementById('answerTextC');
+const answerTextD =
+    document.getElementById('answerTextD');
+const correctAnswer =
+    document.getElementById('correctAnswer');
+const resultBanner =
+    document.getElementById('resultBanner');
+const presenterWinner =
+    document.getElementById('presenterWinner');
+const answerButtons = [
+    document.getElementById('answerA'),
+    document.getElementById('answerB'),
+    document.getElementById('answerC'),
+    document.getElementById('answerD')
+];
 
-async function notifyDisplays(){
-    socket.emit("refreshGame");
+function setAnswerButtonsDisabled(disabled) {
+    for (const button of answerButtons) {
+        button.disabled = disabled;
+    }
 }
 
-async function loadMatchProfile(){
+function renderWinner(state) {
+    if (!state?.winner) {
+        presenterWinner.classList.add('hidden');
+        presenterWinner.textContent = '';
+        setAnswerButtonsDisabled(false);
+        return false;
+    }
+
+    presenterWinner.textContent =
+        `${state.winner} WINS!`;
+    presenterWinner.classList.remove('hidden');
+    setAnswerButtonsDisabled(true);
+    return true;
+}
+
+async function notifyDisplays() {
+    socket.emit('refreshGame');
+}
+
+async function loadMatchProfile() {
     const response =
         await fetch('/api/match/state');
     const state = await response.json();
 
-    if(!state) return;
+    if (!state) return null;
 
     presenterChaserName.textContent =
         state.chaser?.name || 'Chaser';
@@ -38,57 +84,95 @@ async function loadMatchProfile(){
         'hidden',
         !state.chaser?.bio
     );
+
+    renderWinner(state);
+    return state;
 }
 
-async function loadQuestion(){
-    const q = await (await fetch('/api/question/current')).json();
-    if(!q) return;
+async function loadQuestion() {
+    const state = await loadMatchProfile();
 
-    questionCategory.innerText = q.category || '';
-    questionDifficulty.innerText = q.difficulty || '';
-    questionText.innerText = q.question || '';
+    if (!state || state.winner) {
+        return;
+    }
 
-    answers.innerHTML = `
-      <div>A. ${q.a || ''}</div>
-      <div>B. ${q.b || ''}</div>
-      <div>C. ${q.c || ''}</div>
-      <div>D. ${q.d || ''}</div>
-    `;
+    const response =
+        await fetch('/api/question/current');
+    const q = await response.json();
 
-    const a = await (await fetch('/api/question/answer')).json();
-    correctAnswer.innerText = (a.correct || '').toUpperCase();
+    if (!q) return;
+
+    questionCategory.textContent = q.category || '';
+    questionDifficulty.textContent =
+        q.difficulty || '';
+    questionText.textContent = q.question || '';
+    answerTextA.textContent = q.a || '';
+    answerTextB.textContent = q.b || '';
+    answerTextC.textContent = q.c || '';
+    answerTextD.textContent = q.d || '';
+
+    const answerResponse =
+        await fetch('/api/question/answer');
+    const answer = await answerResponse.json();
+    correctAnswer.textContent =
+        (answer.correct || '').toUpperCase();
 }
 
-async function submitAnswer(answer){
-    const res = await fetch('/api/question/respond',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({answer})
-    });
+async function submitAnswer(answer) {
+    setAnswerButtonsDisabled(true);
 
-    const result = await res.json();
+    const response = await fetch(
+        '/api/question/respond',
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ answer })
+        }
+    );
+    const result = await response.json();
 
-    resultBanner.innerText = result.correct ?
-        '✓ CORRECT' :
-        `✗ INCORRECT (Correct: ${(result.correctAnswer||'').toUpperCase()})`;
+    if (!response.ok) {
+        resultBanner.textContent =
+            result.error ||
+            'Unable to submit answer';
+        setAnswerButtonsDisabled(false);
+        return;
+    }
+
+    resultBanner.textContent = result.correct
+        ? 'CORRECT'
+        : `INCORRECT (Correct: ${(result.correctAnswer || '').toUpperCase()})`;
 
     await notifyDisplays();
-    await loadMatchProfile();
+
+    if (renderWinner(result.match)) {
+        return;
+    }
+
     await loadQuestion();
 }
 
-answerA.onclick = ()=>submitAnswer('a');
-answerB.onclick = ()=>submitAnswer('b');
-answerC.onclick = ()=>submitAnswer('c');
-answerD.onclick = ()=>submitAnswer('d');
+answerButtons[0].onclick =
+    () => submitAnswer('a');
+answerButtons[1].onclick =
+    () => submitAnswer('b');
+answerButtons[2].onclick =
+    () => submitAnswer('c');
+answerButtons[3].onclick =
+    () => submitAnswer('d');
 
-document.addEventListener('keydown',(e)=>{
-    const k=e.key.toLowerCase();
-    if(['a','b','c','d'].includes(k)){
-        submitAnswer(k);
+document.addEventListener('keydown', event => {
+    const key = event.key.toLowerCase();
+
+    if (
+        ['a', 'b', 'c', 'd'].includes(key) &&
+        !answerButtons[0].disabled
+    ) {
+        submitAnswer(key);
     }
 });
 
 socket.on('gameState', loadMatchProfile);
-loadMatchProfile();
 loadQuestion();

@@ -24,7 +24,12 @@
         <div id="questionCategory"></div>
         <div id="questionDifficulty"></div>
         <div id="questionText"></div>
-        <div id="answers"></div>
+        <div id="answers">
+            <div>A. <span id="answerTextA"></span></div>
+            <div>B. <span id="answerTextB"></span></div>
+            <div>C. <span id="answerTextC"></span></div>
+            <div>D. <span id="answerTextD"></span></div>
+        </div>
     </div>
 
     <div class="answer-panel">
@@ -43,6 +48,7 @@
     </div>
 
     <div id="resultBanner"></div>
+    <div id="presenterWinner" class="winner hidden" role="status" aria-live="polite"></div>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>

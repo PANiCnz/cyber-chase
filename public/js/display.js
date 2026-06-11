@@ -19,6 +19,20 @@ const contestantProgress =
    contestantBar.parentElement;
 const chaserProgress =
    chaserBar.parentElement;
+const currentTurn =
+   document.getElementById('currentTurn');
+const category =
+   document.getElementById('category');
+const questionPanel =
+   document.getElementById('questionPanel');
+const questionText =
+   document.getElementById('questionText');
+const answers =
+   document.getElementById('answers');
+const winnerScreen =
+   document.getElementById('winnerScreen');
+const winnerName =
+   document.getElementById('winnerName');
 
 function updateFromApi(){
  fetch('/api/match/state')
@@ -69,9 +83,16 @@ function updateFromApi(){
 
    if(state.winner){
       winnerScreen.classList.remove('hidden');
-      winnerScreen.innerHTML = `<div>${state.winner}</div><div>WINS!</div>`;
+      winnerName.textContent = state.winner;
+      currentTurn.textContent = 'MATCH COMPLETE';
+      questionPanel.classList.add('hidden');
+      category.classList.add('hidden');
+      return null;
    }
 
+   winnerScreen.classList.add('hidden');
+   questionPanel.classList.remove('hidden');
+   category.classList.remove('hidden');
    return fetch('/api/question/current');
  })
  .then(r=>r?.json())

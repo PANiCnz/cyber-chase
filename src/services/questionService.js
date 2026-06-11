@@ -217,12 +217,12 @@ function createMatchQuestions() {
         contestantQuestions:
             shuffle(
                 contestantPool
-            ).slice(0, 5),
+            ),
 
         chaserQuestions:
             shuffle(
                 chaserPool
-            ).slice(0, 5)
+            )
     };
 }
 

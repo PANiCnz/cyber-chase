@@ -11,9 +11,23 @@ test.beforeEach(() => {
     questionService.resetQuestionBanks();
 });
 
-test("creates separate five-question match banks", () => {
+test("creates separate full shuffled match banks", () => {
     const questions =
         questionService.createMatchQuestions();
+    const contestantCount =
+        questionService.parseCsv(
+            path.resolve(
+                __dirname,
+                "../questions/contestant.csv"
+            )
+        ).length;
+    const chaserCount =
+        questionService.parseCsv(
+            path.resolve(
+                __dirname,
+                "../questions/chaser.csv"
+            )
+        ).length;
 
     assert.deepEqual(
         Object.keys(questions).sort(),
@@ -24,11 +38,11 @@ test("creates separate five-question match banks", () => {
     );
     assert.equal(
         questions.contestantQuestions.length,
-        5
+        contestantCount
     );
     assert.equal(
         questions.chaserQuestions.length,
-        5
+        chaserCount
     );
 
     assert.ok(
@@ -44,13 +58,11 @@ test("creates separate five-question match banks", () => {
     assert.ok(
         questions.chaserQuestions.every(
             question =>
-                [
-                    "Network",
-                    "IAM",
-                    "Cloud",
-                    "IR",
-                    "PKI"
-                ].includes(question.category)
+                typeof question.category === "string" &&
+                question.category.length > 0 &&
+                ["a", "b", "c", "d"].includes(
+                    question.correct
+                )
         )
     );
 });

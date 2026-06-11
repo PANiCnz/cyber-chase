@@ -107,16 +107,48 @@ button {
     padding:15px 25px;
     font-size:1.2rem;
     cursor:pointer;
+    transition:background-color .15s ease;
 }
 
-#correctBtn { background:#00d084; }
-#incorrectBtn { background:#ff4d4f; }
+.controls button {
+    background:#1b5f8a;
+    min-width:80px;
+}
+
+.controls button:hover {
+    background:#2479ad;
+}
+
+.controls button:active {
+    background:#164b6d;
+}
+
+.controls button:focus-visible {
+    outline:3px solid #ffd400;
+    outline-offset:3px;
+}
+
+.controls button:disabled {
+    background:#526579;
+    cursor:not-allowed;
+    opacity:.75;
+}
+
+#resultBanner {
+    font-size:1.4rem;
+    font-weight:bold;
+    min-height:1.7em;
+    padding-top:16px;
+    text-align:center;
+}
 
 .winner {
     margin-top:20px;
     padding:20px;
     background:#00d084;
+    color:#08111f;
     font-size:2rem;
+    font-weight:bold;
     text-align:center;
 }
 

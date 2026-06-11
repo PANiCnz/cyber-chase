@@ -29,8 +29,8 @@ test("starts a match with existing state fields", () => {
         score: 0
     });
     assert.equal(match.currentPlayer, "contestant");
-    assert.equal(match.contestantQuestions.length, 5);
-    assert.equal(match.chaserQuestions.length, 5);
+    assert.ok(match.contestantQuestions.length > 5);
+    assert.ok(match.chaserQuestions.length > 5);
     assert.equal(match.winner, null);
 });
 
@@ -124,4 +124,67 @@ test("invalid answers return an error without changing state", () => {
         match.currentPlayer,
         "contestant"
     );
+});
+
+test("alternates beyond five questions until a player reaches five", () => {
+    const match = matchService.startMatch(
+        "Alex",
+        "Rob"
+    );
+
+    for (let round = 0; round < 5; round++) {
+        const contestantQuestion =
+            matchService.getCurrentQuestion();
+        const contestantWrong =
+            ["a", "b", "c", "d"].find(
+                answer =>
+                    answer !==
+                    contestantQuestion.correct
+            );
+
+        matchService.processAnswer(
+            contestantWrong
+        );
+
+        const chaserQuestion =
+            matchService.getCurrentQuestion();
+        const chaserWrong =
+            ["a", "b", "c", "d"].find(
+                answer =>
+                    answer !== chaserQuestion.correct
+            );
+
+        matchService.processAnswer(chaserWrong);
+    }
+
+    assert.equal(
+        match.contestantQuestionIndex,
+        5
+    );
+    assert.equal(match.chaserQuestionIndex, 5);
+    assert.equal(match.winner, null);
+    assert.ok(matchService.getCurrentQuestion());
+
+    while (!match.winner) {
+        matchService.processAnswer(
+            matchService.getCurrentQuestion().correct
+        );
+
+        if (
+            !match.winner &&
+            match.currentPlayer === "chaser"
+        ) {
+            const question =
+                matchService.getCurrentQuestion();
+            const wrong =
+                ["a", "b", "c", "d"].find(
+                    answer =>
+                        answer !== question.correct
+                );
+            matchService.processAnswer(wrong);
+        }
+    }
+
+    assert.equal(match.winner, "Alex");
+    assert.equal(match.contestant.score, 5);
 });
