@@ -1,5 +1,27 @@
 const socket = io();
 
+const setupContestantName =
+    document.getElementById('setupContestantName');
+const setupContestantDepartment =
+    document.getElementById('setupContestantDepartment');
+const setupChaser =
+    document.getElementById('setupChaser');
+const launchMatchBtn =
+    document.getElementById('launchMatchBtn');
+const setupStatus =
+    document.getElementById('setupStatus');
+const setupChaserProfile =
+    document.getElementById('setupChaserProfile');
+const setupChaserPhoto =
+    document.getElementById('setupChaserPhoto');
+const setupChaserTitle =
+    document.getElementById('setupChaserTitle');
+const setupChaserName =
+    document.getElementById('setupChaserName');
+const setupChaserDepartment =
+    document.getElementById('setupChaserDepartment');
+const setupChaserBio =
+    document.getElementById('setupChaserBio');
 const presenterChaserName =
     document.getElementById('presenterChaserName');
 const presenterChaserTitle =
@@ -55,6 +77,202 @@ const answerButtons = [
 let currentMatchState = null;
 let currentQuestionToken = null;
 let presenterRefreshRunning = false;
+let availableChasers = [];
+
+const RANDOM_CHASER_ID = 'random';
+
+function initials(name) {
+    return (name || 'Chaser')
+        .split(/\s+/)
+        .filter(Boolean)
+        .map(part => part[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase();
+}
+
+function selectedSetupChaser() {
+    return availableChasers.find(
+        chaser => chaser.id === setupChaser.value
+    );
+}
+
+function randomSetupChaser() {
+    const index = Math.floor(
+        Math.random() * availableChasers.length
+    );
+
+    return availableChasers[index];
+}
+
+function renderSetupPhoto(chaser) {
+    setupChaserPhoto.replaceChildren();
+
+    if (chaser?.image) {
+        const image = document.createElement('img');
+        image.src = chaser.image;
+        image.alt = `${chaser.name} profile`;
+        setupChaserPhoto.appendChild(image);
+        return;
+    }
+
+    setupChaserPhoto.textContent =
+        chaser ? initials(chaser.name) : '?';
+}
+
+function renderSetupProfile() {
+    if (setupChaser.value === RANDOM_CHASER_ID) {
+        setupChaserTitle.textContent = 'Random selection';
+        setupChaserName.textContent = 'Mystery Chaser';
+        setupChaserDepartment.textContent =
+            'Selected when the game launches';
+        setupChaserBio.textContent =
+            'One of the available chasers will be chosen at random.';
+        renderSetupPhoto(null);
+        setupChaserProfile.classList.remove('hidden');
+        return;
+    }
+
+    const chaser = selectedSetupChaser();
+
+    if (!chaser) {
+        setupChaserProfile.classList.add('hidden');
+        return;
+    }
+
+    setupChaserTitle.textContent =
+        chaser.title || 'The Chaser';
+    setupChaserName.textContent = chaser.name;
+    setupChaserDepartment.textContent =
+        chaser.department || 'Information Security';
+    setupChaserBio.textContent = chaser.bio || '';
+    renderSetupPhoto(chaser);
+    setupChaserProfile.classList.remove('hidden');
+}
+
+function populateSetupChasers() {
+    setupChaser.replaceChildren();
+
+    const randomOption =
+        document.createElement('option');
+    randomOption.value = RANDOM_CHASER_ID;
+    randomOption.textContent = 'Random';
+    setupChaser.appendChild(randomOption);
+
+    for (const chaser of availableChasers) {
+        const option =
+            document.createElement('option');
+        option.value = chaser.id;
+        option.textContent =
+            `${chaser.name} - ${chaser.title || 'Chaser'}`;
+        setupChaser.appendChild(option);
+    }
+
+    setupChaser.disabled = false;
+    launchMatchBtn.disabled = false;
+    setupStatus.textContent = '';
+    renderSetupProfile();
+}
+
+async function loadSetupChasers() {
+    setupStatus.textContent =
+        'Loading chasers...';
+
+    try {
+        const response = await fetch('/api/chasers');
+
+        if (!response.ok) {
+            throw new Error();
+        }
+
+        availableChasers = await response.json();
+
+        if (
+            !Array.isArray(availableChasers) ||
+            availableChasers.length === 0
+        ) {
+            throw new Error();
+        }
+
+        populateSetupChasers();
+    } catch {
+        setupStatus.textContent =
+            'Unable to load chaser profiles.';
+    }
+}
+
+function resetSetupForm() {
+    setupContestantName.value = '';
+    setupContestantDepartment.value = '';
+    setupChaser.value = RANDOM_CHASER_ID;
+    setupStatus.textContent = '';
+    launchMatchBtn.disabled =
+        availableChasers.length === 0;
+    renderSetupProfile();
+}
+
+async function launchMatch() {
+    const contestantName =
+        setupContestantName.value.trim();
+
+    if (!contestantName) {
+        setupStatus.textContent =
+            'Enter the contestant name.';
+        setupContestantName.focus();
+        return;
+    }
+
+    const randomSelected =
+        setupChaser.value === RANDOM_CHASER_ID;
+    const chaser = randomSelected
+        ? randomSetupChaser()
+        : selectedSetupChaser();
+
+    if (!chaser) {
+        setupStatus.textContent =
+            'Select a chaser before launching.';
+        return;
+    }
+
+    launchMatchBtn.disabled = true;
+    setupStatus.textContent = randomSelected
+        ? `Randomly selected ${chaser.name}. Launching...`
+        : `Launching ${contestantName} vs ${chaser.name}...`;
+
+    try {
+        const response = await fetch(
+            '/api/match/start-match',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    contestantName,
+                    contestantDepartment:
+                        setupContestantDepartment.value.trim(),
+                    chaserId: chaser.id,
+                    chaserName: chaser.name
+                })
+            }
+        );
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                result.error ||
+                'Unable to launch the match'
+            );
+        }
+
+        currentMatchState = result;
+        socket.emit('matchStarted');
+        await loadQuestion();
+    } catch (error) {
+        setupStatus.textContent = error.message;
+        launchMatchBtn.disabled = false;
+    }
+}
 
 function setAnswerButtonsDisabled(disabled) {
     for (const button of answerButtons) {
@@ -175,6 +393,7 @@ async function startNewMatch() {
         }
 
         socket.emit('newMatch');
+        resetSetupForm();
         showWaitingState();
         newMatchBtn.disabled = false;
         winnerNewMatchBtn.disabled = false;
@@ -375,6 +594,11 @@ answerButtons[3].onclick =
 newMatchBtn.onclick = startNewMatch;
 winnerNewMatchBtn.onclick = startNewMatch;
 startRoundBtn.onclick = startRound;
+launchMatchBtn.onclick = launchMatch;
+setupChaser.addEventListener(
+    'change',
+    renderSetupProfile
+);
 
 document.addEventListener('keydown', event => {
     const key = event.key.toLowerCase();
@@ -401,4 +625,5 @@ socket.on('newMatch', () => {
     showWaitingState();
 });
 setInterval(loadQuestion, 2000);
+loadSetupChasers();
 loadQuestion();

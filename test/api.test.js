@@ -167,6 +167,31 @@ test("returns 400 when no chaser selection is supplied", async () => {
     assert.equal(matchService.getMatch(), null);
 });
 
+test("requires a contestant name before creating a match", async () => {
+    const response = await fetch(
+        `${baseUrl}/api/match/start-match`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                contestantName: "   ",
+                chaserId: "rob"
+            })
+        }
+    );
+    const result = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.equal(
+        result.error,
+        "Contestant name is required"
+    );
+    assert.equal(matchService.getMatch(), null);
+});
+
 test("preserves question endpoint shapes", async () => {
     matchService.startMatch("Alex", "Rob");
 

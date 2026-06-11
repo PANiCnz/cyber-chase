@@ -29,6 +29,42 @@ test("presenter exposes new-match controls", () => {
     );
 });
 
+test("presenter owns match configuration and launch", () => {
+    for (const id of [
+        "setupContestantName",
+        "setupContestantDepartment",
+        "setupChaser",
+        "launchMatchBtn",
+        "setupChaserProfile"
+    ]) {
+        assert.match(
+            presenterHtml,
+            new RegExp(`id="${id}"`)
+        );
+    }
+
+    assert.match(
+        presenter,
+        /RANDOM_CHASER_ID\s*=\s*'random'/
+    );
+    assert.match(
+        presenter,
+        /Math\.floor\(\s*Math\.random\(\)\s*\*\s*availableChasers\.length/
+    );
+    assert.match(
+        presenter,
+        /fetch\(\s*'\/api\/match\/start-match'/
+    );
+    assert.match(
+        presenter,
+        /contestantDepartment:/
+    );
+    assert.match(
+        presenter,
+        /chaserId:\s*chaser\.id/
+    );
+});
+
 test("presenter confirms active resets and calls coordinated API", () => {
     assert.match(
         presenter,
@@ -52,6 +88,21 @@ test("server broadcasts new-match navigation", () => {
     assert.match(
         server,
         /io\.emit\("newMatch"\)/
+    );
+});
+
+test("presenter launch moves the audience into the intro", () => {
+    assert.match(
+        presenter,
+        /socket\.emit\('matchStarted'\)/
+    );
+    assert.match(
+        server,
+        /socket\.on\("matchStarted"/
+    );
+    assert.match(
+        server,
+        /io\.emit\("matchStarted"\)/
     );
 });
 

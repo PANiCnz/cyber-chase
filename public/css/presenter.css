@@ -16,14 +16,106 @@ body {
     background:#d93d40;
 }
 
-.waiting-panel {
+.match-setup-panel {
     background:#122c4a;
     border:2px solid #00b7ff;
-    color:#ffd400;
-    font-size:1.6rem;
     margin-top:20px;
     padding:30px;
+}
+.setup-heading{
+    border-bottom:1px solid #31516d;
+    padding-bottom:20px;
+}
+.setup-kicker{
+    color:#ffd400;
+    font-size:.85rem;
+    font-weight:bold;
+    letter-spacing:.22em;
+}
+.setup-heading h3{
+    font-size:2rem;
+    margin:8px 0 0;
+}
+.setup-heading p{
+    color:#dbe9f6;
+    margin:10px 0 0;
+}
+.setup-grid{
+    display:grid;
+    gap:30px;
+    grid-template-columns:minmax(320px,.9fr) minmax(420px,1.1fr);
+    margin-top:26px;
+}
+.setup-fields{
+    display:grid;
+    gap:10px;
+}
+.setup-fields label{
+    color:#dbe9f6;
+    font-weight:bold;
+}
+.setup-fields input,
+.setup-fields select{
+    background:#08111f;
+    border:1px solid #52728e;
+    border-radius:4px;
+    color:white;
+    font-size:1.05rem;
+    padding:13px;
+    width:100%;
+}
+.setup-fields input:focus,
+.setup-fields select:focus{
+    border-color:#00b7ff;
+    outline:2px solid rgba(0,183,255,.3);
+}
+.launch-match-button{
+    background:#00d084;
+    font-weight:bold;
+    margin-top:10px;
+    width:100%;
+}
+.launch-match-button:hover{
+    background:#00ad6e;
+}
+.launch-match-button:disabled{
+    background:#526579;
+    cursor:not-allowed;
+}
+.setup-status{
+    color:#ffd400;
+    min-height:1.4em;
     text-align:center;
+}
+.setup-chaser-preview{
+    align-items:center;
+    background:#08111f;
+    border-left:5px solid #ffd400;
+    display:grid;
+    gap:24px;
+    grid-template-columns:180px 1fr;
+    padding:24px;
+}
+.setup-chaser-photo{
+    align-items:center;
+    background:
+        radial-gradient(circle,rgba(0,183,255,.22),transparent 60%),
+        #122c4a;
+    color:white;
+    display:flex;
+    font-size:4rem;
+    font-weight:bold;
+    height:220px;
+    justify-content:center;
+    overflow:hidden;
+}
+.setup-chaser-photo img{
+    height:100%;
+    object-fit:cover;
+    width:100%;
+}
+.setup-chaser-preview .profile-name{
+    font-size:2.5rem;
 }
 
 .timer-panel {
@@ -246,3 +338,7 @@ button {
 }
 
 .hidden { display:none; }
+
+@media(max-width:900px){
+    .setup-grid{grid-template-columns:1fr}
+}

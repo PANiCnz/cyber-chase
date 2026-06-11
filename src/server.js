@@ -70,6 +70,13 @@ io.on("connection", socket => {
         });
     });
 
+    socket.on("matchStarted", () => {
+        io.emit("matchStarted");
+        io.emit("gameState", {
+            timestamp: Date.now()
+        });
+    });
+
     socket.on("answerResult", result => {
         io.emit("answerResult", result);
     });

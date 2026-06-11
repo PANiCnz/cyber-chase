@@ -16,6 +16,15 @@ router.post("/start-match", (req, res) => {
     } = req.body;
 
     if (
+        typeof contestantName !== "string" ||
+        contestantName.trim() === ""
+    ) {
+        return res.status(400).json({
+            error: "Contestant name is required"
+        });
+    }
+
+    if (
         typeof chaserId !== "string" &&
         typeof chaserName !== "string"
     ) {
@@ -40,9 +49,11 @@ router.post("/start-match", (req, res) => {
         chaserService.createMatchSnapshot(chaser);
 
     const match = matchService.startMatch(
-        contestantName,
+        contestantName.trim(),
         chaserSnapshot,
-        contestantDepartment
+        typeof contestantDepartment === "string"
+            ? contestantDepartment.trim()
+            : ""
     );
 
     timerService.reset();

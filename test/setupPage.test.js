@@ -3,74 +3,81 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const setupHtml = fs.readFileSync(
-    path.resolve(__dirname, "../public/setup.html"),
-    "utf8"
-);
-const setupScript = fs.readFileSync(
-    path.resolve(
-        __dirname,
-        "../public/js/setup.js"
-    ),
-    "utf8"
-);
+function read(relativePath) {
+    return fs.readFileSync(
+        path.resolve(__dirname, "..", relativePath),
+        "utf8"
+    );
+}
 
-test("setup page provides profile and status regions", () => {
-    for (const id of [
-        "chaserName",
-        "chaserProfile",
-        "chaserTitle",
-        "chaserDepartment",
-        "chaserBio",
-        "startBtn",
-        "status"
-    ]) {
-        assert.match(
-            setupHtml,
-            new RegExp(`id="${id}"`)
-        );
-    }
+const setupHtml = read("public/setup.html");
+const setupScript = read("public/js/setup.js");
+const setupCss = read("public/css/setup.css");
 
+test("setup is a non-interactive chaser showcase", () => {
     assert.match(
         setupHtml,
-        /id="startBtn" disabled/
+        /id="chaserGallery"/
+    );
+    assert.match(
+        setupHtml,
+        /MEET THE CHASERS/
+    );
+    assert.doesNotMatch(setupHtml, /<input\b/);
+    assert.doesNotMatch(setupHtml, /<select\b/);
+    assert.doesNotMatch(setupHtml, /<button\b/);
+    assert.doesNotMatch(
+        setupScript,
+        /\/api\/match\/start-match/
     );
 });
 
-test("setup script loads profiles and submits id plus legacy name", () => {
+test("setup renders image-ready profiles with placeholders", () => {
     assert.match(
         setupScript,
         /fetch\('\/api\/chasers'\)/
     );
     assert.match(
         setupScript,
-        /chaserId:\s*chaser\.id/
+        /chaser\.image/
     );
     assert.match(
         setupScript,
-        /chaserName:\s*chaser\.name/
+        /profile-photo-placeholder/
     );
     assert.match(
         setupScript,
-        /textContent/
+        /createProfileCard/
+    );
+    assert.match(
+        setupCss,
+        /grid-template-columns:repeat\(4/
+    );
+    assert.match(
+        setupCss,
+        /height:100vh/
     );
 });
 
-test("setup script offers and resolves a random chaser", () => {
+test("setup opens the intro when the presenter launches", () => {
     assert.match(
-        setupScript,
-        /RANDOM_CHASER_ID\s*=\s*'random'/
+        setupHtml,
+        /\/socket\.io\/socket\.io\.js/
     );
     assert.match(
         setupScript,
-        /randomOption\.textContent\s*=\s*'Random'/
+        /socket\.on\('matchStarted', openMatch\)/
     );
     assert.match(
         setupScript,
-        /Math\.floor\(\s*Math\.random\(\)\s*\*\s*chasers\.length/
+        /window\.location = '\/intro\.html'/
     );
     assert.match(
         setupScript,
-        /Randomly selected \$\{chaser\.name\}/
+        /state\.firstRoundPending[\s\S]*'\/intro\.html'[\s\S]*'\/display\.html'/
+    );
+    assert.match(
+        setupScript,
+        /setInterval\(syncMatchState, 2000\)/
     );
 });

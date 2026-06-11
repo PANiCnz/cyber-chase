@@ -46,6 +46,21 @@ const screens = [
     }
 ];
 
+test("setup presents every chaser with image fallback support", () => {
+    const html = read("public/setup.html");
+    const script = read("public/js/setup.js");
+
+    assert.match(html, /id="chaserGallery"/);
+    assert.match(script, /chaser\.image/);
+    assert.match(
+        script,
+        /profile-photo-placeholder/
+    );
+    assert.match(script, /chaser\.title/);
+    assert.match(script, /chaser\.department/);
+    assert.match(script, /chaser\.bio/);
+});
+
 for (const screen of screens) {
     test(`${screen.name} presents optional chaser profile fields`, () => {
         for (const id of screen.ids) {

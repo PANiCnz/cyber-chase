@@ -1,192 +1,137 @@
-
-const contestantName =
-  document.getElementById('contestantName');
-const contestantDepartment =
-  document.getElementById('contestantDepartment');
-const chaserSelect =
-  document.getElementById('chaserName');
-const chaserProfile =
-  document.getElementById('chaserProfile');
-const chaserTitle =
-  document.getElementById('chaserTitle');
-const chaserDepartment =
-  document.getElementById('chaserDepartment');
-const chaserBio =
-  document.getElementById('chaserBio');
-const startBtn =
-  document.getElementById('startBtn');
+const gallery =
+  document.getElementById('chaserGallery');
 const status =
   document.getElementById('status');
+const socket = io();
 
-let chasers = [];
+function initials(name) {
+  return (name || 'Chaser')
+    .split(/\s+/)
+    .filter(Boolean)
+    .map(part => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
 
-const RANDOM_CHASER_ID = 'random';
+function createPhoto(chaser) {
+  const frame = document.createElement('div');
+  frame.className = 'profile-photo';
 
-function selectedChaser() {
-  return chasers.find(
-    chaser => chaser.id === chaserSelect.value
+  if (chaser.image) {
+    const image = document.createElement('img');
+    image.src = chaser.image;
+    image.alt = `${chaser.name} profile`;
+    frame.appendChild(image);
+  } else {
+    const placeholder = document.createElement('div');
+    placeholder.className = 'profile-photo-placeholder';
+    placeholder.textContent = initials(chaser.name);
+    placeholder.setAttribute(
+      'aria-label',
+      `${chaser.name} photo placeholder`
+    );
+    frame.appendChild(placeholder);
+  }
+
+  return frame;
+}
+
+function createProfileCard(chaser, index) {
+  const card = document.createElement('article');
+  card.className = 'chaser-card';
+  card.style.setProperty(
+    '--card-accent',
+    index % 2 === 0 ? '#00b7ff' : '#00d084'
   );
-}
 
-function randomChaser() {
-  const index = Math.floor(
-    Math.random() * chasers.length
+  const number = document.createElement('div');
+  number.className = 'profile-number';
+  number.textContent =
+    String(index + 1).padStart(2, '0');
+
+  const content = document.createElement('div');
+  content.className = 'profile-content';
+
+  const title = document.createElement('div');
+  title.className = 'profile-title';
+  title.textContent = chaser.title || 'The Chaser';
+
+  const name = document.createElement('h2');
+  name.className = 'profile-name';
+  name.textContent = chaser.name;
+
+  const department = document.createElement('div');
+  department.className = 'profile-department';
+  department.textContent =
+    chaser.department || 'Information Security';
+
+  const bio = document.createElement('p');
+  bio.className = 'profile-bio';
+  bio.textContent = chaser.bio || '';
+
+  content.append(title, name, department, bio);
+  card.append(
+    number,
+    createPhoto(chaser),
+    content
   );
 
-  return chasers[index];
+  return card;
 }
 
-function renderProfile() {
-  if (chaserSelect.value === RANDOM_CHASER_ID) {
-    chaserTitle.textContent = 'Random Chaser';
-    chaserDepartment.textContent =
-      'Selected when the match starts';
-    chaserBio.textContent =
-      'One of the active chasers will be chosen at random.';
-    chaserProfile.classList.remove('hidden');
-    return;
-  }
-
-  const chaser = selectedChaser();
-
-  if (!chaser) {
-    chaserProfile.classList.add('hidden');
-    return;
-  }
-
-  chaserTitle.textContent =
-    chaser.title || chaser.name;
-  chaserDepartment.textContent =
-    chaser.department || '';
-  chaserBio.textContent =
-    chaser.bio || '';
-  chaserProfile.classList.remove('hidden');
-}
-
-function populateChasers() {
-  chaserSelect.replaceChildren();
-
-  const randomOption =
-    document.createElement('option');
-  randomOption.value = RANDOM_CHASER_ID;
-  randomOption.textContent = 'Random';
-  chaserSelect.appendChild(randomOption);
-
-  for (const chaser of chasers) {
-    const option =
-      document.createElement('option');
-
-    option.value = chaser.id;
-    option.textContent = chaser.name;
-    chaserSelect.appendChild(option);
-  }
-
-  chaserSelect.disabled = false;
-  startBtn.disabled = false;
-  status.textContent = '';
-  renderProfile();
+function renderProfiles(chasers) {
+  gallery.replaceChildren(
+    ...chasers.map(createProfileCard)
+  );
+  status.textContent =
+    'Waiting for the presenter to launch the match';
 }
 
 async function loadChasers() {
-  status.textContent = 'Loading chasers...';
-
   try {
     const response = await fetch('/api/chasers');
 
     if (!response.ok) {
-      throw new Error('Unable to load chasers');
+      throw new Error();
     }
 
-    const result = await response.json();
+    const chasers = await response.json();
 
-    if (!Array.isArray(result) || result.length === 0) {
-      chaserSelect.replaceChildren();
+    if (!Array.isArray(chasers) || chasers.length === 0) {
+      throw new Error();
+    }
 
-      const option =
-        document.createElement('option');
-      option.value = '';
-      option.textContent = 'No chasers available';
-      chaserSelect.appendChild(option);
-      status.textContent =
-        'No active chaser profiles are available.';
+    renderProfiles(chasers);
+  } catch {
+    status.textContent =
+      'Chaser profiles are currently unavailable';
+  }
+}
+
+function openMatch() {
+  window.location = '/intro.html';
+}
+
+async function syncMatchState() {
+  try {
+    const response =
+      await fetch('/api/match/state');
+    const state = await response.json();
+
+    if (!state?.started) {
       return;
     }
 
-    chasers = result;
-    populateChasers();
-  } catch (error) {
-    chaserSelect.replaceChildren();
-
-    const option =
-      document.createElement('option');
-    option.value = '';
-    option.textContent = 'Chasers unavailable';
-    chaserSelect.appendChild(option);
-    status.textContent =
-      'Could not load chaser profiles. Please try again.';
+    window.location = state.firstRoundPending
+      ? '/intro.html'
+      : '/display.html';
+  } catch {
+    // The profile showcase remains usable while the server reconnects.
   }
 }
 
-async function startMatch() {
-  const chaser = chaserSelect.value === RANDOM_CHASER_ID
-    ? randomChaser()
-    : selectedChaser();
-
-  if (!chaser) {
-    status.textContent =
-      'Select a chaser before starting the match.';
-    return;
-  }
-
-  startBtn.disabled = true;
-  status.textContent =
-    chaserSelect.value === RANDOM_CHASER_ID
-      ? `Randomly selected ${chaser.name}. Starting match...`
-      : 'Starting match...';
-
-  try {
-    const response = await fetch(
-      '/api/match/start-match',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          contestantName: contestantName.value,
-          contestantDepartment:
-            contestantDepartment.value,
-          chaserId: chaser.id,
-          chaserName: chaser.name
-        })
-      }
-    );
-
-    if (!response.ok) {
-      const result = await response.json()
-        .catch(() => ({}));
-
-      throw new Error(
-        result.error || 'Failed to start match'
-      );
-    }
-
-    status.textContent =
-      'Match started successfully';
-    setTimeout(() => {
-      window.location = '/intro.html';
-    }, 1000);
-  } catch (error) {
-    status.textContent =
-      error.message || 'Failed to start match';
-    startBtn.disabled = false;
-  }
-}
-
-chaserSelect.addEventListener(
-  'change',
-  renderProfile
-);
-startBtn.addEventListener('click', startMatch);
-
+socket.on('matchStarted', openMatch);
 loadChasers();
+syncMatchState();
+setInterval(syncMatchState, 2000);

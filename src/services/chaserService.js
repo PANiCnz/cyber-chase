@@ -64,6 +64,10 @@ function normalizeChaser(chaser, index) {
         chaser.bio.trim() !== ""
             ? { bio: chaser.bio.trim() }
             : {}),
+        ...(typeof chaser.image === "string" &&
+        chaser.image.trim() !== ""
+            ? { image: chaser.image.trim() }
+            : {}),
         active: chaser.active !== false
     };
 }
@@ -182,6 +186,9 @@ function createMatchSnapshot(chaser) {
             : {}),
         ...(chaser.bio
             ? { bio: chaser.bio }
+            : {}),
+        ...(chaser.image
+            ? { image: chaser.image }
             : {})
     };
 }

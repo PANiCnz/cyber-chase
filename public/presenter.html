@@ -13,9 +13,41 @@
         <button id="newMatchBtn" class="new-match-button hidden">NEW MATCH</button>
     </div>
 
-    <div id="presenterWaiting" class="waiting-panel" role="status" aria-live="polite">
-        Waiting for a match to start...
-    </div>
+    <section id="presenterWaiting" class="match-setup-panel" aria-labelledby="matchSetupTitle">
+        <div class="setup-heading">
+            <div class="setup-kicker">NEW MATCH</div>
+            <h3 id="matchSetupTitle">Configure the chase</h3>
+            <p>Enter the contestant details, choose a chaser, then launch the audience introduction.</p>
+        </div>
+
+        <div class="setup-grid">
+            <div class="setup-fields">
+                <label for="setupContestantName">Contestant name</label>
+                <input id="setupContestantName" type="text" autocomplete="name" maxlength="80">
+
+                <label for="setupContestantDepartment">Department</label>
+                <input id="setupContestantDepartment" type="text" maxlength="100">
+
+                <label for="setupChaser">Select chaser</label>
+                <select id="setupChaser" disabled>
+                    <option value="">Loading chasers...</option>
+                </select>
+
+                <button id="launchMatchBtn" class="launch-match-button" type="button" disabled>LAUNCH GAME</button>
+                <div id="setupStatus" class="setup-status" role="status" aria-live="polite"></div>
+            </div>
+
+            <article id="setupChaserProfile" class="setup-chaser-preview hidden" aria-live="polite">
+                <div id="setupChaserPhoto" class="setup-chaser-photo"></div>
+                <div>
+                    <div id="setupChaserTitle" class="profile-title"></div>
+                    <div id="setupChaserName" class="profile-name"></div>
+                    <div id="setupChaserDepartment" class="profile-department"></div>
+                    <p id="setupChaserBio" class="profile-bio"></p>
+                </div>
+            </article>
+        </div>
+    </section>
 
     <section class="timer-panel game-section hidden" aria-label="Question timer">
         <div class="timer-label">QUESTION TIMER</div>

@@ -73,6 +73,21 @@ test("creates a whitelisted match snapshot", () => {
     });
 });
 
+test("preserves an optional profile image in match snapshots", () => {
+    const snapshot =
+        chaserService.createMatchSnapshot({
+            id: "image-test",
+            name: "Image Test",
+            department: "Security",
+            image: "/images/chasers/image-test.jpg"
+        });
+
+    assert.equal(
+        snapshot.image,
+        "/images/chasers/image-test.jpg"
+    );
+});
+
 test("filters inactive chasers", () => {
     const file = writeCatalog([
         {
