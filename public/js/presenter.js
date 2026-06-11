@@ -1,5 +1,35 @@
 const socket = io();
 
+const manageChasersBtn =
+    document.getElementById('manageChasersBtn');
+const chaserManager =
+    document.getElementById('chaserManager');
+const closeChaserManagerBtn =
+    document.getElementById('closeChaserManagerBtn');
+const addChaserBtn =
+    document.getElementById('addChaserBtn');
+const managerChaserList =
+    document.getElementById('managerChaserList');
+const chaserEditor =
+    document.getElementById('chaserEditor');
+const editorChaserId =
+    document.getElementById('editorChaserId');
+const editorChaserName =
+    document.getElementById('editorChaserName');
+const editorChaserNickname =
+    document.getElementById('editorChaserNickname');
+const editorChaserDepartment =
+    document.getElementById('editorChaserDepartment');
+const editorChaserBio =
+    document.getElementById('editorChaserBio');
+const editorChaserImage =
+    document.getElementById('editorChaserImage');
+const editorChaserActive =
+    document.getElementById('editorChaserActive');
+const saveChaserBtn =
+    document.getElementById('saveChaserBtn');
+const managerStatus =
+    document.getElementById('managerStatus');
 const setupContestantName =
     document.getElementById('setupContestantName');
 const setupContestantDepartment =
@@ -82,6 +112,7 @@ let currentMatchState = null;
 let currentQuestionToken = null;
 let presenterRefreshRunning = false;
 let availableChasers = [];
+let managedChasers = [];
 let difficultiesLoaded = false;
 
 const RANDOM_CHASER_ID = 'random';
@@ -158,11 +189,20 @@ function renderSetupProfile() {
 function populateSetupChasers() {
     setupChaser.replaceChildren();
 
-    const randomOption =
-        document.createElement('option');
-    randomOption.value = RANDOM_CHASER_ID;
-    randomOption.textContent = 'Random';
-    setupChaser.appendChild(randomOption);
+    if (availableChasers.length > 0) {
+        const randomOption =
+            document.createElement('option');
+        randomOption.value = RANDOM_CHASER_ID;
+        randomOption.textContent = 'Random';
+        setupChaser.appendChild(randomOption);
+    } else {
+        const unavailableOption =
+            document.createElement('option');
+        unavailableOption.value = '';
+        unavailableOption.textContent =
+            'No active chasers';
+        setupChaser.appendChild(unavailableOption);
+    }
 
     for (const chaser of availableChasers) {
         const option =
@@ -173,10 +213,206 @@ function populateSetupChasers() {
         setupChaser.appendChild(option);
     }
 
-    setupChaser.disabled = false;
+    setupChaser.disabled =
+        availableChasers.length === 0;
     updateLaunchAvailability();
-    setupStatus.textContent = '';
+    setupStatus.textContent =
+        availableChasers.length === 0
+            ? 'Enable at least one chaser before launching.'
+            : '';
     renderSetupProfile();
+}
+
+function renderManagerAvatar(chaser) {
+    const avatar = document.createElement('div');
+    avatar.className = 'manager-avatar';
+
+    if (chaser.image) {
+        const image = document.createElement('img');
+        image.src = chaser.image;
+        image.alt = `${chaser.name} profile`;
+        avatar.appendChild(image);
+    } else {
+        avatar.textContent = initials(chaser.name);
+    }
+
+    return avatar;
+}
+
+function editChaser(chaser) {
+    editorChaserId.value = chaser.id;
+    editorChaserName.value = chaser.name;
+    editorChaserNickname.value =
+        chaser.title || '';
+    editorChaserDepartment.value =
+        chaser.department;
+    editorChaserBio.value = chaser.bio || '';
+    editorChaserImage.value =
+        chaser.image || '';
+    editorChaserActive.checked =
+        chaser.active === true;
+    managerStatus.textContent =
+        `Editing ${chaser.name}`;
+    editorChaserName.focus();
+}
+
+function resetChaserEditor() {
+    chaserEditor.reset();
+    editorChaserId.value = '';
+    editorChaserDepartment.value =
+        'Information Security';
+    editorChaserActive.checked =
+        managedChasers.filter(
+            chaser => chaser.active
+        ).length < 4;
+    managerStatus.textContent =
+        'Creating a new chaser';
+    editorChaserName.focus();
+}
+
+function renderManagedChasers() {
+    managerChaserList.replaceChildren();
+    const activeCount = managedChasers.filter(
+        chaser => chaser.active
+    ).length;
+
+    for (const chaser of managedChasers) {
+        const card = document.createElement('article');
+        card.className =
+            `manager-chaser-card${chaser.active ? ' active' : ''}`;
+
+        const details = document.createElement('div');
+        const name = document.createElement('div');
+        name.className = 'manager-card-name';
+        name.textContent = chaser.name;
+
+        const meta = document.createElement('div');
+        meta.className = 'manager-card-meta';
+        meta.textContent = [
+            chaser.title,
+            chaser.department
+        ].filter(Boolean).join(' | ');
+
+        const availability =
+            document.createElement('div');
+        availability.className =
+            'manager-card-status';
+        availability.textContent = chaser.active
+            ? 'AVAILABLE'
+            : 'NOT AVAILABLE';
+        details.append(name, meta, availability);
+
+        const editButton =
+            document.createElement('button');
+        editButton.type = 'button';
+        editButton.className =
+            'manager-edit-button';
+        editButton.textContent = 'EDIT';
+        editButton.onclick =
+            () => editChaser(chaser);
+
+        card.append(
+            renderManagerAvatar(chaser),
+            details,
+            editButton
+        );
+        managerChaserList.appendChild(card);
+    }
+
+    managerStatus.textContent =
+        `${activeCount} of 4 chasers active`;
+}
+
+async function loadManagedChasers() {
+    managerStatus.textContent =
+        'Loading chaser catalog...';
+
+    try {
+        const response = await fetch(
+            '/api/chasers/manage/all'
+        );
+
+        if (!response.ok) {
+            throw new Error();
+        }
+
+        managedChasers = await response.json();
+        renderManagedChasers();
+    } catch {
+        managerStatus.textContent =
+            'Unable to load the chaser catalog.';
+    }
+}
+
+async function openChaserManager() {
+    chaserManager.classList.remove('hidden');
+    await loadManagedChasers();
+
+    if (managedChasers.length > 0) {
+        editChaser(managedChasers[0]);
+    } else {
+        resetChaserEditor();
+    }
+}
+
+function closeChaserManager() {
+    chaserManager.classList.add('hidden');
+}
+
+async function saveChaser(event) {
+    event.preventDefault();
+    saveChaserBtn.disabled = true;
+    managerStatus.textContent =
+        'Saving chaser...';
+
+    const id = editorChaserId.value;
+    const response = await fetch(
+        id
+            ? `/api/chasers/${encodeURIComponent(id)}`
+            : '/api/chasers',
+        {
+            method: id ? 'PUT' : 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: editorChaserName.value.trim(),
+                nickname:
+                    editorChaserNickname.value.trim(),
+                department:
+                    editorChaserDepartment.value.trim(),
+                bio: editorChaserBio.value.trim(),
+                image: editorChaserImage.value.trim(),
+                active: editorChaserActive.checked
+            })
+        }
+    ).catch(() => null);
+
+    if (!response) {
+        managerStatus.textContent =
+            'Unable to connect while saving.';
+        saveChaserBtn.disabled = false;
+        return;
+    }
+
+    const result = await response.json();
+
+    if (!response.ok) {
+        managerStatus.textContent =
+            result.error ||
+            'Unable to save chaser.';
+        saveChaserBtn.disabled = false;
+        return;
+    }
+
+    await Promise.all([
+        loadManagedChasers(),
+        loadSetupChasers()
+    ]);
+    editChaser(result);
+    managerStatus.textContent =
+        `${result.name} saved.`;
+    saveChaserBtn.disabled = false;
 }
 
 function populateDifficultySelect(
@@ -258,10 +494,7 @@ async function loadSetupChasers() {
 
         availableChasers = await response.json();
 
-        if (
-            !Array.isArray(availableChasers) ||
-            availableChasers.length === 0
-        ) {
+        if (!Array.isArray(availableChasers)) {
             throw new Error();
         }
 
@@ -671,6 +904,13 @@ newMatchBtn.onclick = startNewMatch;
 winnerNewMatchBtn.onclick = startNewMatch;
 startRoundBtn.onclick = startRound;
 launchMatchBtn.onclick = launchMatch;
+manageChasersBtn.onclick = openChaserManager;
+closeChaserManagerBtn.onclick = closeChaserManager;
+addChaserBtn.onclick = resetChaserEditor;
+chaserEditor.addEventListener(
+    'submit',
+    saveChaser
+);
 setupChaser.addEventListener(
     'change',
     renderSetupProfile
@@ -699,6 +939,13 @@ socket.on('answerResult', result => {
 });
 socket.on('newMatch', () => {
     showWaitingState();
+});
+socket.on('chasersUpdated', () => {
+    loadSetupChasers();
+
+    if (!chaserManager.classList.contains('hidden')) {
+        loadManagedChasers();
+    }
 });
 setInterval(loadQuestion, 2000);
 loadSetupChasers();

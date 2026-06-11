@@ -85,7 +85,9 @@ function renderProfiles(chasers) {
     ...chasers.map(createProfileCard)
   );
   status.textContent =
-    'Waiting for the presenter to launch the match';
+    chasers.length > 0
+      ? 'Waiting for the presenter to launch the match'
+      : 'No chasers are currently available';
 }
 
 async function loadChasers() {
@@ -98,7 +100,7 @@ async function loadChasers() {
 
     const chasers = await response.json();
 
-    if (!Array.isArray(chasers) || chasers.length === 0) {
+    if (!Array.isArray(chasers)) {
       throw new Error();
     }
 
@@ -132,6 +134,7 @@ async function syncMatchState() {
 }
 
 socket.on('matchStarted', openMatch);
+socket.on('chasersUpdated', loadChasers);
 loadChasers();
 syncMatchState();
 setInterval(syncMatchState, 2000);

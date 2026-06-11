@@ -152,3 +152,100 @@ test("rejects missing required fields", () => {
         /requires name/
     );
 });
+
+test("creates and updates chasers in the persisted catalog", () => {
+    const file = writeCatalog([
+        {
+            id: "existing",
+            name: "Existing",
+            department: "Security",
+            active: true
+        }
+    ]);
+
+    chaserService.loadChasers(file);
+    const created = chaserService.createChaser({
+        name: "New Chaser",
+        department: "Risk",
+        title: "The Tester",
+        bio: "A new profile.",
+        active: true
+    });
+    const updated = chaserService.updateChaser(
+        created.id,
+        {
+            name: "Updated Chaser",
+            nickname: "The Updated",
+            department: "Operations",
+            bio: "Updated profile.",
+            active: false
+        }
+    );
+    const persisted = JSON.parse(
+        fs.readFileSync(file, "utf8")
+    );
+
+    assert.equal(created.id, "new-chaser");
+    assert.equal(updated.name, "Updated Chaser");
+    assert.equal(updated.title, "The Updated");
+    assert.equal(updated.active, false);
+    assert.deepEqual(
+        persisted.find(
+            chaser => chaser.id === created.id
+        ),
+        updated
+    );
+    assert.deepEqual(
+        chaserService
+            .listActiveChasers()
+            .map(chaser => chaser.id),
+        ["existing"]
+    );
+});
+
+test("creates unique ids for chasers with the same name", () => {
+    const file = writeCatalog([]);
+    chaserService.loadChasers(file);
+
+    const first = chaserService.createChaser({
+        name: "Same Name",
+        department: "Security",
+        active: false
+    });
+    const second = chaserService.createChaser({
+        name: "Same Name",
+        department: "Security",
+        active: false
+    });
+
+    assert.equal(first.id, "same-name");
+    assert.equal(second.id, "same-name-2");
+});
+
+test("limits the catalog to four active chasers", () => {
+    const file = writeCatalog(
+        ["one", "two", "three", "four"].map(
+            id => ({
+                id,
+                name: id,
+                department: "Security",
+                active: true
+            })
+        )
+    );
+    chaserService.loadChasers(file);
+
+    assert.throws(
+        () =>
+            chaserService.createChaser({
+                name: "Five",
+                department: "Security",
+                active: true
+            }),
+        /maximum of four chasers can be active/
+    );
+    assert.equal(
+        chaserService.listAllChasers().length,
+        4
+    );
+});

@@ -6,6 +6,11 @@ const matchService =
     require("../src/services/matchService");
 const timerService =
     require("../src/services/timerService");
+const chaserService =
+    require("../src/services/chaserService");
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
 
 let baseUrl;
 
@@ -22,6 +27,7 @@ test.before(async () => {
 test.beforeEach(() => {
     matchService.resetMatch();
     timerService.reset();
+    chaserService.resetCatalog();
 });
 
 test.after(async () => {
@@ -365,6 +371,165 @@ test("lists chasers and returns a profile by id", async () => {
         profile.department,
         "Information Security"
     );
+});
+
+test("manages persisted chaser profiles and availability", async () => {
+    const directory = fs.mkdtempSync(
+        path.join(os.tmpdir(), "cyber-chase-api-")
+    );
+    const file = path.join(
+        directory,
+        "chasers.json"
+    );
+    fs.writeFileSync(
+        file,
+        JSON.stringify([
+            {
+                id: "available",
+                name: "Available",
+                department: "Security",
+                active: true
+            }
+        ])
+    );
+    chaserService.loadChasers(file);
+
+    const createResponse = await fetch(
+        `${baseUrl}/api/chasers`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                name: "New Person",
+                nickname: "The Newcomer",
+                department: "Risk",
+                bio: "New bio",
+                active: true
+            })
+        }
+    );
+    const created = await createResponse.json();
+    assert.equal(createResponse.status, 201);
+    assert.equal(created.id, "new-person");
+    assert.equal(created.title, "The Newcomer");
+
+    const updateResponse = await fetch(
+        `${baseUrl}/api/chasers/${created.id}`,
+        {
+            method: "PUT",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                name: "Updated Person",
+                nickname: "The Updated",
+                department: "Operations",
+                bio: "Updated bio",
+                active: false
+            })
+        }
+    );
+    const updated = await updateResponse.json();
+    assert.equal(updateResponse.status, 200);
+    assert.equal(updated.active, false);
+
+    const all = await (
+        await fetch(
+            `${baseUrl}/api/chasers/manage/all`
+        )
+    ).json();
+    const active = await (
+        await fetch(`${baseUrl}/api/chasers`)
+    ).json();
+
+    assert.equal(all.length, 2);
+    assert.deepEqual(
+        active.map(chaser => chaser.id),
+        ["available"]
+    );
+    assert.equal(
+        JSON.parse(
+            fs.readFileSync(file, "utf8")
+        )[1].name,
+        "Updated Person"
+    );
+});
+
+test("catalog edits do not change an active match snapshot", async () => {
+    const directory = fs.mkdtempSync(
+        path.join(os.tmpdir(), "cyber-chase-snapshot-")
+    );
+    const file = path.join(
+        directory,
+        "chasers.json"
+    );
+    fs.writeFileSync(
+        file,
+        JSON.stringify([
+            {
+                id: "snapshot",
+                name: "Original Name",
+                title: "Original Nickname",
+                department: "Security",
+                active: true
+            }
+        ])
+    );
+    chaserService.loadChasers(file);
+
+    await fetch(
+        `${baseUrl}/api/match/start-match`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                contestantName: "Alex",
+                chaserId: "snapshot"
+            })
+        }
+    );
+    await fetch(
+        `${baseUrl}/api/chasers/snapshot`,
+        {
+            method: "PUT",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                name: "Future Name",
+                nickname: "Future Nickname",
+                department: "Risk",
+                active: true
+            })
+        }
+    );
+
+    const state = await (
+        await fetch(`${baseUrl}/api/match/state`)
+    ).json();
+    const catalog = await (
+        await fetch(
+            `${baseUrl}/api/chasers/manage/all`
+        )
+    ).json();
+
+    assert.equal(
+        state.chaser.name,
+        "Original Name"
+    );
+    assert.equal(
+        state.chaser.title,
+        "Original Nickname"
+    );
+    assert.equal(catalog[0].name, "Future Name");
 });
 
 test("returns 404 for an unknown chaser", async () => {

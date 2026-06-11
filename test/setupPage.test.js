@@ -81,3 +81,14 @@ test("setup opens the intro when the presenter launches", () => {
         /setInterval\(syncMatchState, 2000\)/
     );
 });
+
+test("setup refreshes automatically when chasers change", () => {
+    assert.match(
+        setupScript,
+        /socket\.on\('chasersUpdated', loadChasers\)/
+    );
+    assert.match(
+        setupScript,
+        /No chasers are currently available/
+    );
+});

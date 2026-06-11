@@ -10,8 +10,57 @@
     <div class="header">
         <h1>CYBER CHASE</h1>
         <h2>PRESENTER CONSOLE</h2>
+        <button id="manageChasersBtn" class="manage-chasers-button" type="button">MANAGE CHASERS</button>
         <button id="newMatchBtn" class="new-match-button hidden">NEW MATCH</button>
     </div>
+
+    <section id="chaserManager" class="chaser-manager hidden" aria-labelledby="chaserManagerTitle">
+        <div class="manager-header">
+            <div>
+                <div class="setup-kicker">CHASER CATALOG</div>
+                <h3 id="chaserManagerTitle">Manage chasers</h3>
+                <p>Update profiles and choose up to four chasers who are available today.</p>
+            </div>
+            <button id="closeChaserManagerBtn" class="manager-close-button" type="button">CLOSE</button>
+        </div>
+
+        <div class="manager-layout">
+            <div>
+                <div class="manager-list-heading">
+                    <h4>Chaser profiles</h4>
+                    <button id="addChaserBtn" type="button">ADD CHASER</button>
+                </div>
+                <div id="managerChaserList" class="manager-chaser-list"></div>
+            </div>
+
+            <form id="chaserEditor" class="chaser-editor">
+                <input id="editorChaserId" type="hidden">
+
+                <label for="editorChaserName">Name</label>
+                <input id="editorChaserName" type="text" maxlength="80" required>
+
+                <label for="editorChaserNickname">Nickname</label>
+                <input id="editorChaserNickname" type="text" maxlength="100" placeholder="The Firewall">
+
+                <label for="editorChaserDepartment">Department</label>
+                <input id="editorChaserDepartment" type="text" maxlength="100" required>
+
+                <label for="editorChaserBio">Bio</label>
+                <textarea id="editorChaserBio" rows="5" maxlength="500"></textarea>
+
+                <label for="editorChaserImage">Image path</label>
+                <input id="editorChaserImage" type="text" maxlength="300" placeholder="/images/chasers/name.webp">
+
+                <label class="availability-toggle" for="editorChaserActive">
+                    <input id="editorChaserActive" type="checkbox">
+                    Available to play today
+                </label>
+
+                <button id="saveChaserBtn" class="save-chaser-button" type="submit">SAVE CHASER</button>
+                <div id="managerStatus" class="manager-status" role="status" aria-live="polite"></div>
+            </form>
+        </div>
+    </section>
 
     <section id="presenterWaiting" class="match-setup-panel" aria-labelledby="matchSetupTitle">
         <div class="setup-heading">

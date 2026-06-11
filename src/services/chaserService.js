@@ -7,6 +7,7 @@ const CHASERS_FILE = path.resolve(
 );
 
 let chasers = null;
+let catalogFile = CHASERS_FILE;
 
 function requireString(value, field, index) {
     if (
@@ -83,6 +84,7 @@ function validateChasers(value) {
         value.map(normalizeChaser);
 
     const ids = new Set();
+    let activeCount = 0;
 
     for (const chaser of normalized) {
         if (ids.has(chaser.id)) {
@@ -92,12 +94,22 @@ function validateChasers(value) {
         }
 
         ids.add(chaser.id);
+
+        if (chaser.active) {
+            activeCount++;
+        }
+    }
+
+    if (activeCount > 4) {
+        throw new Error(
+            "A maximum of four chasers can be active"
+        );
     }
 
     return normalized;
 }
 
-function loadChasers(file = CHASERS_FILE) {
+function loadChasers(file = catalogFile) {
     let parsed;
 
     try {
@@ -111,6 +123,7 @@ function loadChasers(file = CHASERS_FILE) {
     }
 
     chasers = validateChasers(parsed);
+    catalogFile = file;
 
     return chasers;
 }
@@ -131,6 +144,111 @@ function listActiveChasers() {
     return getCatalog()
         .filter(chaser => chaser.active)
         .map(toPublicChaser);
+}
+
+function listAllChasers() {
+    return getCatalog().map(toPublicChaser);
+}
+
+function slugify(value) {
+    return value
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+}
+
+function createUniqueId(name, catalog) {
+    const base = slugify(name) || "chaser";
+    let id = base;
+    let suffix = 2;
+
+    while (
+        catalog.some(chaser => chaser.id === id)
+    ) {
+        id = `${base}-${suffix}`;
+        suffix++;
+    }
+
+    return id;
+}
+
+function writeCatalog(catalog) {
+    const validated = validateChasers(catalog);
+    const temporaryFile =
+        `${catalogFile}.${process.pid}.tmp`;
+
+    fs.writeFileSync(
+        temporaryFile,
+        `${JSON.stringify(validated, null, 2)}\n`,
+        "utf8"
+    );
+    fs.renameSync(temporaryFile, catalogFile);
+    chasers = validated;
+
+    return listAllChasers();
+}
+
+function createChaser(input) {
+    const catalog = getCatalog();
+    const candidate = {
+        ...input,
+        id: createUniqueId(input?.name || "", catalog)
+    };
+    const normalized =
+        normalizeChaser(candidate, catalog.length);
+
+    writeCatalog([...catalog, normalized]);
+    return toPublicChaser(normalized);
+}
+
+function updateChaser(id, input = {}) {
+    if (typeof id !== "string") {
+        return null;
+    }
+
+    const catalog = getCatalog();
+    const index = catalog.findIndex(
+        chaser =>
+            chaser.id === id.trim().toLowerCase()
+    );
+
+    if (index === -1) {
+        return null;
+    }
+
+    const updated = normalizeChaser(
+        {
+            ...catalog[index],
+            name:
+                input.name ??
+                catalog[index].name,
+            department:
+                input.department ??
+                catalog[index].department,
+            bio:
+                input.bio ??
+                catalog[index].bio,
+            image:
+                input.image ??
+                catalog[index].image,
+            active:
+                typeof input.active === "boolean"
+                    ? input.active
+                    : catalog[index].active,
+            id: catalog[index].id,
+            title:
+                input.nickname ??
+                input.title ??
+                catalog[index].title
+        },
+        index
+    );
+    const nextCatalog = [...catalog];
+    nextCatalog[index] = updated;
+    writeCatalog(nextCatalog);
+
+    return toPublicChaser(updated);
 }
 
 function getChaserById(id) {
@@ -195,11 +313,15 @@ function createMatchSnapshot(chaser) {
 
 function resetCatalog() {
     chasers = null;
+    catalogFile = CHASERS_FILE;
 }
 
 module.exports = {
     loadChasers,
     listActiveChasers,
+    listAllChasers,
+    createChaser,
+    updateChaser,
     getChaserById,
     findChaserByName,
     createMatchSnapshot,
