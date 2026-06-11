@@ -1,14 +1,42 @@
 
 const socket = io();
 
+const contestantName =
+   document.getElementById('contestantName');
+const chaserName =
+   document.getElementById('chaserName');
+const chaserTitle =
+   document.getElementById('chaserTitle');
+const chaserDepartment =
+   document.getElementById('chaserDepartment');
+const chaserBio =
+   document.getElementById('chaserBio');
+
 function updateFromApi(){
  fetch('/api/match/state')
  .then(r=>r.json())
  .then(state=>{
    if(!state) return;
 
-   contestantName.innerText = state.contestant?.name || 'Contestant';
-   chaserName.innerText = state.chaser?.name || 'Chaser';
+   contestantName.textContent =
+      state.contestant?.name || 'Contestant';
+   chaserName.textContent =
+      state.chaser?.name || 'Chaser';
+   chaserTitle.textContent =
+      state.chaser?.title || '';
+   chaserTitle.classList.toggle(
+      'hidden',
+      !state.chaser?.title
+   );
+   chaserDepartment.textContent =
+      state.chaser?.department ||
+      'Information Security';
+   chaserBio.textContent =
+      state.chaser?.bio || '';
+   chaserBio.classList.toggle(
+      'hidden',
+      !state.chaser?.bio
+   );
 
    contestantBar.style.width = `${((state.contestant?.score||0)/5)*100}%`;
    chaserBar.style.width = `${((state.chaser?.score||0)/5)*100}%`;

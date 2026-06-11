@@ -1,22 +1,54 @@
 
+const contestantName =
+    document.getElementById('contestantName');
+const contestantDepartment =
+    document.getElementById('contestantDepartment');
+const chaserName =
+    document.getElementById('chaserName');
+const chaserTitle =
+    document.getElementById('chaserTitle');
+const chaserDepartment =
+    document.getElementById('chaserDepartment');
+const chaserBio =
+    document.getElementById('chaserBio');
+const countdown =
+    document.getElementById('countdown');
+
 async function loadMatch() {
     const res = await fetch('/api/match/state');
     const state = await res.json();
 
     if(!state) return;
 
-    contestantName.innerText = state.contestant?.name || 'Contestant';
-    contestantDepartment.innerText = state.contestant?.department || '';
+    contestantName.textContent =
+        state.contestant?.name || 'Contestant';
+    contestantDepartment.textContent =
+        state.contestant?.department || '';
 
-    chaserName.innerText = state.chaser?.name || 'Chaser';
-    chaserDepartment.innerText = state.chaser?.department || 'Information Security';
+    chaserName.textContent =
+        state.chaser?.name || 'Chaser';
+    chaserTitle.textContent =
+        state.chaser?.title || '';
+    chaserTitle.classList.toggle(
+        'hidden',
+        !state.chaser?.title
+    );
+    chaserDepartment.textContent =
+        state.chaser?.department ||
+        'Information Security';
+    chaserBio.textContent =
+        state.chaser?.bio || '';
+    chaserBio.classList.toggle(
+        'hidden',
+        !state.chaser?.bio
+    );
 }
 
 async function startCountdown() {
     let remaining = 5;
 
     const timer = setInterval(() => {
-        countdown.innerText = remaining;
+        countdown.textContent = remaining;
         remaining--;
 
         if(remaining < 0){

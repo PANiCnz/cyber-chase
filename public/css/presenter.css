@@ -12,6 +12,7 @@ body {
 .players { display:flex; gap:20px; margin-top:20px; }
 
 .player-card,
+.chaser-profile-panel,
 .turn-panel,
 .question-panel,
 .answer-panel,
@@ -22,6 +23,41 @@ body {
 }
 
 .player-card { flex:1; }
+
+.chaser-profile-panel {
+    margin-top:20px;
+    text-align:center;
+}
+
+.profile-label {
+    color:#00b7ff;
+    font-size:.9rem;
+    font-weight:bold;
+    letter-spacing:.15em;
+}
+
+.profile-name {
+    font-size:2rem;
+    margin-top:8px;
+}
+
+.profile-title {
+    color:#ffd400;
+    font-size:1.25rem;
+    font-weight:bold;
+    margin-top:6px;
+}
+
+.profile-department {
+    color:#00b7ff;
+    margin-top:8px;
+}
+
+.profile-bio {
+    line-height:1.5;
+    margin:12px auto 0;
+    max-width:700px;
+}
 
 #contestantScore,#chaserScore {
     color:#00d084;

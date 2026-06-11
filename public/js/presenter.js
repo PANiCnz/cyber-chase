@@ -1,8 +1,43 @@
 
 const socket = io();
 
+const presenterChaserName =
+    document.getElementById('presenterChaserName');
+const presenterChaserTitle =
+    document.getElementById('presenterChaserTitle');
+const presenterChaserDepartment =
+    document.getElementById('presenterChaserDepartment');
+const presenterChaserBio =
+    document.getElementById('presenterChaserBio');
+
 async function notifyDisplays(){
     socket.emit("refreshGame");
+}
+
+async function loadMatchProfile(){
+    const response =
+        await fetch('/api/match/state');
+    const state = await response.json();
+
+    if(!state) return;
+
+    presenterChaserName.textContent =
+        state.chaser?.name || 'Chaser';
+    presenterChaserTitle.textContent =
+        state.chaser?.title || '';
+    presenterChaserTitle.classList.toggle(
+        'hidden',
+        !state.chaser?.title
+    );
+    presenterChaserDepartment.textContent =
+        state.chaser?.department ||
+        'Information Security';
+    presenterChaserBio.textContent =
+        state.chaser?.bio || '';
+    presenterChaserBio.classList.toggle(
+        'hidden',
+        !state.chaser?.bio
+    );
 }
 
 async function loadQuestion(){
@@ -38,6 +73,7 @@ async function submitAnswer(answer){
         `✗ INCORRECT (Correct: ${(result.correctAnswer||'').toUpperCase()})`;
 
     await notifyDisplays();
+    await loadMatchProfile();
     await loadQuestion();
 }
 
@@ -53,4 +89,6 @@ document.addEventListener('keydown',(e)=>{
     }
 });
 
+socket.on('gameState', loadMatchProfile);
+loadMatchProfile();
 loadQuestion();

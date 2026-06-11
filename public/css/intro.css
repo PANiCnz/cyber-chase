@@ -30,12 +30,25 @@ h2{
 
 .player{
     font-size:3rem;
+    max-width:460px;
 }
 
-.player div:last-child{
+.player .player-department,
+.player .chaser-title,
+.player .chaser-bio{
     color:#ffd400;
     font-size:1.5rem;
     margin-top:15px;
+}
+
+.player .chaser-title{
+    font-weight:bold;
+}
+
+.player .chaser-bio{
+    color:#dbe9f6;
+    font-size:1.1rem;
+    line-height:1.5;
 }
 
 .vs{
@@ -47,4 +60,8 @@ h2{
     margin-top:80px;
     font-size:6rem;
     color:#ffd400;
+}
+
+.hidden{
+    display:none;
 }

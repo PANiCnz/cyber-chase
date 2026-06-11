@@ -3,6 +3,9 @@ body{background:linear-gradient(180deg,#08111f,#122c4a);color:white;font-family:
 .header h1{font-size:4rem;color:#00b7ff;margin:0}
 .scoreboard{display:flex;justify-content:space-around;margin-top:20px}
 .player-card{width:40%}
+.chaser-title{color:#ffd400;font-size:1.35rem;font-weight:bold;margin-top:8px}
+.chaser-department{color:#00b7ff;font-size:1rem;margin-top:6px}
+.chaser-bio{color:#dbe9f6;font-size:1rem;line-height:1.4;margin:8px auto 0;max-width:520px}
 .progress{height:30px;background:#23384f;border-radius:20px;overflow:hidden;margin-top:10px}
 .bar{height:100%;width:0%;background:#00d084;transition:width .5s ease}
 .turn{font-size:3rem;margin-top:25px}
