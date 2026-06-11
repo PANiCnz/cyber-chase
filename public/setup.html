@@ -10,23 +10,26 @@
   <h1>CYBER CHASE</h1>
   <h2>New Match Setup</h2>
 
-  <label>Contestant Name</label>
-  <input id="contestantName" type="text">
+  <label for="contestantName">Contestant Name</label>
+  <input id="contestantName" type="text" autocomplete="name">
 
-  <label>Department</label>
+  <label for="contestantDepartment">Department</label>
   <input id="contestantDepartment" type="text">
 
-  <label>Select Chaser</label>
-  <select id="chaserName">
-    <option>Rob</option>
-    <option>Julian</option>
-    <option>Albert</option>
-    <option>Noel</option>
+  <label for="chaserName">Select Chaser</label>
+  <select id="chaserName" disabled>
+    <option value="">Loading chasers...</option>
   </select>
 
-  <button id="startBtn">START MATCH</button>
+  <section id="chaserProfile" class="profile-card hidden" aria-live="polite">
+    <div id="chaserTitle" class="profile-title"></div>
+    <div id="chaserDepartment" class="profile-department"></div>
+    <p id="chaserBio" class="profile-bio"></p>
+  </section>
 
-  <div id="status"></div>
+  <button id="startBtn" disabled>START MATCH</button>
+
+  <div id="status" role="status" aria-live="polite"></div>
 </div>
 
 <script src="/js/setup.js"></script>
