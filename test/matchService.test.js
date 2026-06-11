@@ -126,6 +126,50 @@ test("invalid answers return an error without changing state", () => {
     );
 });
 
+test("times out only the expected active question", () => {
+    const match = matchService.startMatch(
+        "Alex",
+        "Rob"
+    );
+    const token =
+        matchService.getCurrentQuestionToken();
+    const result =
+        matchService.processTimeout(token);
+
+    assert.equal(result.timeout, true);
+    assert.equal(result.player, "contestant");
+    assert.equal(result.playerName, "Alex");
+    assert.equal(match.currentPlayer, "chaser");
+    assert.equal(
+        match.contestantQuestionIndex,
+        1
+    );
+
+    const duplicate =
+        matchService.processTimeout(token);
+
+    assert.equal(duplicate.stale, true);
+    assert.equal(match.currentPlayer, "chaser");
+    assert.equal(match.chaserQuestionIndex, 0);
+});
+
+test("rejects a stale question token without answering the next turn", () => {
+    const match = matchService.startMatch(
+        "Alex",
+        "Rob"
+    );
+    const token =
+        matchService.getCurrentQuestionToken();
+    matchService.processTimeout(token);
+
+    const result =
+        matchService.processAnswer("a", token);
+
+    assert.equal(result.stale, true);
+    assert.equal(match.currentPlayer, "chaser");
+    assert.equal(match.chaserQuestionIndex, 0);
+});
+
 test("alternates beyond five questions until a player reaches five", () => {
     const match = matchService.startMatch(
         "Alex",

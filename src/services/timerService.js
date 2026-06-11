@@ -1,9 +1,20 @@
-
 const DEFAULT_DURATION = 60;
 
 let remaining = DEFAULT_DURATION;
 let interval = null;
 let running = false;
+let activeQuestionToken = null;
+let expirationHandler = null;
+
+function state() {
+    return { remaining, running };
+}
+
+function clearTimer() {
+    clearInterval(interval);
+    interval = null;
+    running = false;
+}
 
 function start() {
     if (running || remaining <= 0) {
@@ -11,35 +22,95 @@ function start() {
     }
 
     running = true;
-    interval = setInterval(() => {
-        remaining--;
-
-        if (remaining <= 0) {
-            remaining = 0;
-            pause();
-        }
-    }, 1000);
-
+    interval = setInterval(tick, 1000);
     return state();
 }
 
 function pause() {
-    running = false;
-    clearInterval(interval);
-    interval = null;
-
+    clearTimer();
     return state();
 }
 
 function reset() {
-    pause();
+    clearTimer();
     remaining = DEFAULT_DURATION;
-
+    activeQuestionToken = null;
     return state();
 }
 
-function state() {
-    return { remaining, running };
+function tick() {
+    remaining--;
+
+    if (remaining > 0) {
+        return;
+    }
+
+    remaining = 0;
+    clearTimer();
+
+    const expiredQuestionToken =
+        activeQuestionToken;
+    activeQuestionToken = null;
+
+    if (
+        expiredQuestionToken &&
+        expirationHandler
+    ) {
+        expirationHandler(
+            expiredQuestionToken
+        );
+    }
 }
 
-module.exports = { start, pause, reset, state };
+function setExpirationHandler(handler) {
+    expirationHandler =
+        typeof handler === "function"
+            ? handler
+            : null;
+}
+
+function startQuestion(
+    questionToken,
+    duration = DEFAULT_DURATION
+) {
+    if (
+        typeof questionToken !== "string" ||
+        !questionToken
+    ) {
+        return state();
+    }
+
+    if (
+        activeQuestionToken === questionToken
+    ) {
+        return state();
+    }
+
+    clearTimer();
+    activeQuestionToken = questionToken;
+    remaining = duration;
+    return start();
+}
+
+function completeQuestion(questionToken) {
+    if (
+        activeQuestionToken !== questionToken
+    ) {
+        return false;
+    }
+
+    clearTimer();
+    activeQuestionToken = null;
+    remaining = DEFAULT_DURATION;
+    return true;
+}
+
+module.exports = {
+    start,
+    pause,
+    reset,
+    state,
+    setExpirationHandler,
+    startQuestion,
+    completeQuestion
+};

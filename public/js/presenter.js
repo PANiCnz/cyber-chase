@@ -45,6 +45,7 @@ const answerButtons = [
     document.getElementById('answerD')
 ];
 let currentMatchState = null;
+let currentQuestionToken = null;
 let presenterRefreshRunning = false;
 
 function setAnswerButtonsDisabled(disabled) {
@@ -55,6 +56,7 @@ function setAnswerButtonsDisabled(disabled) {
 
 function showWaitingState() {
     currentMatchState = null;
+    currentQuestionToken = null;
     presenterWaiting.classList.remove('hidden');
     newMatchBtn.classList.add('hidden');
     presenterWinner.classList.add('hidden');
@@ -193,6 +195,8 @@ async function loadQuestion() {
 
         if (!q) return;
 
+        currentQuestionToken =
+            q.questionToken || null;
         questionCategory.textContent =
             q.category || '';
         questionDifficulty.textContent =
@@ -229,12 +233,23 @@ async function submitAnswer(answer) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ answer })
+            body: JSON.stringify({
+                answer,
+                questionToken:
+                    currentQuestionToken
+            })
         }
     );
     const result = await response.json();
 
     if (!response.ok) {
+        if (response.status === 409) {
+            resultBanner.textContent =
+                'TIME EXPIRED';
+            await loadQuestion();
+            return;
+        }
+
         resultBanner.textContent =
             result.error ||
             'Unable to submit answer';
@@ -290,6 +305,15 @@ document.addEventListener('keydown', event => {
 });
 
 socket.on('gameState', loadQuestion);
+socket.on('answerResult', result => {
+    if (!result.timeout) {
+        return;
+    }
+
+    resultBanner.textContent =
+        `TIME UP (Correct: ${(result.correctAnswer || '').toUpperCase()})`;
+    setAnswerButtonsDisabled(true);
+});
 socket.on('newMatch', () => {
     showWaitingState();
 });

@@ -70,6 +70,18 @@ function getCurrentQuestion() {
     ];
 }
 
+function getCurrentQuestionToken() {
+    if (!match || match.winner) {
+        return null;
+    }
+
+    const index = match.currentPlayer === "contestant"
+        ? match.contestantQuestionIndex
+        : match.chaserQuestionIndex;
+
+    return `${match.currentPlayer}:${index}`;
+}
+
 function getUpcomingQuestion() {
 
     if (!match) return null;
@@ -140,14 +152,30 @@ function markIncorrect() {
     return match;
 }
 
-function processAnswer(submittedAnswer) {
+function processAnswer(
+    submittedAnswer,
+    expectedQuestionToken
+) {
 
     const question = getCurrentQuestion();
+    const questionToken =
+        getCurrentQuestionToken();
 
     if (!question) {
         return {
             correct: false,
             error: "No active question"
+        };
+    }
+
+    if (
+        expectedQuestionToken &&
+        expectedQuestionToken !== questionToken
+    ) {
+        return {
+            correct: false,
+            error: "Question is no longer active",
+            stale: true
         };
     }
 
@@ -194,6 +222,45 @@ function processAnswer(submittedAnswer) {
         correct: isCorrect,
         submittedAnswer: answer,
         correctAnswer: correctAnswer,
+        questionToken,
+        match
+    };
+}
+
+function processTimeout(expectedQuestionToken) {
+    const question = getCurrentQuestion();
+    const questionToken =
+        getCurrentQuestionToken();
+
+    if (
+        !question ||
+        expectedQuestionToken !== questionToken
+    ) {
+        return {
+            correct: false,
+            error: "Question is no longer active",
+            stale: true
+        };
+    }
+
+    const player = match.currentPlayer;
+    const playerName = player === "chaser"
+        ? match.chaser.name
+        : match.contestant.name;
+    const correctAnswer =
+        typeof question.correct === "string"
+            ? question.correct.toLowerCase()
+            : "";
+
+    markIncorrect();
+
+    return {
+        correct: false,
+        correctAnswer,
+        questionToken,
+        timeout: true,
+        player,
+        playerName,
         match
     };
 }
@@ -206,9 +273,11 @@ module.exports = {
     startMatch,
     getMatch,
     getCurrentQuestion,
+    getCurrentQuestionToken,
     getUpcomingQuestion,
     markCorrect,
     markIncorrect,
     processAnswer,
+    processTimeout,
     resetMatch
 };

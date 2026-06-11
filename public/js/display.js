@@ -154,7 +154,11 @@ function showAnswerResult(result) {
          ? 'Chaser'
          : 'Contestant');
    answerResultMessage.textContent =
-      result.correct ? 'CORRECT!' : 'INCORRECT';
+      result.timeout
+         ? 'TIME UP!'
+         : result.correct
+            ? 'CORRECT!'
+            : 'INCORRECT';
    answerResultCorrect.textContent =
       result.correct
          ? ''

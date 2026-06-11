@@ -293,7 +293,7 @@ test("resets match and timer state together", async () => {
     });
 });
 
-test("starts each valid match with a reset timer", async () => {
+test("starts each valid match with a waiting question timer", async () => {
     timerService.start();
 
     const response = await fetch(
@@ -391,5 +391,133 @@ test("pauses the timer when an answer produces a winner", async () => {
     assert.equal(
         timerService.state().running,
         false
+    );
+});
+
+test("displaying a question starts its timer automatically", async () => {
+    matchService.startMatch("Alex", "Rob");
+
+    const response = await fetch(
+        `${baseUrl}/api/question/current`
+    );
+    const question = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(
+        question.questionToken,
+        "contestant:0"
+    );
+    assert.equal(
+        timerService.state().running,
+        true
+    );
+});
+
+test("submitting an answer resets timing for the next question", async () => {
+    matchService.startMatch("Alex", "Rob");
+
+    const questionResponse = await fetch(
+        `${baseUrl}/api/question/current`
+    );
+    const question =
+        await questionResponse.json();
+    await new Promise(resolve => {
+        setTimeout(resolve, 1100);
+    });
+    assert.ok(
+        timerService.state().remaining < 60
+    );
+    const response = await fetch(
+        `${baseUrl}/api/question/respond`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                answer: question.correct,
+                questionToken:
+                    question.questionToken
+            })
+        }
+    );
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(timerService.state(), {
+        remaining: 60,
+        running: false
+    });
+
+    const nextResponse = await fetch(
+        `${baseUrl}/api/question/current`
+    );
+    const nextQuestion =
+        await nextResponse.json();
+
+    assert.equal(
+        nextQuestion.questionToken,
+        "chaser:0"
+    );
+    assert.equal(
+        timerService.state().running,
+        true
+    );
+});
+
+test("question expiry counts as an incorrect answer", async () => {
+    matchService.startMatch("Alex", "Rob");
+    const questionToken =
+        matchService.getCurrentQuestionToken();
+
+    timerService.startQuestion(
+        questionToken,
+        1
+    );
+    await new Promise(resolve => {
+        setTimeout(resolve, 1100);
+    });
+
+    const match = matchService.getMatch();
+
+    assert.equal(match.contestant.score, 0);
+    assert.equal(match.currentPlayer, "chaser");
+    assert.equal(
+        match.contestantQuestionIndex,
+        1
+    );
+    assert.deepEqual(timerService.state(), {
+        remaining: 0,
+        running: false
+    });
+});
+
+test("rejects an answer for a question that has already expired", async () => {
+    matchService.startMatch("Alex", "Rob");
+    const expiredToken =
+        matchService.getCurrentQuestionToken();
+    matchService.processTimeout(expiredToken);
+
+    const response = await fetch(
+        `${baseUrl}/api/question/respond`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                answer: "a",
+                questionToken: expiredToken
+            })
+        }
+    );
+    const result = await response.json();
+
+    assert.equal(response.status, 409);
+    assert.equal(result.stale, true);
+    assert.equal(
+        matchService.getMatch().currentPlayer,
+        "chaser"
     );
 });

@@ -7,6 +7,10 @@ const matchRoutes = require("./routes/matchRoutes");
 const questionRoutes = require("./routes/questionRoutes");
 const timerRoutes = require("./routes/timerRoutes");
 const chaserRoutes = require("./routes/chaserRoutes");
+const matchService =
+    require("./services/matchService");
+const timerService =
+    require("./services/timerService");
 
 const app = express();
 const server = http.createServer(app);
@@ -14,6 +18,31 @@ const server = http.createServer(app);
 const io = new Server(server, {
     cors: { origin: "*" }
 });
+
+timerService.setExpirationHandler(
+    questionToken => {
+        const result =
+            matchService.processTimeout(
+                questionToken
+            );
+
+        if (result.error) {
+            return;
+        }
+
+        io.emit("answerResult", {
+            correct: false,
+            correctAnswer:
+                result.correctAnswer,
+            player: result.player,
+            playerName: result.playerName,
+            timeout: true
+        });
+        io.emit("gameState", {
+            timestamp: Date.now()
+        });
+    }
+);
 
 app.use(express.json());
 app.use(express.static("public"));

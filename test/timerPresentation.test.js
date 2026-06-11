@@ -12,44 +12,51 @@ function read(relativePath) {
 
 const presenterHtml =
     read("public/presenter.html");
-const presenterScript =
+const presenter =
+    read("public/js/presenter.js");
+const presenterTimer =
     read("public/js/timer-presenter.js");
 const presenterCss =
     read("public/css/presenter.css");
 const displayHtml =
     read("public/display.html");
-const displayScript =
+const display =
+    read("public/js/display.js");
+const displayTimer =
     read("public/js/timer-display.js");
 const displayCss =
     read("public/css/display.css");
 const timerService =
     read("src/services/timerService.js");
+const questionRoutes =
+    read("src/routes/questionRoutes.js");
+const server =
+    read("src/server.js");
 
-test("presenter provides active timer controls and status", () => {
-    for (const id of [
-        "timerValue",
-        "timerStatus",
-        "startTimerBtn",
-        "pauseTimerBtn",
-        "resetTimerBtn"
-    ]) {
-        assert.match(
-            presenterHtml,
-            new RegExp(`id="${id}"`)
-        );
-    }
-
+test("presenter shows a read-only automatic question timer", () => {
+    assert.match(
+        presenterHtml,
+        /QUESTION TIMER/
+    );
+    assert.match(
+        presenterHtml,
+        /id="timerValue"/
+    );
+    assert.doesNotMatch(
+        presenterHtml,
+        /startTimerBtn|pauseTimerBtn|resetTimerBtn/
+    );
     assert.match(
         presenterHtml,
         /\/js\/timer-presenter\.js/
     );
     assert.match(
-        presenterScript,
-        /\/api\/timer\/\$\{action\}/
+        presenterTimer,
+        /\/api\/timer\/state/
     );
     assert.match(
-        presenterScript,
-        /setInterval\(refreshTimer, 500\)/
+        presenterTimer,
+        /Question active/
     );
     assert.match(
         presenterCss,
@@ -57,7 +64,22 @@ test("presenter provides active timer controls and status", () => {
     );
 });
 
-test("audience display loads and announces timer updates", () => {
+test("presenter submits the active question token", () => {
+    assert.match(
+        presenter,
+        /currentQuestionToken =\s*q\.questionToken/
+    );
+    assert.match(
+        presenter,
+        /questionToken:\s*currentQuestionToken/
+    );
+    assert.match(
+        presenter,
+        /response\.status === 409/
+    );
+});
+
+test("audience display announces timer updates and timeouts", () => {
     assert.match(
         displayHtml,
         /\/js\/timer-display\.js/
@@ -67,12 +89,16 @@ test("audience display loads and announces timer updates", () => {
         /role="timer"/
     );
     assert.match(
-        displayScript,
+        displayTimer,
         /\/api\/timer\/state/
     );
     assert.match(
-        displayScript,
+        displayTimer,
         /setAttribute\(\s*'aria-label'/
+    );
+    assert.match(
+        display,
+        /result\.timeout[\s\S]*'TIME UP!'/
     );
     assert.match(
         displayCss,
@@ -80,13 +106,40 @@ test("audience display loads and announces timer updates", () => {
     );
 });
 
-test("timer stops cleanly when the countdown reaches zero", () => {
+test("question display arms one server-authoritative timer", () => {
     assert.match(
-        timerService,
-        /if \(remaining <= 0\) \{[\s\S]*remaining = 0;[\s\S]*pause\(\)/
+        questionRoutes,
+        /timerService\.startQuestion/
+    );
+    assert.match(
+        questionRoutes,
+        /questionToken/
     );
     assert.match(
         timerService,
-        /running \|\| remaining <= 0/
+        /activeQuestionToken === questionToken/
+    );
+    assert.match(
+        timerService,
+        /expirationHandler/
+    );
+});
+
+test("server converts expiry into an incorrect realtime result", () => {
+    assert.match(
+        server,
+        /setExpirationHandler/
+    );
+    assert.match(
+        server,
+        /matchService\.processTimeout/
+    );
+    assert.match(
+        server,
+        /timeout: true/
+    );
+    assert.match(
+        server,
+        /io\.emit\("gameState"/
     );
 });

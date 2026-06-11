@@ -46,5 +46,5 @@ async function refreshDisplayTimer() {
     }
 }
 
-setInterval(refreshDisplayTimer, 500);
+setInterval(refreshDisplayTimer, 250);
 refreshDisplayTimer();

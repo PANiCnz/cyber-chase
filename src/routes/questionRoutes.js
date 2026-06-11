@@ -8,8 +8,21 @@ const timerService =
     require("../services/timerService");
 
 router.get("/current", (req, res) => {
+    const question =
+        matchService.getCurrentQuestion();
+    const questionToken =
+        matchService.getCurrentQuestionToken();
+
+    if (question && questionToken) {
+        timerService.startQuestion(
+            questionToken
+        );
+    }
+
     res.json(
-        matchService.getCurrentQuestion()
+        question
+            ? { ...question, questionToken }
+            : null
     );
 });
 
@@ -37,21 +50,30 @@ router.get("/answer", (req, res) => {
 
 router.post("/respond", (req, res) => {
 
-    const { answer } = req.body;
+    const {
+        answer,
+        questionToken
+    } = req.body;
 
     const result =
         matchService.processAnswer(
-            answer
+            answer,
+            questionToken
         );
 
     if (result.error) {
-        const status =
-            result.error === "No active question"
+        const status = result.stale
+            ? 409
+            : result.error === "No active question"
                 ? 404
                 : 400;
 
         return res.status(status).json(result);
     }
+
+    timerService.completeQuestion(
+        result.questionToken
+    );
 
     if (result.match.winner) {
         timerService.pause();
