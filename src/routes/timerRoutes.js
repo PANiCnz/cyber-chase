@@ -1,10 +1,57 @@
+const router = require("express").Router();
+const matchService =
+    require("../services/matchService");
+const timerService =
+    require("../services/timerService");
 
-const router = require('express').Router();
-const timer = require('../services/timerService');
+router.get("/state", (req, res) => {
+    res.json(timerService.state());
+});
 
-router.get('/state', (req,res)=>res.json(timer.state()));
-router.post('/start', (req,res)=>{ timer.start(); res.json(timer.state()); });
-router.post('/pause', (req,res)=>{ timer.pause(); res.json(timer.state()); });
-router.post('/reset', (req,res)=>{ timer.reset(); res.json(timer.state()); });
+router.post("/start", (req, res) => {
+    const questionToken =
+        matchService.getCurrentQuestionToken();
+
+    if (!questionToken) {
+        return res.status(409).json({
+            error: "No active round"
+        });
+    }
+
+    res.json(
+        timerService.resumeQuestion(
+            questionToken
+        )
+    );
+});
+
+router.post("/pause", (req, res) => {
+    if (
+        !matchService.getCurrentQuestionToken()
+    ) {
+        return res.status(409).json({
+            error: "No active round"
+        });
+    }
+
+    res.json(timerService.pause());
+});
+
+router.post("/reset", (req, res) => {
+    const questionToken =
+        matchService.getCurrentQuestionToken();
+
+    if (!questionToken) {
+        return res.status(409).json({
+            error: "No active round"
+        });
+    }
+
+    res.json(
+        timerService.resetQuestion(
+            questionToken
+        )
+    );
+});
 
 module.exports = router;

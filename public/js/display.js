@@ -90,7 +90,9 @@ function renderMatchState(state) {
    );
 
    currentTurn.textContent =
-      `${(state.currentPlayer || '').toUpperCase()} TURN`;
+      state.roundActive
+         ? `${(state.currentPlayer || '').toUpperCase()} TURN`
+         : 'WAITING FOR NEXT ROUND';
    currentTurn.className =
       'turn ' +
       (state.currentPlayer === 'chaser'
@@ -107,9 +109,15 @@ function renderMatchState(state) {
    }
 
    winnerScreen.classList.add('hidden');
-   questionPanel.classList.remove('hidden');
-   category.classList.remove('hidden');
-   return !resultVisible;
+   questionPanel.classList.toggle(
+      'hidden',
+      !state.roundActive
+   );
+   category.classList.toggle(
+      'hidden',
+      !state.roundActive
+   );
+   return state.roundActive && !resultVisible;
 }
 
 function renderQuestion(question) {

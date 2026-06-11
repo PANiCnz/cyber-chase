@@ -29,6 +29,7 @@ test("starts a match with existing state fields", () => {
         score: 0
     });
     assert.equal(match.currentPlayer, "contestant");
+    assert.equal(match.roundActive, false);
     assert.ok(match.contestantQuestions.length > 5);
     assert.ok(match.chaserQuestions.length > 5);
     assert.equal(match.winner, null);
@@ -65,6 +66,7 @@ test("correct answers score and advance the turn", () => {
 
     const answer =
         matchService.getCurrentQuestion().correct;
+    matchService.startRound();
     const result =
         matchService.processAnswer(answer);
 
@@ -91,6 +93,7 @@ test("incorrect answers preserve score and advance", () => {
         ["a", "b", "c", "d"].find(
             item => item !== correct
         );
+    matchService.startRound();
     const result =
         matchService.processAnswer(answer);
 
@@ -110,6 +113,7 @@ test("invalid answers return an error without changing state", () => {
         "Alex",
         "Rob"
     );
+    matchService.startRound();
 
     const result =
         matchService.processAnswer();
@@ -132,7 +136,8 @@ test("times out only the expected active question", () => {
         "Rob"
     );
     const token =
-        matchService.getCurrentQuestionToken();
+        matchService.startRound()
+            .questionToken;
     const result =
         matchService.processTimeout(token);
 
@@ -159,7 +164,8 @@ test("rejects a stale question token without answering the next turn", () => {
         "Rob"
     );
     const token =
-        matchService.getCurrentQuestionToken();
+        matchService.startRound()
+            .questionToken;
     matchService.processTimeout(token);
 
     const result =
@@ -177,6 +183,7 @@ test("alternates beyond five questions until a player reaches five", () => {
     );
 
     for (let round = 0; round < 5; round++) {
+        matchService.startRound();
         const contestantQuestion =
             matchService.getCurrentQuestion();
         const contestantWrong =
@@ -190,6 +197,7 @@ test("alternates beyond five questions until a player reaches five", () => {
             contestantWrong
         );
 
+        matchService.startRound();
         const chaserQuestion =
             matchService.getCurrentQuestion();
         const chaserWrong =
@@ -210,6 +218,7 @@ test("alternates beyond five questions until a player reaches five", () => {
     assert.ok(matchService.getCurrentQuestion());
 
     while (!match.winner) {
+        matchService.startRound();
         matchService.processAnswer(
             matchService.getCurrentQuestion().correct
         );
@@ -218,6 +227,7 @@ test("alternates beyond five questions until a player reaches five", () => {
             !match.winner &&
             match.currentPlayer === "chaser"
         ) {
+            matchService.startRound();
             const question =
                 matchService.getCurrentQuestion();
             const wrong =

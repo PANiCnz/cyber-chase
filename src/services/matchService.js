@@ -45,6 +45,7 @@ function startMatch(contestantName, chaser, contestantDepartment = "") {
         contestantQuestionIndex: 0,
         chaserQuestionIndex: 0,
 
+        roundActive: false,
         winner: null
     };
 
@@ -71,7 +72,11 @@ function getCurrentQuestion() {
 }
 
 function getCurrentQuestionToken() {
-    if (!match || match.winner) {
+    if (
+        !match ||
+        match.winner ||
+        !match.roundActive
+    ) {
         return null;
     }
 
@@ -80,6 +85,43 @@ function getCurrentQuestionToken() {
         : match.chaserQuestionIndex;
 
     return `${match.currentPlayer}:${index}`;
+}
+
+function startRound() {
+    if (!match) {
+        return {
+            error: "No active match"
+        };
+    }
+
+    if (match.winner) {
+        return {
+            error: "Match is complete"
+        };
+    }
+
+    if (match.roundActive) {
+        return {
+            error: "Round is already active"
+        };
+    }
+
+    const question = getCurrentQuestion();
+
+    if (!question) {
+        return {
+            error: "No active question"
+        };
+    }
+
+    match.roundActive = true;
+
+    return {
+        match,
+        question,
+        questionToken:
+            getCurrentQuestionToken()
+    };
 }
 
 function getUpcomingQuestion() {
@@ -157,6 +199,21 @@ function processAnswer(
     expectedQuestionToken
 ) {
 
+    if (!match?.roundActive) {
+        if (expectedQuestionToken) {
+            return {
+                correct: false,
+                error: "Question is no longer active",
+                stale: true
+            };
+        }
+
+        return {
+            correct: false,
+            error: "No active round"
+        };
+    }
+
     const question = getCurrentQuestion();
     const questionToken =
         getCurrentQuestionToken();
@@ -217,6 +274,7 @@ function processAnswer(
     } else {
         markIncorrect();
     }
+    match.roundActive = false;
 
     return {
         correct: isCorrect,
@@ -228,6 +286,14 @@ function processAnswer(
 }
 
 function processTimeout(expectedQuestionToken) {
+    if (!match?.roundActive) {
+        return {
+            correct: false,
+            error: "Question is no longer active",
+            stale: true
+        };
+    }
+
     const question = getCurrentQuestion();
     const questionToken =
         getCurrentQuestionToken();
@@ -253,6 +319,7 @@ function processTimeout(expectedQuestionToken) {
             : "";
 
     markIncorrect();
+    match.roundActive = false;
 
     return {
         correct: false,
@@ -274,6 +341,7 @@ module.exports = {
     getMatch,
     getCurrentQuestion,
     getCurrentQuestionToken,
+    startRound,
     getUpcomingQuestion,
     markCorrect,
     markIncorrect,

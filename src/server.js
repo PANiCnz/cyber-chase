@@ -41,6 +41,7 @@ timerService.setExpirationHandler(
         io.emit("gameState", {
             timestamp: Date.now()
         });
+        timerService.reset();
     }
 );
 

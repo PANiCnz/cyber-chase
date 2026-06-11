@@ -8,22 +8,45 @@ const timerService =
     require("../services/timerService");
 
 router.get("/current", (req, res) => {
-    const question =
-        matchService.getCurrentQuestion();
     const questionToken =
         matchService.getCurrentQuestionToken();
-
-    if (question && questionToken) {
-        timerService.startQuestion(
-            questionToken
-        );
-    }
+    const question = questionToken
+        ? matchService.getCurrentQuestion()
+        : null;
 
     res.json(
         question
             ? { ...question, questionToken }
             : null
     );
+});
+
+router.post("/start", (req, res) => {
+    const result =
+        matchService.startRound();
+
+    if (result.error) {
+        const status =
+            result.error === "No active match"
+                ? 404
+                : 409;
+
+        return res.status(status).json(result);
+    }
+
+    const timer = timerService.startQuestion(
+        result.questionToken
+    );
+
+    res.json({
+        match: result.match,
+        question: {
+            ...result.question,
+            questionToken:
+                result.questionToken
+        },
+        timer
+    });
 });
 
 router.get("/upcoming", (req, res) => {
@@ -34,8 +57,11 @@ router.get("/upcoming", (req, res) => {
 
 router.get("/answer", (req, res) => {
 
-    const q =
-        matchService.getCurrentQuestion();
+    const questionToken =
+        matchService.getCurrentQuestionToken();
+    const q = questionToken
+        ? matchService.getCurrentQuestion()
+        : null;
 
     if (!q) {
         return res.status(404).json({
@@ -64,6 +90,8 @@ router.post("/respond", (req, res) => {
     if (result.error) {
         const status = result.stale
             ? 409
+            : result.error === "No active round"
+                ? 409
             : result.error === "No active question"
                 ? 404
                 : 400;

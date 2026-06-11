@@ -36,8 +36,16 @@ const winnerNewMatchBtn =
     document.getElementById('winnerNewMatchBtn');
 const presenterWaiting =
     document.getElementById('presenterWaiting');
+const roundWaiting =
+    document.getElementById('roundWaiting');
+const roundWaitingText =
+    document.getElementById('roundWaitingText');
+const startRoundBtn =
+    document.getElementById('startRoundBtn');
 const gameSections =
     document.querySelectorAll('.game-section');
+const roundContent =
+    document.querySelectorAll('.round-content');
 const answerButtons = [
     document.getElementById('answerA'),
     document.getElementById('answerB'),
@@ -78,11 +86,41 @@ function showGameState() {
     }
 }
 
+function renderRoundState(state) {
+    const active =
+        state?.roundActive === true;
+
+    roundWaiting.classList.toggle(
+        'hidden',
+        active || Boolean(state?.winner)
+    );
+    roundWaitingText.textContent =
+        `Ready for the ${state?.currentPlayer || 'next'} round.`;
+    startRoundBtn.disabled =
+        active || Boolean(state?.winner);
+    currentQuestionToken =
+        active ? currentQuestionToken : null;
+    setAnswerButtonsDisabled(!active);
+
+    for (const section of roundContent) {
+        section.classList.toggle(
+            'hidden',
+            !active
+        );
+    }
+
+    window.dispatchEvent(
+        new CustomEvent(
+            'roundStateChanged',
+            { detail: { active } }
+        )
+    );
+}
+
 function renderWinner(state) {
     if (!state?.winner) {
         presenterWinner.classList.add('hidden');
         presenterWinnerText.textContent = '';
-        setAnswerButtonsDisabled(false);
         return false;
     }
 
@@ -172,7 +210,38 @@ async function loadMatchProfile() {
     );
 
     renderWinner(state);
+    renderRoundState(state);
     return state;
+}
+
+async function startRound() {
+    startRoundBtn.disabled = true;
+    resultBanner.textContent =
+        'Starting round...';
+
+    try {
+        const response = await fetch(
+            '/api/question/start',
+            { method: 'POST' }
+        );
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                result.error ||
+                'Unable to start round'
+            );
+        }
+
+        resultBanner.textContent = '';
+        currentMatchState = result.match;
+        socket.emit('refreshGame');
+        await loadQuestion();
+    } catch (error) {
+        resultBanner.textContent =
+            error.message;
+        startRoundBtn.disabled = false;
+    }
 }
 
 async function loadQuestion() {
@@ -185,7 +254,11 @@ async function loadQuestion() {
     try {
         const state = await loadMatchProfile();
 
-        if (!state || state.winner) {
+        if (
+            !state ||
+            state.winner ||
+            !state.roundActive
+        ) {
             return;
         }
 
@@ -292,6 +365,7 @@ answerButtons[3].onclick =
     () => submitAnswer('d');
 newMatchBtn.onclick = startNewMatch;
 winnerNewMatchBtn.onclick = startNewMatch;
+startRoundBtn.onclick = startRound;
 
 document.addEventListener('keydown', event => {
     const key = event.key.toLowerCase();

@@ -21,6 +21,15 @@
         <div class="timer-label">QUESTION TIMER</div>
         <div id="timerValue" class="timer-value" aria-live="polite">60</div>
         <div id="timerStatus" class="timer-status">Waiting for question</div>
+        <div class="timer-controls">
+            <button id="pauseTimerBtn" type="button" disabled>PAUSE</button>
+            <button id="resetTimerBtn" type="button" disabled>RESET</button>
+        </div>
+    </section>
+
+    <section id="roundWaiting" class="round-waiting game-section hidden" role="status">
+        <div id="roundWaitingText">Ready for the contestant round.</div>
+        <button id="startRoundBtn" type="button">START NEXT ROUND</button>
     </section>
 
     <section class="chaser-profile-panel game-section hidden" aria-label="Chaser profile">
@@ -31,7 +40,7 @@
         <p id="presenterChaserBio" class="profile-bio hidden"></p>
     </section>
 
-    <div class="question-panel game-section hidden">
+    <div class="question-panel game-section round-content hidden">
         <div id="questionCategory"></div>
         <div id="questionDifficulty"></div>
         <div id="questionText"></div>
@@ -43,7 +52,7 @@
         </div>
     </div>
 
-    <div class="answer-panel game-section hidden">
+    <div class="answer-panel game-section round-content hidden">
         <h3>Select Answer Given</h3>
         <div class="controls">
             <button id="answerA">A</button>
@@ -53,7 +62,7 @@
         </div>
     </div>
 
-    <div class="answer-panel game-section hidden">
+    <div class="answer-panel game-section round-content hidden">
         Correct Answer:
         <div id="correctAnswer"></div>
     </div>

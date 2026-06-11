@@ -170,6 +170,12 @@ test("returns 400 when no chaser selection is supplied", async () => {
 test("preserves question endpoint shapes", async () => {
     matchService.startMatch("Alex", "Rob");
 
+    const startResponse = await fetch(
+        `${baseUrl}/api/question/start`,
+        { method: "POST" }
+    );
+    assert.equal(startResponse.status, 200);
+
     const currentResponse = await fetch(
         `${baseUrl}/api/question/current`
     );
@@ -205,6 +211,7 @@ test("preserves question endpoint shapes", async () => {
 
 test("returns 400 for invalid answers without changing the turn", async () => {
     matchService.startMatch("Alex", "Rob");
+    matchService.startRound();
 
     const response = await fetch(
         `${baseUrl}/api/question/respond`,
@@ -280,7 +287,8 @@ test("resets match and timer state together", async () => {
     assert.equal(result.match, null);
     assert.deepEqual(result.timer, {
         remaining: 60,
-        running: false
+        running: false,
+        active: false
     });
     assert.equal(matchService.getMatch(), null);
     assert.equal(
@@ -289,7 +297,8 @@ test("resets match and timer state together", async () => {
     );
     assert.deepEqual(timerService.state(), {
         remaining: 60,
-        running: false
+        running: false,
+        active: false
     });
 });
 
@@ -314,22 +323,19 @@ test("starts each valid match with a waiting question timer", async () => {
     assert.equal(response.status, 200);
     assert.deepEqual(timerService.state(), {
         remaining: 60,
-        running: false
+        running: false,
+        active: false
     });
 });
 
-test("timer endpoints start pause and reset the shared timer", async () => {
-    const startResponse = await fetch(
-        `${baseUrl}/api/timer/start`,
+test("timer endpoints pause resume and reset the active question", async () => {
+    matchService.startMatch("Alex", "Rob");
+
+    const roundResponse = await fetch(
+        `${baseUrl}/api/question/start`,
         { method: "POST" }
     );
-
-    const startedTimer =
-        await startResponse.json();
-
-    assert.equal(startedTimer.running, true);
-    assert.ok(startedTimer.remaining <= 60);
-    assert.ok(startedTimer.remaining > 0);
+    assert.equal(roundResponse.status, 200);
 
     const pauseResponse = await fetch(
         `${baseUrl}/api/timer/pause`,
@@ -340,10 +346,17 @@ test("timer endpoints start pause and reset the shared timer", async () => {
         await pauseResponse.json();
 
     assert.equal(pausedTimer.running, false);
-    assert.ok(pausedTimer.remaining <= 60);
-    assert.ok(pausedTimer.remaining > 0);
+    assert.equal(pausedTimer.active, true);
 
-    timerService.start();
+    const resumeResponse = await fetch(
+        `${baseUrl}/api/timer/start`,
+        { method: "POST" }
+    );
+    const resumedTimer =
+        await resumeResponse.json();
+
+    assert.equal(resumedTimer.running, true);
+    assert.equal(resumedTimer.active, true);
 
     const resetResponse = await fetch(
         `${baseUrl}/api/timer/reset`,
@@ -354,7 +367,8 @@ test("timer endpoints start pause and reset the shared timer", async () => {
         await resetResponse.json(),
         {
             remaining: 60,
-            running: false
+            running: false,
+            active: true
         }
     );
 });
@@ -364,7 +378,10 @@ test("pauses the timer when an answer produces a winner", async () => {
     const match = matchService.getMatch();
     match.contestant.score = 4;
     match.currentPlayer = "contestant";
-    timerService.start();
+    matchService.startRound();
+    timerService.startQuestion(
+        matchService.getCurrentQuestionToken()
+    );
 
     const questionResponse = await fetch(
         `${baseUrl}/api/question/answer`
@@ -394,8 +411,28 @@ test("pauses the timer when an answer produces a winner", async () => {
     );
 });
 
-test("displaying a question starts its timer automatically", async () => {
+test("starting a round displays its question and starts its timer", async () => {
     matchService.startMatch("Alex", "Rob");
+
+    const waitingResponse = await fetch(
+        `${baseUrl}/api/question/current`
+    );
+    assert.equal(
+        await waitingResponse.json(),
+        null
+    );
+
+    const startResponse = await fetch(
+        `${baseUrl}/api/question/start`,
+        { method: "POST" }
+    );
+    const started = await startResponse.json();
+
+    assert.equal(startResponse.status, 200);
+    assert.equal(
+        started.question.questionToken,
+        "contestant:0"
+    );
 
     const response = await fetch(
         `${baseUrl}/api/question/current`
@@ -413,14 +450,63 @@ test("displaying a question starts its timer automatically", async () => {
     );
 });
 
-test("submitting an answer resets timing for the next question", async () => {
+test("does not restart an already active round", async () => {
     matchService.startMatch("Alex", "Rob");
 
-    const questionResponse = await fetch(
-        `${baseUrl}/api/question/current`
+    const firstResponse = await fetch(
+        `${baseUrl}/api/question/start`,
+        { method: "POST" }
     );
-    const question =
-        await questionResponse.json();
+    const first = await firstResponse.json();
+    const secondResponse = await fetch(
+        `${baseUrl}/api/question/start`,
+        { method: "POST" }
+    );
+    const second = await secondResponse.json();
+
+    assert.equal(firstResponse.status, 200);
+    assert.equal(
+        first.question.questionToken,
+        "contestant:0"
+    );
+    assert.equal(secondResponse.status, 409);
+    assert.equal(
+        second.error,
+        "Round is already active"
+    );
+});
+
+test("rejects timer controls between rounds", async () => {
+    matchService.startMatch("Alex", "Rob");
+
+    for (const action of [
+        "start",
+        "pause",
+        "reset"
+    ]) {
+        const response = await fetch(
+            `${baseUrl}/api/timer/${action}`,
+            { method: "POST" }
+        );
+        const result = await response.json();
+
+        assert.equal(response.status, 409);
+        assert.equal(
+            result.error,
+            "No active round"
+        );
+    }
+});
+
+test("submitting an answer pauses before the next round", async () => {
+    matchService.startMatch("Alex", "Rob");
+
+    const startResponse = await fetch(
+        `${baseUrl}/api/question/start`,
+        { method: "POST" }
+    );
+    const started = await startResponse.json();
+    const question = started.question;
     await new Promise(resolve => {
         setTimeout(resolve, 1100);
     });
@@ -446,29 +532,42 @@ test("submitting an answer resets timing for the next question", async () => {
     assert.equal(response.status, 200);
     assert.deepEqual(timerService.state(), {
         remaining: 60,
-        running: false
+        running: false,
+        active: false
     });
+    assert.equal(
+        matchService.getMatch().roundActive,
+        false
+    );
 
     const nextResponse = await fetch(
         `${baseUrl}/api/question/current`
     );
-    const nextQuestion =
-        await nextResponse.json();
-
-    assert.equal(
-        nextQuestion.questionToken,
-        "chaser:0"
-    );
+    assert.equal(await nextResponse.json(), null);
     assert.equal(
         timerService.state().running,
-        true
+        false
     );
+
+    const nextStartResponse = await fetch(
+        `${baseUrl}/api/question/start`,
+        { method: "POST" }
+    );
+    const nextStarted =
+        await nextStartResponse.json();
+
+    assert.equal(
+        nextStarted.question.questionToken,
+        "chaser:0"
+    );
+    assert.equal(nextStarted.timer.running, true);
 });
 
 test("question expiry counts as an incorrect answer", async () => {
     matchService.startMatch("Alex", "Rob");
     const questionToken =
-        matchService.getCurrentQuestionToken();
+        matchService.startRound()
+            .questionToken;
 
     timerService.startQuestion(
         questionToken,
@@ -487,15 +586,18 @@ test("question expiry counts as an incorrect answer", async () => {
         1
     );
     assert.deepEqual(timerService.state(), {
-        remaining: 0,
-        running: false
+        remaining: 60,
+        running: false,
+        active: false
     });
+    assert.equal(match.roundActive, false);
 });
 
 test("rejects an answer for a question that has already expired", async () => {
     matchService.startMatch("Alex", "Rob");
     const expiredToken =
-        matchService.getCurrentQuestionToken();
+        matchService.startRound()
+            .questionToken;
     matchService.processTimeout(expiredToken);
 
     const response = await fetch(

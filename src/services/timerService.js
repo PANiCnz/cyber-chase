@@ -7,7 +7,11 @@ let activeQuestionToken = null;
 let expirationHandler = null;
 
 function state() {
-    return { remaining, running };
+    return {
+        remaining,
+        running,
+        active: Boolean(activeQuestionToken)
+    };
 }
 
 function clearTimer() {
@@ -35,6 +39,31 @@ function reset() {
     clearTimer();
     remaining = DEFAULT_DURATION;
     activeQuestionToken = null;
+    return state();
+}
+
+function resumeQuestion(questionToken) {
+    if (
+        activeQuestionToken !== questionToken ||
+        remaining <= 0
+    ) {
+        return state();
+    }
+
+    return start();
+}
+
+function resetQuestion(questionToken) {
+    if (
+        typeof questionToken !== "string" ||
+        !questionToken
+    ) {
+        return state();
+    }
+
+    clearTimer();
+    activeQuestionToken = questionToken;
+    remaining = DEFAULT_DURATION;
     return state();
 }
 
@@ -112,5 +141,7 @@ module.exports = {
     state,
     setExpirationHandler,
     startQuestion,
+    resumeQuestion,
+    resetQuestion,
     completeQuestion
 };

@@ -33,7 +33,7 @@ const questionRoutes =
 const server =
     read("src/server.js");
 
-test("presenter shows a read-only automatic question timer", () => {
+test("presenter provides round and timer controls", () => {
     assert.match(
         presenterHtml,
         /QUESTION TIMER/
@@ -42,9 +42,17 @@ test("presenter shows a read-only automatic question timer", () => {
         presenterHtml,
         /id="timerValue"/
     );
-    assert.doesNotMatch(
+    assert.match(
         presenterHtml,
-        /startTimerBtn|pauseTimerBtn|resetTimerBtn/
+        /id="startRoundBtn"/
+    );
+    assert.match(
+        presenterHtml,
+        /id="pauseTimerBtn"/
+    );
+    assert.match(
+        presenterHtml,
+        /id="resetTimerBtn"/
     );
     assert.match(
         presenterHtml,
@@ -56,7 +64,7 @@ test("presenter shows a read-only automatic question timer", () => {
     );
     assert.match(
         presenterTimer,
-        /Question active/
+        /\/api\/timer\/\$\{action\}/
     );
     assert.match(
         presenterCss,
@@ -76,6 +84,14 @@ test("presenter submits the active question token", () => {
     assert.match(
         presenter,
         /response\.status === 409/
+    );
+    assert.match(
+        presenter,
+        /fetch\(\s*'\/api\/question\/start'/
+    );
+    assert.match(
+        presenter,
+        /roundWaiting\.classList\.toggle/
     );
 });
 
@@ -101,12 +117,20 @@ test("audience display announces timer updates and timeouts", () => {
         /result\.timeout[\s\S]*'TIME UP!'/
     );
     assert.match(
+        display,
+        /'WAITING FOR NEXT ROUND'/
+    );
+    assert.match(
         displayCss,
         /\.timer\.urgent/
     );
 });
 
-test("question display arms one server-authoritative timer", () => {
+test("only the start-round endpoint arms the question timer", () => {
+    assert.match(
+        questionRoutes,
+        /router\.post\("\/start"/
+    );
     assert.match(
         questionRoutes,
         /timerService\.startQuestion/
