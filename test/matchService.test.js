@@ -67,6 +67,35 @@ test("starts a match with a profile snapshot", () => {
     });
 });
 
+test("starts with independently filtered question difficulties", () => {
+    const match = matchService.startMatch(
+        "Alex",
+        "Rob",
+        "Finance",
+        {
+            contestant: "Easy",
+            chaser: "Expert"
+        }
+    );
+
+    assert.deepEqual(match.difficulty, {
+        contestant: "Easy",
+        chaser: "Expert"
+    });
+    assert.ok(
+        match.contestantQuestions.every(
+            question =>
+                question.difficulty === "Easy"
+        )
+    );
+    assert.ok(
+        match.chaserQuestions.every(
+            question =>
+                question.difficulty === "Expert"
+        )
+    );
+});
+
 test("correct answers score and advance the turn", () => {
     matchService.startMatch(
         "Alex",

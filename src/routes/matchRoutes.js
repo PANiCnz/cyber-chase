@@ -12,7 +12,9 @@ router.post("/start-match", (req, res) => {
         contestantName,
         contestantDepartment,
         chaserId,
-        chaserName
+        chaserName,
+        contestantDifficulty,
+        chaserDifficulty
     } = req.body;
 
     if (
@@ -48,13 +50,27 @@ router.post("/start-match", (req, res) => {
     const chaserSnapshot =
         chaserService.createMatchSnapshot(chaser);
 
-    const match = matchService.startMatch(
-        contestantName.trim(),
-        chaserSnapshot,
-        typeof contestantDepartment === "string"
-            ? contestantDepartment.trim()
-            : ""
-    );
+    let match;
+
+    try {
+        match = matchService.startMatch(
+            contestantName.trim(),
+            chaserSnapshot,
+            typeof contestantDepartment === "string"
+                ? contestantDepartment.trim()
+                : "",
+            {
+                contestant:
+                    contestantDifficulty,
+                chaser:
+                    chaserDifficulty
+            }
+        );
+    } catch (error) {
+        return res.status(400).json({
+            error: error.message
+        });
+    }
 
     timerService.reset();
     res.json(match);

@@ -33,6 +33,8 @@ test("presenter owns match configuration and launch", () => {
     for (const id of [
         "setupContestantName",
         "setupContestantDepartment",
+        "setupContestantDifficulty",
+        "setupChaserDifficulty",
         "setupChaser",
         "launchMatchBtn",
         "setupChaserProfile"
@@ -58,6 +60,18 @@ test("presenter owns match configuration and launch", () => {
     assert.match(
         presenter,
         /contestantDepartment:/
+    );
+    assert.match(
+        presenter,
+        /fetch\(\s*'\/api\/question\/difficulties'/
+    );
+    assert.match(
+        presenter,
+        /contestantDifficulty:\s*setupContestantDifficulty\.value/
+    );
+    assert.match(
+        presenter,
+        /chaserDifficulty:\s*setupChaserDifficulty\.value/
     );
     assert.match(
         presenter,

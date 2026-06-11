@@ -22,9 +22,20 @@ function createChaserState(chaser) {
     };
 }
 
-function startMatch(contestantName, chaser, contestantDepartment = "") {
+function startMatch(
+    contestantName,
+    chaser,
+    contestantDepartment = "",
+    difficulty = {}
+) {
 
-    const questions = questionService.createMatchQuestions();
+    const questions =
+        questionService.createMatchQuestions({
+            contestantDifficulty:
+                difficulty.contestant,
+            chaserDifficulty:
+                difficulty.chaser
+        });
 
     match = {
         started: true,
@@ -36,6 +47,13 @@ function startMatch(contestantName, chaser, contestantDepartment = "") {
         },
 
         chaser: createChaserState(chaser),
+
+        difficulty: {
+            contestant:
+                difficulty.contestant || "all",
+            chaser:
+                difficulty.chaser || "all"
+        },
 
         currentPlayer: "contestant",
 

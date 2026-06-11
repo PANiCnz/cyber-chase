@@ -192,6 +192,87 @@ test("requires a contestant name before creating a match", async () => {
     assert.equal(matchService.getMatch(), null);
 });
 
+test("lists the available difficulties for each question bank", async () => {
+    const response = await fetch(
+        `${baseUrl}/api/question/difficulties`
+    );
+    const difficulties = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(
+        difficulties.contestant,
+        ["Easy", "Medium", "Hard"]
+    );
+    assert.deepEqual(
+        difficulties.chaser,
+        ["Hard", "Expert"]
+    );
+});
+
+test("starts a match with independent question difficulties", async () => {
+    const response = await fetch(
+        `${baseUrl}/api/match/start-match`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                contestantName: "Alex",
+                chaserId: "rob",
+                contestantDifficulty: "Medium",
+                chaserDifficulty: "Expert"
+            })
+        }
+    );
+    const match = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(match.difficulty, {
+        contestant: "Medium",
+        chaser: "Expert"
+    });
+    assert.ok(
+        match.contestantQuestions.every(
+            question =>
+                question.difficulty === "Medium"
+        )
+    );
+    assert.ok(
+        match.chaserQuestions.every(
+            question =>
+                question.difficulty === "Expert"
+        )
+    );
+});
+
+test("rejects an unavailable question difficulty", async () => {
+    const response = await fetch(
+        `${baseUrl}/api/match/start-match`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                contestantName: "Alex",
+                chaserId: "rob",
+                chaserDifficulty: "Easy"
+            })
+        }
+    );
+    const result = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.match(
+        result.error,
+        /No chaser questions are available/
+    );
+    assert.equal(matchService.getMatch(), null);
+});
+
 test("preserves question endpoint shapes", async () => {
     matchService.startMatch("Alex", "Rob");
 

@@ -4,6 +4,10 @@ const setupContestantName =
     document.getElementById('setupContestantName');
 const setupContestantDepartment =
     document.getElementById('setupContestantDepartment');
+const setupContestantDifficulty =
+    document.getElementById('setupContestantDifficulty');
+const setupChaserDifficulty =
+    document.getElementById('setupChaserDifficulty');
 const setupChaser =
     document.getElementById('setupChaser');
 const launchMatchBtn =
@@ -78,6 +82,7 @@ let currentMatchState = null;
 let currentQuestionToken = null;
 let presenterRefreshRunning = false;
 let availableChasers = [];
+let difficultiesLoaded = false;
 
 const RANDOM_CHASER_ID = 'random';
 
@@ -169,9 +174,75 @@ function populateSetupChasers() {
     }
 
     setupChaser.disabled = false;
-    launchMatchBtn.disabled = false;
+    updateLaunchAvailability();
     setupStatus.textContent = '';
     renderSetupProfile();
+}
+
+function populateDifficultySelect(
+    select,
+    difficulties
+) {
+    select.replaceChildren();
+
+    const allOption =
+        document.createElement('option');
+    allOption.value = 'all';
+    allOption.textContent = 'All difficulties';
+    select.appendChild(allOption);
+
+    for (const difficulty of difficulties) {
+        const option =
+            document.createElement('option');
+        option.value = difficulty;
+        option.textContent = difficulty;
+        select.appendChild(option);
+    }
+
+    select.disabled = false;
+}
+
+function updateLaunchAvailability() {
+    launchMatchBtn.disabled =
+        availableChasers.length === 0 ||
+        !difficultiesLoaded;
+}
+
+async function loadDifficulties() {
+    try {
+        const response = await fetch(
+            '/api/question/difficulties'
+        );
+
+        if (!response.ok) {
+            throw new Error();
+        }
+
+        const result = await response.json();
+
+        if (
+            !Array.isArray(result.contestant) ||
+            result.contestant.length === 0 ||
+            !Array.isArray(result.chaser) ||
+            result.chaser.length === 0
+        ) {
+            throw new Error();
+        }
+
+        populateDifficultySelect(
+            setupContestantDifficulty,
+            result.contestant
+        );
+        populateDifficultySelect(
+            setupChaserDifficulty,
+            result.chaser
+        );
+        difficultiesLoaded = true;
+        updateLaunchAvailability();
+    } catch {
+        setupStatus.textContent =
+            'Unable to load question difficulties.';
+    }
 }
 
 async function loadSetupChasers() {
@@ -204,10 +275,11 @@ async function loadSetupChasers() {
 function resetSetupForm() {
     setupContestantName.value = '';
     setupContestantDepartment.value = '';
+    setupContestantDifficulty.value = 'all';
+    setupChaserDifficulty.value = 'all';
     setupChaser.value = RANDOM_CHASER_ID;
     setupStatus.textContent = '';
-    launchMatchBtn.disabled =
-        availableChasers.length === 0;
+    updateLaunchAvailability();
     renderSetupProfile();
 }
 
@@ -251,6 +323,10 @@ async function launchMatch() {
                     contestantName,
                     contestantDepartment:
                         setupContestantDepartment.value.trim(),
+                    contestantDifficulty:
+                        setupContestantDifficulty.value,
+                    chaserDifficulty:
+                        setupChaserDifficulty.value,
                     chaserId: chaser.id,
                     chaserName: chaser.name
                 })
@@ -626,4 +702,5 @@ socket.on('newMatch', () => {
 });
 setInterval(loadQuestion, 2000);
 loadSetupChasers();
+loadDifficulties();
 loadQuestion();

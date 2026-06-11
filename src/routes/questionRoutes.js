@@ -6,6 +6,14 @@ const matchService =
     require("../services/matchService");
 const timerService =
     require("../services/timerService");
+const questionService =
+    require("../services/questionService");
+
+router.get("/difficulties", (req, res) => {
+    res.json(
+        questionService.getAvailableDifficulties()
+    );
+});
 
 router.get("/current", (req, res) => {
     const questionToken =

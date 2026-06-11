@@ -52,7 +52,9 @@ body {
 }
 .setup-fields label{
     color:#dbe9f6;
+    display:block;
     font-weight:bold;
+    margin-bottom:10px;
 }
 .setup-fields input,
 .setup-fields select{
@@ -68,6 +70,12 @@ body {
 .setup-fields select:focus{
     border-color:#00b7ff;
     outline:2px solid rgba(0,183,255,.3);
+}
+.difficulty-fields{
+    display:grid;
+    gap:16px;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    margin:4px 0;
 }
 .launch-match-button{
     background:#00d084;
@@ -348,5 +356,6 @@ button {
 
 @media(max-width:900px){
     .setup-grid{grid-template-columns:1fr}
+    .difficulty-fields{grid-template-columns:1fr}
     .game-status-grid{grid-template-columns:1fr}
 }

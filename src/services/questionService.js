@@ -180,6 +180,66 @@ function resetQuestionBanks() {
     chaserPool = [];
 }
 
+function ensureQuestionBanks() {
+    if (
+        contestantPool.length === 0 ||
+        chaserPool.length === 0
+    ) {
+        loadQuestionBanks();
+    }
+}
+
+function uniqueDifficulties(pool) {
+    return [
+        ...new Set(
+            pool.map(
+                question => question.difficulty
+            )
+        )
+    ];
+}
+
+function getAvailableDifficulties() {
+    ensureQuestionBanks();
+
+    return {
+        contestant:
+            uniqueDifficulties(contestantPool),
+        chaser:
+            uniqueDifficulties(chaserPool)
+    };
+}
+
+function filterByDifficulty(
+    pool,
+    difficulty,
+    player
+) {
+    if (
+        typeof difficulty !== "string" ||
+        difficulty.trim() === "" ||
+        difficulty.toLowerCase() === "all"
+    ) {
+        return pool;
+    }
+
+    const normalized =
+        difficulty.trim().toLowerCase();
+    const filtered = pool.filter(
+        question =>
+            question.difficulty.toLowerCase() ===
+            normalized
+    );
+
+    if (filtered.length === 0) {
+        throw new Error(
+            `No ${player} questions are available at difficulty: ${difficulty}`
+        );
+    }
+
+    return filtered;
+}
+
 function shuffle(array, random) {
 
     const arr = [...array];
@@ -204,27 +264,40 @@ function shuffle(array, random) {
 }
 
 function createMatchQuestions(
+    options = {},
     random = Math.random
 ) {
-
-    if (
-        contestantPool.length === 0 ||
-        chaserPool.length === 0
-    ) {
-        loadQuestionBanks();
+    if (typeof options === "function") {
+        random = options;
+        options = {};
     }
+
+    ensureQuestionBanks();
+
+    const contestantQuestions =
+        filterByDifficulty(
+            contestantPool,
+            options.contestantDifficulty,
+            "contestant"
+        );
+    const chaserQuestions =
+        filterByDifficulty(
+            chaserPool,
+            options.chaserDifficulty,
+            "chaser"
+        );
 
     return {
 
         contestantQuestions:
             shuffle(
-                contestantPool,
+                contestantQuestions,
                 random
             ),
 
         chaserQuestions:
             shuffle(
-                chaserPool,
+                chaserQuestions,
                 random
             )
     };
@@ -235,6 +308,8 @@ module.exports = {
     parseCsv,
 
     loadQuestionBanks,
+
+    getAvailableDifficulties,
 
     createMatchQuestions,
 

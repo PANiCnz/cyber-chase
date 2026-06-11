@@ -125,6 +125,60 @@ test("randomizes both CSV question banks for each match", () => {
     );
 });
 
+test("filters each shuffled bank by its selected difficulty", () => {
+    const questions =
+        questionService.createMatchQuestions(
+            {
+                contestantDifficulty: "medium",
+                chaserDifficulty: "Expert"
+            },
+            () => 0
+        );
+
+    assert.ok(
+        questions.contestantQuestions.length > 0
+    );
+    assert.ok(
+        questions.chaserQuestions.length > 0
+    );
+    assert.ok(
+        questions.contestantQuestions.every(
+            question =>
+                question.difficulty === "Medium"
+        )
+    );
+    assert.ok(
+        questions.chaserQuestions.every(
+            question =>
+                question.difficulty === "Expert"
+        )
+    );
+});
+
+test("reports available difficulties from each CSV bank", () => {
+    const difficulties =
+        questionService.getAvailableDifficulties();
+
+    assert.deepEqual(
+        difficulties.contestant,
+        ["Easy", "Medium", "Hard"]
+    );
+    assert.deepEqual(
+        difficulties.chaser,
+        ["Hard", "Expert"]
+    );
+});
+
+test("rejects a difficulty with no questions in that bank", () => {
+    assert.throws(
+        () =>
+            questionService.createMatchQuestions({
+                chaserDifficulty: "Easy"
+            }),
+        /No chaser questions are available at difficulty: Easy/
+    );
+});
+
 test("parses CRLF headers without adding carriage returns", () => {
     const directory = fs.mkdtempSync(
         path.join(os.tmpdir(), "cyber-chase-")
