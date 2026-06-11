@@ -3,9 +3,12 @@ const assert = require("node:assert/strict");
 
 const matchService =
     require("../src/services/matchService");
+const questionService =
+    require("../src/services/questionService");
 
 test.beforeEach(() => {
     matchService.resetMatch();
+    questionService.resetQuestionBanks();
 });
 
 test("starts a match with existing state fields", () => {

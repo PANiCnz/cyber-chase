@@ -163,6 +163,18 @@ function processAnswer(submittedAnswer) {
         };
     }
 
+    if (
+        typeof question.correct !== "string" ||
+        !["a", "b", "c", "d"].includes(
+            question.correct.toLowerCase()
+        )
+    ) {
+        return {
+            correct: false,
+            error: "Current question has no valid correct answer"
+        };
+    }
+
     const correctAnswer =
         question.correct.toLowerCase();
 
