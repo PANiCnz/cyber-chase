@@ -67,6 +67,64 @@ test("creates separate full shuffled match banks", () => {
     );
 });
 
+test("randomizes both CSV question banks for each match", () => {
+    const contestantSource =
+        questionService.parseCsv(
+            path.resolve(
+                __dirname,
+                "../questions/contestant.csv"
+            )
+        );
+    const chaserSource =
+        questionService.parseCsv(
+            path.resolve(
+                __dirname,
+                "../questions/chaser.csv"
+            )
+        );
+    let randomCalls = 0;
+    const deterministicRandom = () => {
+        randomCalls++;
+        return 0;
+    };
+
+    const questions =
+        questionService.createMatchQuestions(
+            deterministicRandom
+        );
+
+    assert.deepEqual(
+        questions.contestantQuestions
+            .map(question => question.id)
+            .sort((a, b) => Number(a) - Number(b)),
+        contestantSource.map(question => question.id)
+    );
+    assert.deepEqual(
+        questions.chaserQuestions
+            .map(question => question.id)
+            .sort((a, b) => Number(a) - Number(b)),
+        chaserSource.map(question => question.id)
+    );
+    assert.notDeepEqual(
+        questions.contestantQuestions.map(
+            question => question.id
+        ),
+        contestantSource.map(question => question.id)
+    );
+    assert.notDeepEqual(
+        questions.chaserQuestions.map(
+            question => question.id
+        ),
+        chaserSource.map(question => question.id)
+    );
+    assert.equal(
+        randomCalls,
+        contestantSource.length +
+            chaserSource.length -
+            2
+    );
+});
+
 test("parses CRLF headers without adding carriage returns", () => {
     const directory = fs.mkdtempSync(
         path.join(os.tmpdir(), "cyber-chase-")

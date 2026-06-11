@@ -44,6 +44,8 @@ const answerResultCorrect =
    document.getElementById('answerResultCorrect');
 const winnerScreen =
    document.getElementById('winnerScreen');
+const winnerRole =
+   document.getElementById('winnerRole');
 const winnerName =
    document.getElementById('winnerName');
 
@@ -108,9 +110,26 @@ function renderMatchState(state) {
          ? 'chaser-turn'
          : 'contestant-turn');
 
-   if (state.winner && !resultVisible) {
-      winnerScreen.classList.remove('hidden');
+   if (state.winner) {
+      const contestantWon =
+         state.winner === state.contestant?.name;
+
       winnerName.textContent = state.winner;
+      winnerRole.textContent = contestantWon
+         ? 'CONTESTANT VICTORY'
+         : 'CHASER VICTORY';
+      winnerScreen.classList.toggle(
+         'contestant-winner',
+         contestantWon
+      );
+      winnerScreen.classList.toggle(
+         'chaser-winner',
+         !contestantWon
+      );
+      winnerScreen.classList.toggle(
+         'hidden',
+         resultVisible
+      );
       currentTurn.textContent = 'MATCH COMPLETE';
       questionPanel.classList.add('hidden');
       category.classList.add('hidden');

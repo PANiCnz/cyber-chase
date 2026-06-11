@@ -59,8 +59,12 @@
   <div id="answerResultCorrect" class="answer-result-correct hidden"></div>
 </div>
 <div id="winnerScreen" class="winner hidden" role="status" aria-live="assertive">
-  <div id="winnerName"></div>
-  <div>WINS!</div>
+  <div class="winner-card">
+    <div class="winner-kicker">MATCH COMPLETE</div>
+    <div id="winnerRole" class="winner-role"></div>
+    <div id="winnerName" class="winner-name"></div>
+    <div class="winner-message">WINS!</div>
+  </div>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>

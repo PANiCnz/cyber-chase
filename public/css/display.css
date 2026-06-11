@@ -26,5 +26,13 @@ body{background:linear-gradient(180deg,#08111f,#122c4a);color:white;font-family:
 .answer-result-correct{font-size:2rem;margin-top:24px}
 .answer-result-overlay.correct .answer-result-message{color:#00d084}
 .answer-result-overlay.incorrect .answer-result-message{color:#ff4d4f}
-.winner{position:fixed;inset:0;background:#08111f;display:flex;justify-content:center;align-items:center;flex-direction:column;font-size:5rem}
+.winner{position:fixed;inset:0;background:radial-gradient(circle at center,rgba(0,183,255,.24),#08111f 65%);display:flex;justify-content:center;align-items:center;z-index:30;padding:40px}
+.winner-card{background:rgba(8,17,31,.94);border:5px solid #00b7ff;border-radius:32px;box-shadow:0 0 70px rgba(0,183,255,.45);box-sizing:border-box;max-width:1000px;padding:60px 80px;width:100%}
+.winner-kicker{color:#dbe9f6;font-size:2rem;font-weight:bold;letter-spacing:.3em}
+.winner-role{color:#00b7ff;font-size:2.4rem;font-weight:bold;margin-top:30px}
+.winner-name{font-size:7rem;font-weight:900;line-height:1.05;margin-top:22px;overflow-wrap:anywhere;text-transform:uppercase}
+.winner-message{color:#ffd400;font-size:5rem;font-weight:900;margin-top:20px}
+.winner.chaser-winner{background:radial-gradient(circle at center,rgba(255,77,79,.24),#08111f 65%)}
+.winner.chaser-winner .winner-card{border-color:#ff4d4f;box-shadow:0 0 70px rgba(255,77,79,.4)}
+.winner.chaser-winner .winner-role{color:#ff4d4f}
 .hidden{display:none}

@@ -15,6 +15,7 @@ const presenterScript = read("public/js/presenter.js");
 const presenterCss = read("public/css/presenter.css");
 const displayHtml = read("public/display.html");
 const displayScript = read("public/js/display.js");
+const displayCss = read("public/css/display.css");
 
 test("presenter shows completion and disables answer controls", () => {
     assert.match(
@@ -56,13 +57,31 @@ test("presenter renders stable answer rows without replacing HTML", () => {
 
 test("display shows a safe match-complete winner message", () => {
     assert.match(displayHtml, /id="winnerName"/);
+    assert.match(displayHtml, /id="winnerRole"/);
+    assert.match(displayHtml, /MATCH COMPLETE/);
     assert.match(
         displayScript,
         /winnerName\.textContent = state\.winner/
     );
     assert.match(
         displayScript,
+        /CONTESTANT VICTORY/
+    );
+    assert.match(
+        displayScript,
+        /CHASER VICTORY/
+    );
+    assert.match(
+        displayScript,
         /MATCH COMPLETE/
+    );
+    assert.match(
+        displayCss,
+        /\.winner-card\{/
+    );
+    assert.match(
+        displayCss,
+        /\.winner-name\{[^}]*font-size:7rem/
     );
     assert.doesNotMatch(
         displayScript,

@@ -180,7 +180,7 @@ function resetQuestionBanks() {
     chaserPool = [];
 }
 
-function shuffle(array) {
+function shuffle(array, random) {
 
     const arr = [...array];
 
@@ -192,7 +192,7 @@ function shuffle(array) {
 
         const j =
             Math.floor(
-                Math.random() *
+                random() *
                 (i + 1)
             );
 
@@ -203,7 +203,9 @@ function shuffle(array) {
     return arr;
 }
 
-function createMatchQuestions() {
+function createMatchQuestions(
+    random = Math.random
+) {
 
     if (
         contestantPool.length === 0 ||
@@ -216,12 +218,14 @@ function createMatchQuestions() {
 
         contestantQuestions:
             shuffle(
-                contestantPool
+                contestantPool,
+                random
             ),
 
         chaserQuestions:
             shuffle(
-                chaserPool
+                chaserPool,
+                random
             )
     };
 }
