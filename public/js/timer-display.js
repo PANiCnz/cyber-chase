@@ -1,16 +1,50 @@
+const displayTimer =
+    document.getElementById('timer');
 
-setInterval(async ()=>{
- const r = await fetch('/api/timer/state');
- const t = await r.json();
+let timerRefreshRunning = false;
 
- const el = document.getElementById('timer');
- if(!el) return;
+function renderDisplayTimer(timer) {
+    const remaining =
+        Number.isFinite(timer?.remaining)
+            ? timer.remaining
+            : 60;
 
- el.innerText = t.remaining;
+    displayTimer.textContent = remaining;
+    displayTimer.classList.toggle(
+        'urgent',
+        remaining <= 10
+    );
+    displayTimer.setAttribute(
+        'aria-label',
+        `${remaining} seconds remaining`
+    );
+}
 
- if(t.remaining <= 10){
-   el.style.color = '#ff4d4f';
- } else {
-   el.style.color = '#ffd400';
- }
-},1000);
+async function refreshDisplayTimer() {
+    if (timerRefreshRunning) {
+        return;
+    }
+
+    timerRefreshRunning = true;
+
+    try {
+        const response = await fetch(
+            '/api/timer/state'
+        );
+
+        if (!response.ok) {
+            return;
+        }
+
+        renderDisplayTimer(
+            await response.json()
+        );
+    } catch {
+        // Keep the last visible value during a transient connection failure.
+    } finally {
+        timerRefreshRunning = false;
+    }
+}
+
+setInterval(refreshDisplayTimer, 500);
+refreshDisplayTimer();

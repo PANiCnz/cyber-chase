@@ -47,7 +47,12 @@
   </div>
 </div>
 
-<div id="timer" class="timer">60</div>
+<div
+  id="timer"
+  class="timer"
+  role="timer"
+  aria-label="60 seconds remaining"
+>60</div>
 <div id="answerResultOverlay" class="answer-result-overlay hidden" role="status" aria-live="assertive">
   <div id="answerResultPlayer" class="answer-result-player"></div>
   <div id="answerResultMessage" class="answer-result-message"></div>
@@ -60,5 +65,6 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/display.js"></script>
+<script src="/js/timer-display.js"></script>
 </body>
 </html>

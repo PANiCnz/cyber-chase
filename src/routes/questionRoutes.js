@@ -4,6 +4,8 @@ const router = express.Router();
 
 const matchService =
     require("../services/matchService");
+const timerService =
+    require("../services/timerService");
 
 router.get("/current", (req, res) => {
     res.json(
@@ -49,6 +51,10 @@ router.post("/respond", (req, res) => {
                 : 400;
 
         return res.status(status).json(result);
+    }
+
+    if (result.match.winner) {
+        timerService.pause();
     }
 
     res.json(result);

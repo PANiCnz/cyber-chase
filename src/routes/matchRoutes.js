@@ -39,13 +39,14 @@ router.post("/start-match", (req, res) => {
     const chaserSnapshot =
         chaserService.createMatchSnapshot(chaser);
 
-    res.json(
-        matchService.startMatch(
-            contestantName,
-            chaserSnapshot,
-            contestantDepartment
-        )
+    const match = matchService.startMatch(
+        contestantName,
+        chaserSnapshot,
+        contestantDepartment
     );
+
+    timerService.reset();
+    res.json(match);
 });
 
 router.get("/state", (req, res) => {

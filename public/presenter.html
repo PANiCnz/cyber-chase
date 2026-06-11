@@ -17,6 +17,19 @@
         Waiting for a match to start...
     </div>
 
+    <section class="timer-panel game-section hidden" aria-label="Game timer">
+        <div>
+            <div class="timer-label">GAME TIMER</div>
+            <div id="timerValue" class="timer-value" aria-live="polite">60</div>
+            <div id="timerStatus" class="timer-status">Paused</div>
+        </div>
+        <div class="timer-controls">
+            <button id="startTimerBtn" type="button">START</button>
+            <button id="pauseTimerBtn" type="button">PAUSE</button>
+            <button id="resetTimerBtn" type="button">RESET</button>
+        </div>
+    </section>
+
     <section class="chaser-profile-panel game-section hidden" aria-label="Chaser profile">
         <div class="profile-label">CHASER</div>
         <div id="presenterChaserName" class="profile-name">Chaser</div>
@@ -61,5 +74,6 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/presenter.js"></script>
+<script src="/js/timer-presenter.js"></script>
 </body>
 </html>

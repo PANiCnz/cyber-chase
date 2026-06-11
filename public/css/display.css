@@ -19,6 +19,7 @@ body{background:linear-gradient(180deg,#08111f,#122c4a);color:white;font-family:
 #questionText{font-size:3rem;margin-top:30px}
 #answers{font-size:2rem;line-height:2;margin-top:20px}
 .timer{font-size:5rem;margin-top:30px;color:#ffd400}
+.timer.urgent{color:#ff4d4f}
 .answer-result-overlay{position:fixed;inset:0;background:rgba(8,17,31,.96);display:flex;justify-content:center;align-items:center;flex-direction:column;z-index:20}
 .answer-result-player{font-size:2.5rem;margin-bottom:20px}
 .answer-result-message{font-size:6rem;font-weight:bold}

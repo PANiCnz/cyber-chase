@@ -292,3 +292,104 @@ test("resets match and timer state together", async () => {
         running: false
     });
 });
+
+test("starts each valid match with a reset timer", async () => {
+    timerService.start();
+
+    const response = await fetch(
+        `${baseUrl}/api/match/start-match`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                contestantName: "Alex",
+                chaserId: "rob"
+            })
+        }
+    );
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(timerService.state(), {
+        remaining: 60,
+        running: false
+    });
+});
+
+test("timer endpoints start pause and reset the shared timer", async () => {
+    const startResponse = await fetch(
+        `${baseUrl}/api/timer/start`,
+        { method: "POST" }
+    );
+
+    const startedTimer =
+        await startResponse.json();
+
+    assert.equal(startedTimer.running, true);
+    assert.ok(startedTimer.remaining <= 60);
+    assert.ok(startedTimer.remaining > 0);
+
+    const pauseResponse = await fetch(
+        `${baseUrl}/api/timer/pause`,
+        { method: "POST" }
+    );
+
+    const pausedTimer =
+        await pauseResponse.json();
+
+    assert.equal(pausedTimer.running, false);
+    assert.ok(pausedTimer.remaining <= 60);
+    assert.ok(pausedTimer.remaining > 0);
+
+    timerService.start();
+
+    const resetResponse = await fetch(
+        `${baseUrl}/api/timer/reset`,
+        { method: "POST" }
+    );
+
+    assert.deepEqual(
+        await resetResponse.json(),
+        {
+            remaining: 60,
+            running: false
+        }
+    );
+});
+
+test("pauses the timer when an answer produces a winner", async () => {
+    matchService.startMatch("Alex", "Rob");
+    const match = matchService.getMatch();
+    match.contestant.score = 4;
+    match.currentPlayer = "contestant";
+    timerService.start();
+
+    const questionResponse = await fetch(
+        `${baseUrl}/api/question/answer`
+    );
+    const question =
+        await questionResponse.json();
+    const response = await fetch(
+        `${baseUrl}/api/question/respond`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                answer: question.correct
+            })
+        }
+    );
+    const result = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(result.match.winner, "Alex");
+    assert.equal(
+        timerService.state().running,
+        false
+    );
+});
