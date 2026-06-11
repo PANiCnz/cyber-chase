@@ -1,0 +1,9 @@
+services:
+  cyber-chase:
+    build: .
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./questions:/app/questions
+      - ./data:/app/data
+      - ./config:/app/config

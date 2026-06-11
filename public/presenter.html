@@ -1,0 +1,81 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cyber Chase Presenter</title>
+    <link rel="stylesheet" href="/css/presenter.css">
+</head>
+<body>
+<div class="dashboard">
+    <div class="header">
+        <h1>CYBER CHASE</h1>
+        <h2>PRESENTER CONSOLE</h2>
+        <button id="newMatchBtn" class="new-match-button hidden">NEW MATCH</button>
+    </div>
+
+    <div id="presenterWaiting" class="waiting-panel" role="status" aria-live="polite">
+        Waiting for a match to start...
+    </div>
+
+    <section class="timer-panel game-section hidden" aria-label="Question timer">
+        <div class="timer-label">QUESTION TIMER</div>
+        <div id="timerValue" class="timer-value" aria-live="polite">60</div>
+        <div id="timerStatus" class="timer-status">Waiting for question</div>
+        <div class="timer-controls">
+            <button id="pauseTimerBtn" type="button" disabled>PAUSE</button>
+            <button id="resetTimerBtn" type="button" disabled>RESET</button>
+        </div>
+    </section>
+
+    <section id="roundWaiting" class="round-waiting game-section hidden" role="status">
+        <div id="roundWaitingText">Ready for the contestant round.</div>
+        <button id="startRoundBtn" type="button">START NEXT ROUND</button>
+    </section>
+
+    <section class="chaser-profile-panel game-section hidden" aria-label="Chaser profile">
+        <div class="profile-label">CHASER</div>
+        <div id="presenterChaserName" class="profile-name">Chaser</div>
+        <div id="presenterChaserTitle" class="profile-title hidden"></div>
+        <div id="presenterChaserDepartment" class="profile-department">Information Security</div>
+        <p id="presenterChaserBio" class="profile-bio hidden"></p>
+    </section>
+
+    <div class="question-panel game-section round-content hidden">
+        <div id="questionCategory"></div>
+        <div id="questionDifficulty"></div>
+        <div id="questionText"></div>
+        <div id="answers">
+            <div>A. <span id="answerTextA"></span></div>
+            <div>B. <span id="answerTextB"></span></div>
+            <div>C. <span id="answerTextC"></span></div>
+            <div>D. <span id="answerTextD"></span></div>
+        </div>
+    </div>
+
+    <div class="answer-panel game-section round-content hidden">
+        <h3>Select Answer Given</h3>
+        <div class="controls">
+            <button id="answerA">A</button>
+            <button id="answerB">B</button>
+            <button id="answerC">C</button>
+            <button id="answerD">D</button>
+        </div>
+    </div>
+
+    <div class="answer-panel game-section round-content hidden">
+        Correct Answer:
+        <div id="correctAnswer"></div>
+    </div>
+
+    <div id="resultBanner"></div>
+    <div id="presenterWinner" class="winner hidden" role="status" aria-live="polite">
+        <div id="presenterWinnerText"></div>
+        <button id="winnerNewMatchBtn" class="winner-new-match-button">NEW MATCH</button>
+    </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/presenter.js"></script>
+<script src="/js/timer-presenter.js"></script>
+</body>
+</html>

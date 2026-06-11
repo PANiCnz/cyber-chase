@@ -1,0 +1,1 @@
+Extract into project root. Rebuild Docker. Replaces display.html/css/js.

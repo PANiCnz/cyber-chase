@@ -1,0 +1,61 @@
+id,category,difficulty,question,a,b,c,d,correct
+1,Cryptography,Hard,What padding scheme is recommended for RSA encryption in modern applications?,PKCS#1 v1.5,ANSI X9.31,DES Padding,OAEP,d
+2,Cryptography,Hard,Which NIST curve underpins many ECDSA implementations?,BrainpoolP512r1,secp160r1,P-256,Curve25519,c
+3,Cryptography,Hard,What attack exploits repeated nonces in ECDSA?,Birthday Attack,Padding Oracle,Nonce Reuse Key Recovery,Meet-in-the-Middle,c
+4,Cryptography,Expert,Which RFC defines JSON Web Tokens?,RFC 8446,RFC 6749,RFC 5280,RFC 7519,d
+5,Cryptography,Expert,What is the output size of SHA-384?,256 bits,512 bits,768 bits,384 bits,d
+6,Cryptography,Expert,Which mode provides authenticated encryption?,CFB,CBC,GCM,ECB,c
+7,Cryptography,Expert,Which algorithm won the NIST post-quantum key encapsulation competition?,SPHINCS+,Dilithium,Kyber,Falcon,c
+8,Cryptography,Expert,What weakness made RC4 unsuitable for TLS?,Weak S-box size,Nonce reuse biases in keystream,Block collisions,Short keys only,b
+9,Networking,Hard,What RFC defines BGP-4?,RFC 4271,RFC 2460,RFC 1035,RFC 1918,a
+10,Networking,Hard,Which TCP flag combination is often associated with an Xmas scan?,SYN only,ACK only,RST only,"FIN, PSH and URG",d
+11,Networking,Hard,What is the default port for RADIUS authentication?,49,636,1812,389,c
+12,Networking,Expert,Which protocol does EVPN use for control-plane signalling?,OSPF,LDP,IS-IS,BGP,d
+13,Networking,Expert,What does MTU stand for?,Multi-Tenant Unit,Maximum Transmission Unit,Maximum Transfer Unit,Managed Transport Utility,b
+14,Networking,Expert,Which RFC reserves 100.64.0.0/10?,Carrier Grade NAT,Multicast,Loopback,Private LAN,a
+15,Networking,Expert,Which header field is removed by NAT?,Source MAC,TTL,Window Size,Original source IP visibility,d
+16,Networking,Expert,What is the multicast range for IPv4 Class D?,172.16.0.0–172.31.255.255,224.0.0.0–239.255.255.255,192.168.0.0–192.168.255.255,127.0.0.0–127.255.255.255,b
+17,Cloud,Hard,Which AWS service provides temporary credentials through role assumption?,IAM Roles,CloudTrail,Config,GuardDuty,a
+18,Cloud,Hard,What Azure service is the successor to Azure AD?,Defender for Cloud,Azure Arc,Purview,Microsoft Entra ID,d
+19,Cloud,Hard,Which GCP service provides VPC flow logs?,Security Command Center,Cloud Armor,Cloud Logging,VPC Flow Logs,d
+20,Cloud,Expert,What AWS control prevents public S3 buckets account-wide?,Organizations SCP,GuardDuty,Config Rule,Block Public Access,d
+21,Cloud,Expert,Which CSPM finding is most commonly exploited?,Public storage exposure,Unused snapshots,Expired tags,Stopped instances,a
+22,Cloud,Expert,What is Azure's equivalent of AWS Security Groups?,Route Tables,Application Gateway,Azure Firewall,Network Security Groups,d
+23,Cloud,Expert,Which AWS service evaluates policies using Cedar?,Inspector,Detective,Macie,Verified Permissions,d
+24,Cloud,Expert,What is the default encryption algorithm for AWS KMS symmetric keys?,AES-256,ChaCha20,3DES,Camellia,a
+25,Identity,Hard,What protocol underpins modern SSO for SaaS applications?,LDAP,RDP,SNMP,SAML,d
+26,Identity,Hard,What OAuth2 flow is recommended for SPAs today?,Implicit,Authorization Code with PKCE,Resource Owner Password,Device Flow,b
+27,Identity,Hard,What does SCIM provide?,Provisioning and deprovisioning,VPN tunnelling,Certificate validation,DNS filtering,a
+28,Identity,Expert,Which attack abuses OAuth consent grants?,Pass-the-Hash,Kerberoasting,Consent Phishing,Golden Ticket,c
+29,Identity,Expert,What attribute uniquely identifies a Kerberos ticket-granting ticket?,TGT,PAC,KDC,SPN,a
+30,Identity,Expert,Which attack targets service account SPNs?,Kerberoasting,Silver Ticket,DCSync,AS-REP Roasting,a
+31,Identity,Expert,What does FIDO2 combine?,OAuth and OpenID,WebAuthn and CTAP,Kerberos and RADIUS,LDAP and SAML,b
+32,Identity,Expert,What Microsoft feature helps mitigate pass-the-hash?,WDAC,AppLocker,BitLocker,Credential Guard,d
+33,Detection,Hard,What does Sigma provide?,Password vaulting,Portable detection rules,Packet captures,Threat intelligence feeds,b
+34,Detection,Hard,Which ATT&CK tactic includes credential dumping?,Collection,Credential Access,Persistence,Discovery,b
+35,Detection,Hard,Which Windows process commonly hosts LSASS memory?,lsass.exe,wininit.exe,services.exe,csrss.exe,a
+36,Detection,Expert,What Windows event ID is commonly used for successful logons?,7045,1102,4688,4624,d
+37,Detection,Expert,Which ATT&CK technique covers PowerShell abuse?,T1059.001,T1027,T1566.001,T1110,a
+38,Detection,Expert,What does Sysmon Event ID 1 record?,Process Creation,DNS Query,Network Connection,Driver Load,a
+39,Detection,Expert,Which MITRE ATT&CK group is linked to SolarWinds?,Lazarus,APT29,FIN7,APT1,b
+40,Detection,Expert,What does YARA primarily identify?,Certificates,Passwords,Network routes,Malware patterns,d
+41,Threat Intelligence,Hard,What does STIX stand for?,Structured Threat Intelligence XML,Security Threat Intelligence Exchange,Structured Threat Information eXpression,Standard Threat Integration XML,c
+42,Threat Intelligence,Hard,What protocol transports STIX objects?,RADIUS,NTP,TAXII,SNMP,c
+43,Threat Intelligence,Expert,Which group is associated with North Korean state activity?,Lazarus,APT29,Sandworm,Volt Typhoon,a
+44,Threat Intelligence,Expert,Which threat actor is associated with the NotPetya attack?,APT28,Sandworm,FIN6,DarkHydrus,b
+45,Threat Intelligence,Expert,What framework models adversary behaviour?,COBIT,NIST CSF,MITRE ATT&CK,ITIL,c
+46,Application Security,Hard,What does SSRF stand for?,Server Side Request Forgery,Server Security Response Function,Session State Request Failure,Secure Service Request Framework,a
+47,Application Security,Hard,Which OWASP Top 10 category includes insecure deserialization?,Software and Data Integrity Failures,Security Misconfiguration,Injection,Broken Access Control,a
+48,Application Security,Expert,What vulnerability class enabled Log4Shell?,JNDI Injection,SQL Injection,XXE,CSRF,a
+49,Application Security,Expert,Which header helps prevent clickjacking?,X-Powered-By,Strict-Transport-Security,X-Frame-Options,Content-Length,c
+50,Application Security,Expert,What is the primary purpose of CSP?,Prevent DNS spoofing,Enable MFA,Encrypt cookies,Restrict browser resource loading,d
+51,Incident Response,Hard,What NIST publication covers incident response?,SP 800-53,SP 800-207,SP 800-171,SP 800-61,d
+52,Incident Response,Hard,What is the first priority during ransomware containment?,Notify media,Rebuild systems,Restore backups,Prevent further spread,d
+53,Incident Response,Expert,Which forensic artefact records Windows execution history?,Prefetch,Hosts File,Registry.pol,SAM,a
+54,Incident Response,Expert,What tool is commonly used to analyse memory images?,YARA,Volatility,Nmap,Wireshark,b
+55,Incident Response,Expert,What does DCSync emulate?,Azure AD sync,DNS replication,Domain Controller replication,File replication,c
+56,Zero Trust,Expert,"Who popularised the phrase 'Never Trust, Always Verify'?",Whitfield Diffie,Gene Spafford,John Kindervag,Bruce Schneier,c
+57,Zero Trust,Expert,Which NIST publication defines Zero Trust Architecture?,SP 800-171,SP 800-207,SP 800-61,SP 800-53,b
+58,Privacy,Expert,Which NZ Privacy Act principle relates to security safeguards?,IPP 13,IPP 11,IPP 5,IPP 1,c
+59,Privacy,Expert,Which GDPR article covers breach notification?,Article 5,Article 33,Article 15,Article 6,b
+60,Wild Card,Expert,Which chess grandmaster's rating system is widely used in security CTF competitions?,Glicko,Trueskill,FIDE Index,Elo,d

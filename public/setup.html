@@ -1,0 +1,37 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cyber Chase Setup</title>
+  <link rel="stylesheet" href="/css/setup.css">
+</head>
+<body>
+<div class="container">
+  <h1>CYBER CHASE</h1>
+  <h2>New Match Setup</h2>
+
+  <label for="contestantName">Contestant Name</label>
+  <input id="contestantName" type="text" autocomplete="name">
+
+  <label for="contestantDepartment">Department</label>
+  <input id="contestantDepartment" type="text">
+
+  <label for="chaserName">Select Chaser</label>
+  <select id="chaserName" disabled>
+    <option value="">Loading chasers...</option>
+  </select>
+
+  <section id="chaserProfile" class="profile-card hidden" aria-live="polite">
+    <div id="chaserTitle" class="profile-title"></div>
+    <div id="chaserDepartment" class="profile-department"></div>
+    <p id="chaserBio" class="profile-bio"></p>
+  </section>
+
+  <button id="startBtn" disabled>START MATCH</button>
+
+  <div id="status" role="status" aria-live="polite"></div>
+</div>
+
+<script src="/js/setup.js"></script>
+</body>
+</html>

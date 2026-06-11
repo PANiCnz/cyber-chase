@@ -1,0 +1,81 @@
+id,category,difficulty,question,a,b,c,d,correct
+1,Passwords,Easy,What is generally the strongest type of password?,Your birthday,Your pet's name,A long unique passphrase,The word password,c
+2,Passwords,Easy,Why should you avoid reusing the same password?,It makes accounts slower,It uses more storage,It blocks MFA,One breach could expose many accounts,d
+3,Passwords,Easy,What is a password manager used for?,Blocking spam calls,Storing and creating strong passwords,Updating your monitor,Scanning printers,b
+4,Passwords,Easy,Which password is the safest?,Summer2026,Password1,CorrectHorseBatteryStaple!,CompanyName123,c
+5,Passwords,Medium,What should you do if you think your password has been exposed?,Reuse an older password,Ignore it,Post about it online,Change it and report it,d
+6,Passwords,Medium,What is a passphrase?,A sentence or string of words used as a password,A backup file,A Wi-Fi network name,A code sent by SMS,a
+7,Passwords,Medium,Which habit is safest?,Using unique passwords for each account,Sharing passwords with your team,Using one password everywhere,Writing passwords on sticky notes,a
+8,Passwords,Hard,Why are long passwords usually better than short complex ones?,They stop phishing emails,They are easier for hackers,Length increases the effort needed to guess them,They remove the need for updates,c
+9,MFA,Easy,What does MFA stand for?,Main Firewall Alert,Managed File Access,Multiple Folder Archive,Multi-Factor Authentication,d
+10,MFA,Easy,What should you do if you receive an MFA prompt you did not request?,Ignore and report it,Approve it quickly,Restart your computer only,Share it with a colleague,a
+11,MFA,Easy,Why is MFA useful?,It adds another check before access is granted,It makes passwords public,It removes all cyber risk,It speeds up phishing emails,a
+12,MFA,Medium,Should you ever share an MFA code with someone who calls you?,Only after hours,Yes if they sound official,No never,Only with your manager,c
+13,MFA,Medium,What might repeated unexpected MFA prompts indicate?,The internet is faster,Your screen is too bright,Someone may know your password,Your keyboard is broken,c
+14,MFA,Medium,Which is usually stronger than SMS codes?,A sticky note,Authenticator app or security key,A reused password,A public Wi-Fi name,b
+15,MFA,Hard,What is MFA fatigue?,Running out of phone battery,Tricking someone into approving repeated login prompts,Forgetting a password,A slow computer,b
+16,Phishing,Easy,What is phishing?,A password manager,A scam message trying to trick you,A software update,A secure file transfer,b
+17,Phishing,Easy,Which is a common phishing warning sign?,Approved company template,Clear business reason,Unexpected urgency,Known meeting invite,c
+18,Phishing,Easy,What should you do with a suspicious email?,Click every link,Reply asking if it is real,Forward it to everyone,Report it using the approved process,d
+19,Phishing,Easy,Which message is most suspicious?,Team lunch moved to 12pm,Your leave request was approved,Urgent! Buy gift cards now and keep it secret,Please review the attached policy from HR,c
+20,Phishing,Medium,What should you check before clicking a link?,How many emojis are used,The colour of the button only,Whether it is sent on a Friday,The actual destination and whether you expected it,d
+21,Phishing,Medium,What is spear phishing?,A printer setting,A targeted phishing attack aimed at a specific person or group,A safe browsing mode,A firewall rule,b
+22,Phishing,Medium,If an email from the CEO asks for urgent secrecy and money transfer what should you do?,Verify through a trusted separate channel,Reply with bank details,Act immediately,Send it to personal email,a
+23,Phishing,Hard,Why can a phishing email appear to come from someone you know?,Company logos guarantee safety,Email always proves identity,Accounts can be spoofed or compromised,Attachments verify the sender,c
+24,Phishing,Hard,What is the safest way to visit a sensitive website from an email?,Open it on public Wi-Fi,Type the known address or use a trusted bookmark,Use a URL shortener,Click the link quickly,b
+25,Data Handling,Easy,What should you do before sending sensitive information?,Check the recipient and purpose,Send it quickly,Remove the subject line,Post it in a public channel,a
+26,Data Handling,Easy,Which information should be treated carefully?,The company logo,Public marketing material,Office opening hours,Customer personal information,d
+27,Data Handling,Easy,What should you do if you email information to the wrong person?,Wait a week,Delete your copy only,Report it quickly,Hope they ignore it,c
+28,Data Handling,Medium,Why is sending work files to a personal email risky?,It may bypass company controls and retention,It encrypts everything automatically,It prevents phishing,It improves security,a
+29,Data Handling,Medium,What is the safest way to share internal documents?,Personal cloud storage,Public file links,Approved company sharing tools,A USB found in the carpark,c
+30,Data Handling,Medium,What should you do before sharing a spreadsheet externally?,Make the font smaller,Check for hidden sheets sensitive fields and correct recipients,Rename the file only,Take a screenshot only,b
+31,Data Handling,Hard,What is data minimisation?,Keeping every record forever,Collecting or sharing only what is needed,Removing all passwords,Publishing data widely,b
+32,Data Handling,Hard,Why are screenshots of systems sometimes sensitive?,They may reveal names account details or confidential data,They only contain colours,They cannot be copied,They are always public,a
+33,Safe Browsing,Easy,What does HTTPS usually indicate?,The connection is encrypted,The website is always trustworthy,The website is government owned,The page has no adverts,a
+34,Safe Browsing,Easy,What should you do if a browser warns a site may be unsafe?,Disable the browser,Stop and think before proceeding,Share the warning online,Click through immediately,b
+35,Safe Browsing,Easy,Which website address looks suspicious?,company-login-secure.example.net,portal.company.co.nz,intranet.company.co.nz,company.co.nz,a
+36,Safe Browsing,Medium,What is typosquatting?,Encrypting a hard drive,Saving bookmarks,Blocking ads,Registering lookalike web addresses to trick users,d
+37,Safe Browsing,Medium,Why should you be careful with shortened links?,They never work on phones,They are always malware,They are illegal,They can hide the real destination,d
+38,Safe Browsing,Medium,What is the safest way to download software for work?,Download from random forums,Use approved company sources,Ask a social media group,Use a link in a pop-up,b
+39,Updates and Devices,Easy,Why are software updates important?,They make passwords shorter,They only change colours,They often fix security weaknesses,They remove MFA,c
+40,Updates and Devices,Easy,What should you do when your work device prompts for an approved security update?,Install it promptly,Ignore it forever,Postpone for months,Unplug the device,a
+41,Updates and Devices,Easy,What should you do if your work laptop is lost or stolen?,Change the wallpaper,Buy a new charger,Report it immediately,Wait until Monday,c
+42,Updates and Devices,Medium,Why should your screen lock when you step away?,To improve Wi-Fi,To update the keyboard,To save mouse batteries,To prevent unauthorised access,d
+43,Updates and Devices,Medium,What is a risk of using unsupported software?,It is always faster,It cannot be attacked,It may no longer receive security fixes,It improves MFA,c
+44,Updates and Devices,Medium,What should you do before connecting unknown removable media?,Take it home,Follow company policy and avoid using it,Plug it in to inspect it,Share it with colleagues,b
+45,Mobile and Remote Work,Easy,What should you avoid on public Wi-Fi?,Checking the weather,Charging your phone,Reading public news,Accessing sensitive systems without approved protection,d
+46,Mobile and Remote Work,Easy,What should you do before leaving a laptop in a car?,Hide it under a jacket,Turn the volume down,Leave it on the seat,Avoid leaving it unattended if possible,d
+47,Mobile and Remote Work,Medium,Why should mobile devices have a PIN or biometric lock?,To increase battery drain,To remove updates,To improve camera quality,To reduce access if lost or stolen,d
+48,Mobile and Remote Work,Medium,What is shoulder surfing?,A cloud backup method,Someone watching your screen or keyboard to steal information,A Wi-Fi speed test,A VPN setting,b
+49,Mobile and Remote Work,Medium,When working remotely what should you do with confidential conversations?,Discuss loudly in public,Record them on personal devices,Post notes online,Use a private location where possible,d
+50,Social Engineering,Easy,What is social engineering?,Creating a firewall,Updating software,Encrypting data,Manipulating people into doing something unsafe,d
+51,Social Engineering,Easy,Which behaviour should make you pause?,A known policy reminder,A normal scheduled meeting,Someone pressures you to bypass normal process,A team newsletter,c
+52,Social Engineering,Medium,If someone calls claiming to be IT and asks for your password what should you do?,Ask them to call later,Tell them quickly,Refuse and report it,Send it by text,c
+53,Social Engineering,Medium,What is vishing?,A file format,A secure browser,A password reset tool,Voice phishing by phone call,d
+54,Social Engineering,Medium,What should you do if a request feels unusual but comes from a senior leader?,Do it without question,Verify using a trusted separate channel,Share credentials to help,Forward to your personal email,b
+55,Social Engineering,Hard,Why do attackers create urgency?,To make emails load faster,To pressure people into skipping checks,To improve customer service,To encrypt websites,b
+56,AI Safety,Easy,What should you avoid entering into public AI tools?,Confidential company or personal information,A generic public question,A recipe idea,A public news headline,a
+57,AI Safety,Easy,What should you do before using an AI tool for work?,Use the approved company tool and follow policy,Turn off MFA,Use any tool you find,Paste customer data to test it,a
+58,AI Safety,Medium,Why should AI-generated content be checked?,It is always perfect,It cannot invent facts,It can be wrong or misleading,It is legally approved by default,c
+59,AI Safety,Medium,What is a prompt injection risk?,Instructions hidden in content may try to manipulate an AI tool,A keyboard shortcut,A password reset,A firewall update,a
+60,AI Safety,Medium,If AI helps draft an external email what should you do before sending?,Send it automatically,Review it for accuracy tone and sensitive information,Add confidential data,Remove all context,b
+61,Reporting,Easy,When should you report a suspected cyber incident?,Never if it was accidental,Only after proving it yourself,At the end of the year,As soon as possible,d
+62,Reporting,Easy,Why is quick reporting important?,It gets people in trouble,It stops all spam forever,It deletes evidence,It helps contain issues sooner,d
+63,Reporting,Medium,What should you do if you clicked a suspicious link?,Keep browsing,Tell no one,Delete the email only,Report it quickly and follow guidance,d
+64,Reporting,Medium,What should you preserve when reporting a suspicious email?,A cropped image only,Nothing,Only a typed summary,The original email if possible,d
+65,Reporting,Medium,If you accidentally shared data with the wrong person what should you do?,Wait to see if anyone notices,Ask the recipient to forget it and do nothing else,Report it promptly,Delete your sent item only,c
+66,Physical Security,Easy,What should you do with your ID badge?,Share it with visitors,Leave it at reception overnight,Post a photo online,Keep it secure and do not lend it,d
+67,Physical Security,Easy,What is tailgating?,A type of malware,Following someone into a secure area without proper access,A password manager,A backup method,b
+68,Physical Security,Medium,What should you do if an unknown person follows you into a restricted area?,Give them your badge,Assume they belong there,Follow local process or alert security,Ignore it,c
+69,Physical Security,Medium,Why should confidential papers be cleared from desks?,They block MFA,They may expose sensitive information,They make desks look messy only,They slow down Wi-Fi,b
+70,Email and Collaboration,Easy,Before adding an external person to a chat or file share what should you check?,That they have a funny profile picture,That the file is large,That they are the right person and need access,That the chat has emojis,c
+71,Email and Collaboration,Medium,What is the risk of using 'reply all' carelessly?,Improving encryption,Making the email shorter,Blocking attachments,Sending information to people who should not receive it,d
+72,Email and Collaboration,Medium,What should you check before sending an attachment externally?,The file icon colour,The time of day,Recipient file content and classification,Whether the filename is short,c
+73,Email and Collaboration,Hard,What is business email compromise?,An email newsletter,A normal mailbox migration,A spam filter update,A scam where attackers impersonate or take over email to redirect money or data,d
+74,Privacy,Easy,What is personal information?,Only public documents,Only passwords,Only credit card numbers,Information about an identifiable person,d
+75,Privacy,Medium,Why should you limit access to personal information?,It makes files bigger,It removes the need for passwords,Only people with a genuine need should see it,It improves screen brightness,c
+76,Privacy,Medium,What should you do if someone asks for customer information unexpectedly?,Send it immediately,Verify the request and follow process,Ask for their favourite colour,Post it in chat,b
+77,Scenario,Easy,You receive an unexpected invoice with a link. What is the safest first step?,Approve payment immediately,Forward to personal email,Pause and verify before clicking,Click quickly to avoid late fees,c
+78,Scenario,Medium,A colleague asks you to share your login so they can finish urgent work. What should you do?,Change your password to something simple,Share it once,Do not share credentials and escalate if needed,Send a screenshot of your session,c
+79,Scenario,Medium,You find a USB drive in the office carpark. What should you do?,Give it to a friend,Plug it in to identify the owner,Do not plug it in and follow company process,Take it home,c
+80,Scenario,Hard,You notice a file share has more access than it should. What should you do?,Report or fix it through the approved process,Make it public,Download all files,Ignore it if nobody complains,a
