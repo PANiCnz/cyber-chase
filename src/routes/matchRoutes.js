@@ -1,10 +1,53 @@
 
-const r=require('express').Router();
-const ms=require('../services/matchService');
-r.post('/start-match',(req,res)=>res.json(ms.startMatch(
-    req.body.contestantName,
-    req.body.chaserName,
-    req.body.contestantDepartment
-)));
-r.get('/state',(req,res)=>res.json(ms.getMatch()));
-module.exports=r;
+const router = require("express").Router();
+const matchService =
+    require("../services/matchService");
+const chaserService =
+    require("../services/chaserService");
+
+router.post("/start-match", (req, res) => {
+    const {
+        contestantName,
+        contestantDepartment,
+        chaserId,
+        chaserName
+    } = req.body;
+
+    if (
+        typeof chaserId !== "string" &&
+        typeof chaserName !== "string"
+    ) {
+        return res.status(400).json({
+            error: "Chaser selection is required"
+        });
+    }
+
+    const chaser = typeof chaserId === "string"
+        ? chaserService.getChaserById(chaserId)
+        : chaserService.findChaserByName(
+            chaserName
+        );
+
+    if (!chaser) {
+        return res.status(404).json({
+            error: "Chaser not found"
+        });
+    }
+
+    const chaserSnapshot =
+        chaserService.createMatchSnapshot(chaser);
+
+    res.json(
+        matchService.startMatch(
+            contestantName,
+            chaserSnapshot,
+            contestantDepartment
+        )
+    );
+});
+
+router.get("/state", (req, res) => {
+    res.json(matchService.getMatch());
+});
+
+module.exports = router;

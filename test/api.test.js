@@ -58,7 +58,12 @@ test("preserves match start and state response fields", async () => {
         match.contestant.department,
         "Finance"
     );
+    assert.equal(match.chaser.id, "rob");
     assert.equal(match.chaser.name, "Rob");
+    assert.equal(
+        match.chaser.title,
+        "The Firewall"
+    );
     assert.equal(match.currentPlayer, "contestant");
     assert.ok(
         Array.isArray(match.contestantQuestions)
@@ -77,6 +82,86 @@ test("preserves match start and state response fields", async () => {
         state.contestant.name,
         "Alex"
     );
+});
+
+test("starts a match by chaser id and snapshots the catalog profile", async () => {
+    const response = await fetch(
+        `${baseUrl}/api/match/start-match`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                contestantName: "Alex",
+                contestantDepartment: "Finance",
+                chaserId: "julian",
+                chaserName: "Rob"
+            })
+        }
+    );
+    const match = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(match.chaser, {
+        id: "julian",
+        name: "Julian",
+        title: "The Analyst",
+        department: "Information Security",
+        bio: "Finds the signal hidden inside the noise.",
+        score: 0
+    });
+});
+
+test("returns 404 for an unknown chaser id without falling back to name", async () => {
+    const response = await fetch(
+        `${baseUrl}/api/match/start-match`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                contestantName: "Alex",
+                chaserId: "unknown",
+                chaserName: "Rob"
+            })
+        }
+    );
+    const result = await response.json();
+
+    assert.equal(response.status, 404);
+    assert.equal(
+        result.error,
+        "Chaser not found"
+    );
+    assert.equal(matchService.getMatch(), null);
+});
+
+test("returns 400 when no chaser selection is supplied", async () => {
+    const response = await fetch(
+        `${baseUrl}/api/match/start-match`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                contestantName: "Alex"
+            })
+        }
+    );
+    const result = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.equal(
+        result.error,
+        "Chaser selection is required"
+    );
+    assert.equal(matchService.getMatch(), null);
 });
 
 test("preserves question endpoint shapes", async () => {

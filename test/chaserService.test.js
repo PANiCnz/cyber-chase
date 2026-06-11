@@ -52,6 +52,27 @@ test("resolves active chasers by id and legacy name", () => {
     );
 });
 
+test("creates a whitelisted match snapshot", () => {
+    const snapshot =
+        chaserService.createMatchSnapshot({
+            id: "rob",
+            name: "Rob",
+            department: "Information Security",
+            title: "The Firewall",
+            bio: "Profile text",
+            active: true,
+            internalNote: "Do not expose"
+        });
+
+    assert.deepEqual(snapshot, {
+        id: "rob",
+        name: "Rob",
+        department: "Information Security",
+        title: "The Firewall",
+        bio: "Profile text"
+    });
+});
+
 test("filters inactive chasers", () => {
     const file = writeCatalog([
         {

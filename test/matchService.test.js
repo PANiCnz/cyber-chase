@@ -31,6 +31,29 @@ test("starts a match with existing state fields", () => {
     assert.equal(match.winner, null);
 });
 
+test("starts a match with a profile snapshot", () => {
+    const match = matchService.startMatch(
+        "Alex",
+        {
+            id: "rob",
+            name: "Rob",
+            department: "Information Security",
+            title: "The Firewall",
+            bio: "Profile text"
+        },
+        "Finance"
+    );
+
+    assert.deepEqual(match.chaser, {
+        id: "rob",
+        name: "Rob",
+        department: "Information Security",
+        title: "The Firewall",
+        bio: "Profile text",
+        score: 0
+    });
+});
+
 test("correct answers score and advance the turn", () => {
     matchService.startMatch(
         "Alex",

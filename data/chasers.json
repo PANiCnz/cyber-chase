@@ -2,25 +2,33 @@
   {
     "id": "rob",
     "name": "Rob",
+    "title": "The Firewall",
     "department": "Information Security",
+    "bio": "Defends the network and blocks risky moves.",
     "active": true
   },
   {
     "id": "julian",
     "name": "Julian",
+    "title": "The Analyst",
     "department": "Information Security",
+    "bio": "Finds the signal hidden inside the noise.",
     "active": true
   },
   {
     "id": "albert",
     "name": "Albert",
+    "title": "The Cryptographer",
     "department": "Information Security",
+    "bio": "Turns security puzzles into plain answers.",
     "active": true
   },
   {
     "id": "noel",
     "name": "Noel",
+    "title": "The Sentinel",
     "department": "Information Security",
+    "bio": "Keeps watch for threats before they strike.",
     "active": true
   }
 ]

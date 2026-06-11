@@ -3,7 +3,26 @@ const questionService = require("./questionService");
 
 let match = null;
 
-function startMatch(contestantName, chaserName, contestantDepartment = "") {
+function createChaserState(chaser) {
+    if (
+        chaser &&
+        typeof chaser === "object" &&
+        !Array.isArray(chaser)
+    ) {
+        return {
+            ...chaser,
+            score: 0
+        };
+    }
+
+    return {
+        name: chaser,
+        department: "Information Security",
+        score: 0
+    };
+}
+
+function startMatch(contestantName, chaser, contestantDepartment = "") {
 
     const questions = questionService.createMatchQuestions();
 
@@ -16,11 +35,7 @@ function startMatch(contestantName, chaserName, contestantDepartment = "") {
             score: 0
         },
 
-        chaser: {
-            name: chaserName,
-            department: "Information Security",
-            score: 0
-        },
+        chaser: createChaserState(chaser),
 
         currentPlayer: "contestant",
 

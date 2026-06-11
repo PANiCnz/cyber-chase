@@ -168,6 +168,24 @@ function findChaserByName(name) {
         : null;
 }
 
+function createMatchSnapshot(chaser) {
+    if (!chaser) {
+        return null;
+    }
+
+    return {
+        id: chaser.id,
+        name: chaser.name,
+        department: chaser.department,
+        ...(chaser.title
+            ? { title: chaser.title }
+            : {}),
+        ...(chaser.bio
+            ? { bio: chaser.bio }
+            : {})
+    };
+}
+
 function resetCatalog() {
     chasers = null;
 }
@@ -177,5 +195,6 @@ module.exports = {
     listActiveChasers,
     getChaserById,
     findChaserByName,
+    createMatchSnapshot,
     resetCatalog
 };
