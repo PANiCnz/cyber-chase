@@ -11,6 +11,14 @@ const chaserDepartment =
    document.getElementById('chaserDepartment');
 const chaserBio =
    document.getElementById('chaserBio');
+const contestantBar =
+   document.getElementById('contestantBar');
+const chaserBar =
+   document.getElementById('chaserBar');
+const contestantProgress =
+   contestantBar.parentElement;
+const chaserProgress =
+   chaserBar.parentElement;
 
 function updateFromApi(){
  fetch('/api/match/state')
@@ -38,8 +46,23 @@ function updateFromApi(){
       !state.chaser?.bio
    );
 
-   contestantBar.style.width = `${((state.contestant?.score||0)/5)*100}%`;
-   chaserBar.style.width = `${((state.chaser?.score||0)/5)*100}%`;
+   const contestantScore =
+      state.contestant?.score || 0;
+   const chaserScore =
+      state.chaser?.score || 0;
+
+   contestantBar.style.width =
+      `${(contestantScore / 5) * 100}%`;
+   chaserBar.style.width =
+      `${(chaserScore / 5) * 100}%`;
+   contestantProgress.setAttribute(
+      'aria-valuenow',
+      contestantScore
+   );
+   chaserProgress.setAttribute(
+      'aria-valuenow',
+      chaserScore
+   );
 
    currentTurn.innerText = `${(state.currentPlayer||'').toUpperCase()} TURN`;
    currentTurn.className = 'turn ' + ((state.currentPlayer==='chaser') ? 'chaser-turn' : 'contestant-turn');

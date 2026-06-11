@@ -2,11 +2,14 @@
 body{background:linear-gradient(180deg,#08111f,#122c4a);color:white;font-family:Arial,sans-serif;text-align:center;margin:0;padding:20px}
 .header h1{font-size:4rem;color:#00b7ff;margin:0}
 .scoreboard{display:flex;justify-content:space-around;margin-top:20px}
-.player-card{width:40%}
+.player-card{display:flex;flex-direction:column;width:40%}
+.player-details{box-sizing:border-box;height:135px;overflow:hidden}
+.player-name{font-size:1.35rem}
 .chaser-title{color:#ffd400;font-size:1.35rem;font-weight:bold;margin-top:8px}
 .chaser-department{color:#00b7ff;font-size:1rem;margin-top:6px}
-.chaser-bio{color:#dbe9f6;font-size:1rem;line-height:1.4;margin:8px auto 0;max-width:520px}
-.progress{height:30px;background:#23384f;border-radius:20px;overflow:hidden;margin-top:10px}
+.chaser-bio{color:#dbe9f6;display:-webkit-box;font-size:1rem;line-height:1.4;margin:8px auto 0;max-width:520px;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.progress{height:30px;background:#23384f;border:2px solid #08111f;border-radius:20px;overflow:hidden;margin-top:10px;position:relative}
+.progress::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(to right,transparent 0,transparent calc(20% - 2px),#08111f calc(20% - 2px),#08111f 20%);pointer-events:none}
 .bar{height:100%;width:0%;background:#00d084;transition:width .5s ease}
 .turn{font-size:3rem;margin-top:25px}
 .contestant-turn{color:#00b7ff}
