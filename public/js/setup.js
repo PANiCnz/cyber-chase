@@ -20,13 +20,33 @@ const status =
 
 let chasers = [];
 
+const RANDOM_CHASER_ID = 'random';
+
 function selectedChaser() {
   return chasers.find(
     chaser => chaser.id === chaserSelect.value
   );
 }
 
+function randomChaser() {
+  const index = Math.floor(
+    Math.random() * chasers.length
+  );
+
+  return chasers[index];
+}
+
 function renderProfile() {
+  if (chaserSelect.value === RANDOM_CHASER_ID) {
+    chaserTitle.textContent = 'Random Chaser';
+    chaserDepartment.textContent =
+      'Selected when the match starts';
+    chaserBio.textContent =
+      'One of the active chasers will be chosen at random.';
+    chaserProfile.classList.remove('hidden');
+    return;
+  }
+
   const chaser = selectedChaser();
 
   if (!chaser) {
@@ -45,6 +65,12 @@ function renderProfile() {
 
 function populateChasers() {
   chaserSelect.replaceChildren();
+
+  const randomOption =
+    document.createElement('option');
+  randomOption.value = RANDOM_CHASER_ID;
+  randomOption.textContent = 'Random';
+  chaserSelect.appendChild(randomOption);
 
   for (const chaser of chasers) {
     const option =
@@ -102,7 +128,9 @@ async function loadChasers() {
 }
 
 async function startMatch() {
-  const chaser = selectedChaser();
+  const chaser = chaserSelect.value === RANDOM_CHASER_ID
+    ? randomChaser()
+    : selectedChaser();
 
   if (!chaser) {
     status.textContent =
@@ -111,7 +139,10 @@ async function startMatch() {
   }
 
   startBtn.disabled = true;
-  status.textContent = 'Starting match...';
+  status.textContent =
+    chaserSelect.value === RANDOM_CHASER_ID
+      ? `Randomly selected ${chaser.name}. Starting match...`
+      : 'Starting match...';
 
   try {
     const response = await fetch(

@@ -55,3 +55,22 @@ test("setup script loads profiles and submits id plus legacy name", () => {
         /textContent/
     );
 });
+
+test("setup script offers and resolves a random chaser", () => {
+    assert.match(
+        setupScript,
+        /RANDOM_CHASER_ID\s*=\s*'random'/
+    );
+    assert.match(
+        setupScript,
+        /randomOption\.textContent\s*=\s*'Random'/
+    );
+    assert.match(
+        setupScript,
+        /Math\.floor\(\s*Math\.random\(\)\s*\*\s*chasers\.length/
+    );
+    assert.match(
+        setupScript,
+        /Randomly selected \$\{chaser\.name\}/
+    );
+});
