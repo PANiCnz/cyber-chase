@@ -164,3 +164,39 @@ test("setup refreshes automatically when chasers change", () => {
         /No chasers are currently available/
     );
 });
+
+test("setup uses slow outward-pulsing waiting indicators", () => {
+    assert.equal(
+        (setupHtml.match(/class="status-dot /g) || [])
+            .length,
+        6
+    );
+    assert.match(
+        setupHtml,
+        /status-dots-left[\s\S]*pulse-step-3[\s\S]*pulse-step-2[\s\S]*pulse-step-1/
+    );
+    assert.match(
+        setupHtml,
+        /status-dots-right[\s\S]*pulse-step-1[\s\S]*pulse-step-2[\s\S]*pulse-step-3/
+    );
+    assert.match(
+        setupCss,
+        /\.showcase-status\{[^}]*font-size:1\.15rem/
+    );
+    assert.match(
+        setupCss,
+        /\.status-dot\{[^}]*animation:status-pulse 4\.8s/
+    );
+    assert.match(
+        setupCss,
+        /\.pulse-step-2\{animation-delay:1\.2s\}/
+    );
+    assert.match(
+        setupCss,
+        /\.pulse-step-3\{animation-delay:2\.4s\}/
+    );
+    assert.match(
+        setupCss,
+        /@media\(prefers-reduced-motion:reduce\)/
+    );
+});

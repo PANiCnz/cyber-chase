@@ -236,19 +236,50 @@ h1{
   align-items:center;
   color:#aeb9c1;
   display:flex;
-  font-size:.9rem;
+  font-size:1.15rem;
   font-weight:bold;
-  gap:10px;
+  gap:16px;
   justify-content:center;
   letter-spacing:.14em;
   text-transform:uppercase;
 }
-.status-light{
+.status-dots{
+  align-items:center;
+  display:flex;
+  gap:8px;
+}
+.status-dot{
+  animation:status-pulse 4.8s ease-in-out infinite;
   background:var(--chaser);
   border-radius:50%;
-  box-shadow:0 0 14px var(--chaser);
+  box-shadow:0 0 5px rgba(240,43,47,.5);
   height:10px;
+  opacity:.35;
+  transform:scale(.72);
   width:10px;
+}
+.pulse-step-2{animation-delay:1.2s}
+.pulse-step-3{animation-delay:2.4s}
+@keyframes status-pulse{
+  0%,18%{
+    box-shadow:
+      0 0 10px var(--chaser),
+      0 0 22px var(--chaser-glow);
+    opacity:1;
+    transform:scale(1.35);
+  }
+  28%,100%{
+    box-shadow:0 0 5px rgba(240,43,47,.5);
+    opacity:.35;
+    transform:scale(.72);
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .status-dot{
+    animation:none;
+    opacity:.8;
+    transform:none;
+  }
 }
 @media(max-width:1200px){
   body{overflow:auto}
