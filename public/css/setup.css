@@ -7,8 +7,8 @@
   --chaser-glow:rgba(240,43,47,.42);
   --silver:#e5e7e9;
   --panel:#0b1016;
-  --profile-image-height:calc(80% - 176px);
-  --profile-content-height:calc(20% + 176px);
+  --profile-image-height:47vh;
+  --profile-content-height:220px;
 }
 *{box-sizing:border-box}
 body{
@@ -63,7 +63,7 @@ body::before{
 }
 .brand-kicker{
   color:#cbd0d4;
-  font-size:.88rem;
+  font-size:1.1rem;
   font-weight:bold;
   letter-spacing:.48em;
 }
@@ -72,7 +72,7 @@ h1{
   background-clip:text;
   color:transparent;
   font-family:"Arial Narrow",Impact,sans-serif;
-  font-size:4.15rem;
+  font-size:5.1875rem;
   font-stretch:condensed;
   letter-spacing:.08em;
   line-height:.9;
@@ -82,7 +82,7 @@ h1{
 .showcase-title{
   color:var(--chaser);
   font-family:"Arial Narrow",Impact,sans-serif;
-  font-size:1.22rem;
+  font-size:1.525rem;
   font-weight:900;
   letter-spacing:.46em;
   margin-top:8px;
@@ -92,7 +92,7 @@ h1{
   align-items:center;
   color:#9eabb5;
   display:flex;
-  font-size:.9rem;
+  font-size:1.125rem;
   font-weight:bold;
   gap:18px;
   justify-content:center;
@@ -101,7 +101,7 @@ h1{
 }
 .showcase-intro strong{
   color:white;
-  font-size:1.04rem;
+  font-size:1.3rem;
 }
 .chaser-gallery{
   display:grid;
@@ -117,6 +117,10 @@ h1{
   grid-template-rows:
     var(--profile-image-height)
     var(--profile-content-height);
+  height:calc(
+    var(--profile-image-height) +
+    var(--profile-content-height)
+  );
   min-width:0;
   overflow:hidden;
   position:relative;
@@ -250,5 +254,8 @@ h1{
   body{overflow:auto}
   .showcase{height:auto;min-height:100vh;padding:24px}
   .chaser-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .chaser-card{min-height:650px}
+  .chaser-card{
+    height:auto;
+    min-height:650px;
+  }
 }

@@ -70,11 +70,11 @@ test("setup renders image-ready profiles with placeholders", () => {
 test("setup shortens portraits without changing the four-card width", () => {
     assert.match(
         setupCss,
-        /--profile-image-height:calc\(80% - 176px\)/
+        /--profile-image-height:47vh/
     );
     assert.match(
         setupCss,
-        /--profile-content-height:calc\(20% \+ 176px\)/
+        /--profile-content-height:220px/
     );
     assert.match(
         setupCss,
@@ -86,11 +86,23 @@ test("setup shortens portraits without changing the four-card width", () => {
     );
     assert.match(
         setupCss,
-        /h1\{[^}]*font-size:4\.15rem/
+        /\.brand-kicker\{[^}]*font-size:1\.1rem/
     );
     assert.match(
         setupCss,
-        /\.showcase-status\{[^}]*font-size:\.9rem/
+        /h1\{[^}]*font-size:5\.1875rem/
+    );
+    assert.match(
+        setupCss,
+        /\.showcase-title\{[^}]*font-size:1\.525rem/
+    );
+    assert.match(
+        setupCss,
+        /\.showcase-intro\{[^}]*font-size:1\.125rem/
+    );
+    assert.match(
+        setupCss,
+        /\.showcase-intro strong\{[^}]*font-size:1\.3rem/
     );
 });
 
