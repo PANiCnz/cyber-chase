@@ -22,11 +22,11 @@ test("display aligns both segmented scores below equal detail regions", () => {
     );
     assert.match(
         css,
-        /\.player-details\{[^}]*height:86px/
+        /\.player-details\{[^}]*height:78px/
     );
 });
 
-test("display renders five discrete score segments per player", () => {
+test("display renders two rows of ten score segments per player", () => {
     assert.equal(
         (html.match(/role="progressbar"/g) || [])
             .length,
@@ -35,11 +35,11 @@ test("display renders five discrete score segments per player", () => {
     assert.equal(
         (html.match(/class="score-segment"/g) || [])
             .length,
-        10
+        40
     );
     assert.match(
         css,
-        /\.score-segments\{[^}]*var\(--score-segments,5\)/
+        /\.score-segments\{[^}]*var\(--score-segments,10\)/
     );
     assert.match(
         script,
@@ -47,7 +47,11 @@ test("display renders five discrete score segments per player", () => {
     );
     assert.match(
         script,
-        /Math\.max\(\s*5,[\s\S]*state\.targetScore/
+        /Math\.max\(\s*20,[\s\S]*Math\.ceil\([\s\S]*\/ 10[\s\S]*\) \* 10/
+    );
+    assert.match(
+        css,
+        /\.score-segments\{[^}]*grid-auto-rows:24px/
     );
 });
 

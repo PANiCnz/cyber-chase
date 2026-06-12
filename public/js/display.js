@@ -79,10 +79,14 @@ function renderMatchState(state) {
       state.chaser?.score || 0;
    const scoreScale =
       Math.max(
-         5,
-         state.targetScore || 0,
-         contestantScore,
-         chaserScore
+         20,
+         Math.ceil(
+            Math.max(
+               state.targetScore || 0,
+               contestantScore,
+               chaserScore
+            ) / 10
+         ) * 10
       );
 
    while (
@@ -103,11 +107,11 @@ function renderMatchState(state) {
    }
    contestantBar.style.setProperty(
       '--score-segments',
-      scoreScale
+      Math.min(scoreScale, 10)
    );
    chaserBar.style.setProperty(
       '--score-segments',
-      scoreScale
+      Math.min(scoreScale, 10)
    );
 
    renderScore(
