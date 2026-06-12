@@ -64,7 +64,15 @@ test("display provides correct and incorrect result messaging", () => {
     );
     assert.match(
         displayScript,
-        /state\.roundActive && resultVisible/
+        /ANSWER_RESULT_DURATION = 1500/
+    );
+    assert.match(
+        displayScript,
+        /}, ANSWER_RESULT_DURATION\)/
+    );
+    assert.doesNotMatch(
+        displayScript,
+        /state\.roundActive && resultVisible[\s\S]*hideAnswerResult/
     );
     assert.doesNotMatch(
         displayScript,

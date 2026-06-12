@@ -48,6 +48,7 @@ const winnerMessage =
 let resultVisible = false;
 let resultTimer = null;
 let currentChaserLabel = 'The Chaser';
+const ANSWER_RESULT_DURATION = 1500;
 
 function renderScore(segments, score) {
    segments.forEach((segment, index) => {
@@ -228,9 +229,7 @@ async function updateFromApi() {
       return;
    }
 
-   if (state.roundActive && resultVisible) {
-      hideAnswerResult();
-   } else if (
+   if (
       !state.roundActive &&
       !state.winner &&
       state.lastRoundResult
@@ -300,7 +299,7 @@ function showAnswerResult(result) {
       resultTimer = setTimeout(() => {
          hideAnswerResult();
          updateFromApi();
-      }, 550);
+      }, ANSWER_RESULT_DURATION);
    }
 }
 
