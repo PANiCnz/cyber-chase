@@ -7,6 +7,8 @@
   --chaser-glow:rgba(240,43,47,.42);
   --silver:#e5e7e9;
   --panel:#0b1016;
+  --profile-image-height:calc(80% - 176px);
+  --profile-content-height:calc(20% + 176px);
 }
 *{box-sizing:border-box}
 body{
@@ -61,7 +63,7 @@ body::before{
 }
 .brand-kicker{
   color:#cbd0d4;
-  font-size:.7rem;
+  font-size:.88rem;
   font-weight:bold;
   letter-spacing:.48em;
 }
@@ -70,7 +72,7 @@ h1{
   background-clip:text;
   color:transparent;
   font-family:"Arial Narrow",Impact,sans-serif;
-  font-size:3.45rem;
+  font-size:4.15rem;
   font-stretch:condensed;
   letter-spacing:.08em;
   line-height:.9;
@@ -80,7 +82,7 @@ h1{
 .showcase-title{
   color:var(--chaser);
   font-family:"Arial Narrow",Impact,sans-serif;
-  font-size:1rem;
+  font-size:1.22rem;
   font-weight:900;
   letter-spacing:.46em;
   margin-top:8px;
@@ -90,7 +92,7 @@ h1{
   align-items:center;
   color:#9eabb5;
   display:flex;
-  font-size:.72rem;
+  font-size:.9rem;
   font-weight:bold;
   gap:18px;
   justify-content:center;
@@ -99,7 +101,7 @@ h1{
 }
 .showcase-intro strong{
   color:white;
-  font-size:.82rem;
+  font-size:1.04rem;
 }
 .chaser-gallery{
   display:grid;
@@ -112,7 +114,9 @@ h1{
   border:1px solid #4b171a;
   box-shadow:0 18px 45px rgba(0,0,0,.48),inset 0 -4px 0 var(--chaser);
   display:grid;
-  grid-template-rows:minmax(0,1fr) 220px;
+  grid-template-rows:
+    var(--profile-image-height)
+    var(--profile-content-height);
   min-width:0;
   overflow:hidden;
   position:relative;
@@ -120,7 +124,7 @@ h1{
 .chaser-card::after{
   background:linear-gradient(to bottom,transparent 58%,rgba(3,4,6,.86));
   content:"";
-  inset:0 0 220px;
+  inset:0 0 var(--profile-content-height);
   pointer-events:none;
   position:absolute;
 }
@@ -228,7 +232,7 @@ h1{
   align-items:center;
   color:#aeb9c1;
   display:flex;
-  font-size:.7rem;
+  font-size:.9rem;
   font-weight:bold;
   gap:10px;
   justify-content:center;
@@ -239,8 +243,8 @@ h1{
   background:var(--chaser);
   border-radius:50%;
   box-shadow:0 0 14px var(--chaser);
-  height:8px;
-  width:8px;
+  height:10px;
+  width:10px;
 }
 @media(max-width:1200px){
   body{overflow:auto}

@@ -67,6 +67,33 @@ test("setup renders image-ready profiles with placeholders", () => {
     );
 });
 
+test("setup shortens portraits without changing the four-card width", () => {
+    assert.match(
+        setupCss,
+        /--profile-image-height:calc\(80% - 176px\)/
+    );
+    assert.match(
+        setupCss,
+        /--profile-content-height:calc\(20% \+ 176px\)/
+    );
+    assert.match(
+        setupCss,
+        /\.chaser-card\{[^}]*grid-template-rows:\s*var\(--profile-image-height\)\s*var\(--profile-content-height\)/
+    );
+    assert.match(
+        setupCss,
+        /\.chaser-gallery\{[^}]*grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/
+    );
+    assert.match(
+        setupCss,
+        /h1\{[^}]*font-size:4\.15rem/
+    );
+    assert.match(
+        setupCss,
+        /\.showcase-status\{[^}]*font-size:\.9rem/
+    );
+});
+
 test("setup uses fictional seeded personas and generated portraits", () => {
     const catalog = JSON.parse(
         read("data/chasers.json")
