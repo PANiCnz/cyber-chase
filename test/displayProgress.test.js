@@ -128,4 +128,12 @@ test("display uses a compact 1080p question-first layout", () => {
         css,
         /#answers\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/
     );
+    assert.match(
+        css,
+        /\.answer-option\{[^}]*font-size:clamp\(1\.7rem,2vw,2\.35rem\)/
+    );
+    assert.match(
+        css,
+        /\.answer-key\{[^}]*font-size:2\.15rem/
+    );
 });
