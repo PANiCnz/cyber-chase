@@ -134,10 +134,10 @@
     </section>
 
     <div class="game-status-grid">
-        <section class="timer-panel game-section hidden" aria-label="Question timer">
-            <div class="timer-label">QUESTION TIMER</div>
-            <div id="timerValue" class="timer-value" aria-live="polite">60</div>
-            <div id="timerStatus" class="timer-status">Waiting for question</div>
+        <section class="timer-panel game-section hidden" aria-label="Round timer">
+            <div class="timer-label">ROUND TIMER</div>
+            <div id="timerValue" class="timer-value" aria-live="polite">120</div>
+            <div id="timerStatus" class="timer-status">Waiting for phase</div>
             <div class="timer-controls">
                 <button id="pauseTimerBtn" type="button" disabled>PAUSE</button>
                 <button id="resetTimerBtn" type="button" disabled>RESET</button>
@@ -154,8 +154,8 @@
     </div>
 
     <section id="roundWaiting" class="round-waiting game-section hidden" role="status">
-        <div id="roundWaitingText">Ready for the contestant round.</div>
-        <button id="startRoundBtn" type="button">START NEXT ROUND</button>
+        <div id="roundWaitingText">Contestant chase begins after the countdown.</div>
+        <button id="startRoundBtn" type="button">START CHASER CHASE</button>
     </section>
 
     <div class="question-panel game-section round-content hidden">

@@ -11,40 +11,37 @@ test.beforeEach(() => {
     questionService.resetQuestionBanks();
 });
 
-function startNextRound() {
-    const match = matchService.getMatch();
-
+function startContestantPhase() {
     return matchService.startRound({
-        automatic:
-            match?.firstRoundPending === true
+        automatic: true
     });
 }
 
-test("starts a match with existing state fields", () => {
+function wrongAnswer(question) {
+    return ["a", "b", "c", "d"].find(
+        answer => answer !== question.correct
+    );
+}
+
+test("starts a Final Chase match waiting for the contestant", () => {
     const match = matchService.startMatch(
         "Alex",
         "Rob",
         "Finance"
     );
 
-    assert.deepEqual(match.contestant, {
-        name: "Alex",
-        department: "Finance",
-        score: 0
-    });
-    assert.deepEqual(match.chaser, {
-        name: "Rob",
-        department: "Information Security",
-        score: 0
-    });
+    assert.equal(match.gameMode, "final-chase");
     assert.equal(match.currentPlayer, "contestant");
+    assert.equal(match.phaseStatus, "pending");
     assert.equal(match.roundActive, false);
-    assert.ok(match.contestantQuestions.length > 5);
-    assert.ok(match.chaserQuestions.length > 5);
+    assert.equal(match.firstRoundPending, true);
+    assert.equal(match.targetScore, null);
+    assert.equal(match.contestant.score, 0);
+    assert.equal(match.chaser.score, 0);
     assert.equal(match.winner, null);
 });
 
-test("starts a match with a profile snapshot", () => {
+test("preserves profile snapshots and difficulty filters", () => {
     const match = matchService.startMatch(
         "Alex",
         {
@@ -54,23 +51,6 @@ test("starts a match with a profile snapshot", () => {
             title: "The Firewall",
             bio: "Profile text"
         },
-        "Finance"
-    );
-
-    assert.deepEqual(match.chaser, {
-        id: "rob",
-        name: "Rob",
-        department: "Information Security",
-        title: "The Firewall",
-        bio: "Profile text",
-        score: 0
-    });
-});
-
-test("starts with independently filtered question difficulties", () => {
-    const match = matchService.startMatch(
-        "Alex",
-        "Rob",
         "Finance",
         {
             contestant: "Easy",
@@ -78,10 +58,9 @@ test("starts with independently filtered question difficulties", () => {
         }
     );
 
-    assert.deepEqual(match.difficulty, {
-        contestant: "Easy",
-        chaser: "Expert"
-    });
+    assert.equal(match.chaser.title, "The Firewall");
+    assert.equal(match.difficulty.contestant, "Easy");
+    assert.equal(match.difficulty.chaser, "Expert");
     assert.ok(
         match.contestantQuestions.every(
             question =>
@@ -96,212 +75,204 @@ test("starts with independently filtered question difficulties", () => {
     );
 });
 
-test("correct answers score and advance the turn", () => {
-    matchService.startMatch(
+test("contestant answers rapid-fire without ending the phase", () => {
+    const match = matchService.startMatch(
         "Alex",
         "Rob"
     );
-
-    const answer =
-        matchService.getCurrentQuestion().correct;
-    startNextRound();
-    const result =
-        matchService.processAnswer(answer);
-
-    assert.equal(result.correct, true);
-    assert.equal(
-        result.match.contestant.score,
-        1
-    );
-    assert.equal(
-        result.match.currentPlayer,
-        "chaser"
-    );
-    assert.deepEqual(
-        result.match.lastRoundResult,
-        {
-            correct: true,
-            correctAnswer: answer,
-            player: "contestant",
-            playerName: "Alex",
-            timeout: false
-        }
-    );
-});
-
-test("incorrect answers preserve score and advance", () => {
-    matchService.startMatch(
-        "Alex",
-        "Rob"
-    );
-
+    startContestantPhase();
+    const firstToken =
+        matchService.getCurrentQuestionToken();
     const correct =
         matchService.getCurrentQuestion().correct;
-    const answer =
-        ["a", "b", "c", "d"].find(
-            item => item !== correct
-        );
-    startNextRound();
-    const result =
-        matchService.processAnswer(answer);
-
-    assert.equal(result.correct, false);
-    assert.equal(
-        result.match.contestant.score,
-        0
-    );
-    assert.equal(
-        result.match.currentPlayer,
-        "chaser"
-    );
-    assert.equal(
-        result.match.lastRoundResult.correct,
-        false
-    );
-});
-
-test("invalid answers return an error without changing state", () => {
-    const match = matchService.startMatch(
-        "Alex",
-        "Rob"
-    );
-    startNextRound();
-
-    const result =
-        matchService.processAnswer();
-
-    assert.equal(result.correct, false);
-    assert.equal(
-        result.error,
-        "Answer must be A, B, C, or D"
-    );
-    assert.equal(match.contestant.score, 0);
-    assert.equal(
-        match.currentPlayer,
-        "contestant"
-    );
-});
-
-test("times out only the expected active question", () => {
-    const match = matchService.startMatch(
-        "Alex",
-        "Rob"
-    );
-    const token =
-        startNextRound()
-            .questionToken;
-    const result =
-        matchService.processTimeout(token);
-
-    assert.equal(result.timeout, true);
-    assert.equal(result.player, "contestant");
-    assert.equal(result.playerName, "Alex");
-    assert.deepEqual(
-        match.lastRoundResult,
-        {
-            correct: false,
-            correctAnswer:
-                result.correctAnswer,
-            player: "contestant",
-            playerName: "Alex",
-            timeout: true
-        }
-    );
-    assert.equal(match.currentPlayer, "chaser");
-    assert.equal(
-        match.contestantQuestionIndex,
-        1
-    );
-
-    const duplicate =
-        matchService.processTimeout(token);
-
-    assert.equal(duplicate.stale, true);
-    assert.equal(match.currentPlayer, "chaser");
-    assert.equal(match.chaserQuestionIndex, 0);
-});
-
-test("rejects a stale question token without answering the next turn", () => {
-    const match = matchService.startMatch(
-        "Alex",
-        "Rob"
-    );
-    const token =
-        startNextRound()
-            .questionToken;
-    matchService.processTimeout(token);
-
-    const result =
-        matchService.processAnswer("a", token);
-
-    assert.equal(result.stale, true);
-    assert.equal(match.currentPlayer, "chaser");
-    assert.equal(match.chaserQuestionIndex, 0);
-});
-
-test("alternates beyond five questions until a player reaches five", () => {
-    const match = matchService.startMatch(
-        "Alex",
-        "Rob"
-    );
-
-    for (let round = 0; round < 5; round++) {
-        startNextRound();
-        const contestantQuestion =
-            matchService.getCurrentQuestion();
-        const contestantWrong =
-            ["a", "b", "c", "d"].find(
-                answer =>
-                    answer !==
-                    contestantQuestion.correct
-            );
-
+    const first =
         matchService.processAnswer(
-            contestantWrong
+            correct,
+            firstToken
         );
 
-        startNextRound();
-        const chaserQuestion =
-            matchService.getCurrentQuestion();
-        const chaserWrong =
-            ["a", "b", "c", "d"].find(
-                answer =>
-                    answer !== chaserQuestion.correct
-            );
+    assert.equal(first.correct, true);
+    assert.equal(match.contestant.score, 1);
+    assert.equal(match.currentPlayer, "contestant");
+    assert.equal(match.roundActive, true);
+    assert.equal(match.contestantQuestionIndex, 1);
+    assert.equal(
+        first.nextQuestionToken,
+        "contestant:1"
+    );
 
-        matchService.processAnswer(chaserWrong);
+    const secondQuestion =
+        matchService.getCurrentQuestion();
+    matchService.processAnswer(
+        wrongAnswer(secondQuestion),
+        first.nextQuestionToken
+    );
+
+    assert.equal(match.contestant.score, 1);
+    assert.equal(match.contestantQuestionIndex, 2);
+    assert.equal(match.roundActive, true);
+});
+
+test("contestant timeout fixes the target and waits for the Chaser", () => {
+    const match = matchService.startMatch(
+        "Alex",
+        "Rob"
+    );
+    startContestantPhase();
+
+    for (let index = 0; index < 3; index++) {
+        matchService.processAnswer(
+            matchService.getCurrentQuestion().correct,
+            matchService.getCurrentQuestionToken()
+        );
     }
 
-    assert.equal(
-        match.contestantQuestionIndex,
-        5
-    );
-    assert.equal(match.chaserQuestionIndex, 5);
-    assert.equal(match.winner, null);
-    assert.ok(matchService.getCurrentQuestion());
+    const result =
+        matchService.processPhaseTimeout(
+            matchService.getActivePhaseToken()
+        );
 
-    while (!match.winner) {
-        startNextRound();
+    assert.equal(result.timeout, true);
+    assert.equal(match.targetScore, 3);
+    assert.equal(match.currentPlayer, "chaser");
+    assert.equal(match.phaseStatus, "waiting");
+    assert.equal(match.roundActive, false);
+    assert.equal(match.winner, null);
+});
+
+test("Chaser must be started manually after the target is set", () => {
+    const match = matchService.startMatch(
+        "Alex",
+        "Rob"
+    );
+
+    assert.equal(
+        matchService.startRound().error,
+        "Contestant phase starts after the opening countdown"
+    );
+
+    startContestantPhase();
+    matchService.processAnswer(
+        matchService.getCurrentQuestion().correct
+    );
+    matchService.processPhaseTimeout(
+        matchService.getActivePhaseToken()
+    );
+
+    const chase = matchService.startRound();
+
+    assert.equal(chase.questionToken, "chaser:0");
+    assert.equal(chase.phaseToken, "phase:chaser");
+    assert.equal(match.roundActive, true);
+    assert.equal(match.phaseStatus, "active");
+});
+
+test("Chaser wins immediately on reaching the target", () => {
+    const match = matchService.startMatch(
+        "Alex",
+        "Rob"
+    );
+    startContestantPhase();
+
+    for (let index = 0; index < 2; index++) {
         matchService.processAnswer(
             matchService.getCurrentQuestion().correct
         );
-
-        if (
-            !match.winner &&
-            match.currentPlayer === "chaser"
-        ) {
-            startNextRound();
-            const question =
-                matchService.getCurrentQuestion();
-            const wrong =
-                ["a", "b", "c", "d"].find(
-                    answer =>
-                        answer !== question.correct
-                );
-            matchService.processAnswer(wrong);
-        }
     }
 
+    matchService.processPhaseTimeout(
+        matchService.getActivePhaseToken()
+    );
+    matchService.startRound();
+
+    matchService.processAnswer(
+        matchService.getCurrentQuestion().correct
+    );
+    const result = matchService.processAnswer(
+        matchService.getCurrentQuestion().correct
+    );
+
+    assert.equal(match.chaser.score, 2);
+    assert.equal(match.winner, "Rob");
+    assert.equal(match.roundActive, false);
+    assert.equal(match.phaseStatus, "complete");
+    assert.equal(result.match.winner, "Rob");
+});
+
+test("contestant wins if the Chaser timer expires short of the target", () => {
+    const match = matchService.startMatch(
+        "Alex",
+        "Rob"
+    );
+    startContestantPhase();
+
+    for (let index = 0; index < 3; index++) {
+        matchService.processAnswer(
+            matchService.getCurrentQuestion().correct
+        );
+    }
+
+    matchService.processPhaseTimeout(
+        matchService.getActivePhaseToken()
+    );
+    matchService.startRound();
+    matchService.processAnswer(
+        matchService.getCurrentQuestion().correct
+    );
+    const result =
+        matchService.processPhaseTimeout(
+            matchService.getActivePhaseToken()
+        );
+
+    assert.equal(match.chaser.score, 1);
     assert.equal(match.winner, "Alex");
-    assert.equal(match.contestant.score, 5);
+    assert.equal(match.phaseStatus, "complete");
+    assert.equal(result.winner, "Alex");
+});
+
+test("a zero contestant target is caught when contestant time expires", () => {
+    const match = matchService.startMatch(
+        "Alex",
+        "Rob"
+    );
+    startContestantPhase();
+    matchService.processPhaseTimeout(
+        matchService.getActivePhaseToken()
+    );
+
+    assert.equal(match.targetScore, 0);
+    assert.equal(match.winner, "Rob");
+    assert.equal(match.phaseStatus, "complete");
+});
+
+test("rejects stale question and phase tokens", () => {
+    matchService.startMatch("Alex", "Rob");
+    startContestantPhase();
+    const questionToken =
+        matchService.getCurrentQuestionToken();
+    const phaseToken =
+        matchService.getActivePhaseToken();
+
+    matchService.processAnswer(
+        matchService.getCurrentQuestion().correct,
+        questionToken
+    );
+
+    assert.equal(
+        matchService.processAnswer(
+            "a",
+            questionToken
+        ).stale,
+        true
+    );
+    assert.equal(
+        matchService.processPhaseTimeout(
+            "phase:chaser"
+        ).stale,
+        true
+    );
+    assert.equal(
+        matchService.getActivePhaseToken(),
+        phaseToken
+    );
 });

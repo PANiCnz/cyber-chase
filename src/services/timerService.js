@@ -1,4 +1,4 @@
-const DEFAULT_DURATION = 60;
+const DEFAULT_DURATION = 120;
 
 let remaining = DEFAULT_DURATION;
 let interval = null;
@@ -67,6 +67,18 @@ function resetQuestion(questionToken) {
     return state();
 }
 
+function completePhase(phaseToken) {
+    if (
+        activeQuestionToken !== phaseToken
+    ) {
+        return false;
+    }
+
+    clearTimer();
+    activeQuestionToken = null;
+    return true;
+}
+
 function tick() {
     remaining--;
 
@@ -121,19 +133,6 @@ function startQuestion(
     return start();
 }
 
-function completeQuestion(questionToken) {
-    if (
-        activeQuestionToken !== questionToken
-    ) {
-        return false;
-    }
-
-    clearTimer();
-    activeQuestionToken = null;
-    remaining = DEFAULT_DURATION;
-    return true;
-}
-
 module.exports = {
     start,
     pause,
@@ -143,5 +142,5 @@ module.exports = {
     startQuestion,
     resumeQuestion,
     resetQuestion,
-    completeQuestion
+    completePhase
 };

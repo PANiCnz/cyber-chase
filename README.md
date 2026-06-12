@@ -1,5 +1,21 @@
 Build: docker compose up --build -d
 
+## Game Format
+
+Cyber Chase uses a two-phase Final Chase format:
+
+1. The contestant has two minutes to answer as many rapid-fire
+   questions as possible. Each correct answer adds one step to the
+   target.
+2. The presenter starts the Chaser phase after the contestant timer
+   expires.
+3. The Chaser has two minutes to reach the contestant's target. Each
+   correct answer moves the Chaser one step closer.
+4. The Chaser wins immediately on reaching the target. If the Chaser
+   timer expires first, the contestant wins.
+
+Pushbacks are not used.
+
 ## Redeployment
 
 On the deployment server, run this once to make the script executable:

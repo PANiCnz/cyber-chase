@@ -1,4 +1,3 @@
-
 const questionService = require("./questionService");
 
 let match = null;
@@ -28,7 +27,6 @@ function startMatch(
     contestantDepartment = "",
     difficulty = {}
 ) {
-
     const questions =
         questionService.createMatchQuestions({
             contestantDifficulty:
@@ -39,31 +37,29 @@ function startMatch(
 
     match = {
         started: true,
-
+        gameMode: "final-chase",
         contestant: {
             name: contestantName,
             department: contestantDepartment,
             score: 0
         },
-
         chaser: createChaserState(chaser),
-
         difficulty: {
             contestant:
                 difficulty.contestant || "all",
             chaser:
                 difficulty.chaser || "all"
         },
-
         currentPlayer: "contestant",
-
-        contestantQuestions: questions.contestantQuestions,
-        chaserQuestions: questions.chaserQuestions,
-
+        contestantQuestions:
+            questions.contestantQuestions,
+        chaserQuestions:
+            questions.chaserQuestions,
         contestantQuestionIndex: 0,
         chaserQuestionIndex: 0,
-
+        targetScore: null,
         roundActive: false,
+        phaseStatus: "pending",
         firstRoundPending: true,
         lastRoundResult: null,
         winner: null
@@ -76,19 +72,29 @@ function getMatch() {
     return match;
 }
 
-function getCurrentQuestion() {
+function getQuestionPool(player) {
+    return player === "chaser"
+        ? match?.chaserQuestions
+        : match?.contestantQuestions;
+}
 
+function getQuestionIndex(player) {
+    return player === "chaser"
+        ? match?.chaserQuestionIndex
+        : match?.contestantQuestionIndex;
+}
+
+function getCurrentQuestion() {
     if (!match) return null;
 
-    if (match.currentPlayer === "contestant") {
-        return match.contestantQuestions[
-            match.contestantQuestionIndex
-        ];
-    }
+    const pool =
+        getQuestionPool(match.currentPlayer);
+    const index =
+        getQuestionIndex(match.currentPlayer);
 
-    return match.chaserQuestions[
-        match.chaserQuestionIndex
-    ];
+    if (!pool?.length) return null;
+
+    return pool[index % pool.length];
 }
 
 function getCurrentQuestionToken() {
@@ -100,11 +106,19 @@ function getCurrentQuestionToken() {
         return null;
     }
 
-    const index = match.currentPlayer === "contestant"
-        ? match.contestantQuestionIndex
-        : match.chaserQuestionIndex;
+    return `${match.currentPlayer}:${getQuestionIndex(match.currentPlayer)}`;
+}
 
-    return `${match.currentPlayer}:${index}`;
+function getActivePhaseToken() {
+    if (
+        !match ||
+        match.winner ||
+        !match.roundActive
+    ) {
+        return null;
+    }
+
+    return `phase:${match.currentPlayer}`;
 }
 
 function startRound(options = {}) {
@@ -112,21 +126,15 @@ function startRound(options = {}) {
         options.automatic === true;
 
     if (!match) {
-        return {
-            error: "No active match"
-        };
+        return { error: "No active match" };
     }
 
     if (match.winner) {
-        return {
-            error: "Match is complete"
-        };
+        return { error: "Match is complete" };
     }
 
     if (match.roundActive) {
-        return {
-            error: "Round is already active"
-        };
+        return { error: "Round is already active" };
     }
 
     if (
@@ -134,7 +142,8 @@ function startRound(options = {}) {
         !automatic
     ) {
         return {
-            error: "First round starts after the opening countdown"
+            error:
+                "Contestant phase starts after the opening countdown"
         };
     }
 
@@ -143,19 +152,31 @@ function startRound(options = {}) {
         !match.firstRoundPending
     ) {
         return {
-            error: "Opening round has already started"
+            error:
+                "Contestant phase has already started"
+        };
+    }
+
+    if (
+        !automatic &&
+        (
+            match.currentPlayer !== "chaser" ||
+            match.phaseStatus !== "waiting"
+        )
+    ) {
+        return {
+            error: "Chaser phase is not ready"
         };
     }
 
     const question = getCurrentQuestion();
 
     if (!question) {
-        return {
-            error: "No active question"
-        };
+        return { error: "No active question" };
     }
 
     match.roundActive = true;
+    match.phaseStatus = "active";
     match.firstRoundPending = false;
     match.lastRoundResult = null;
 
@@ -163,77 +184,59 @@ function startRound(options = {}) {
         match,
         question,
         questionToken:
-            getCurrentQuestionToken()
+            getCurrentQuestionToken(),
+        phaseToken:
+            getActivePhaseToken()
     };
 }
 
 function getUpcomingQuestion() {
-
     if (!match) return null;
 
-    if (match.currentPlayer === "contestant") {
-        return match.contestantQuestions[
-            match.contestantQuestionIndex + 1
-        ];
-    }
+    const pool =
+        getQuestionPool(match.currentPlayer);
+    const nextIndex =
+        getQuestionIndex(match.currentPlayer) + 1;
 
-    return match.chaserQuestions[
-        match.chaserQuestionIndex + 1
-    ];
+    if (!pool?.length) return null;
+
+    return pool[nextIndex % pool.length];
 }
 
-function advanceTurn() {
-
+function advanceQuestion() {
     if (match.currentPlayer === "contestant") {
-
         match.contestantQuestionIndex++;
-        match.currentPlayer = "chaser";
-
     } else {
-
         match.chaserQuestionIndex++;
-        match.currentPlayer = "contestant";
-    }
-}
-
-function checkWinner() {
-
-    if (match.contestant.score >= 5) {
-        match.winner = match.contestant.name;
-    }
-
-    if (match.chaser.score >= 5) {
-        match.winner = match.chaser.name;
     }
 }
 
 function markCorrect() {
-
     if (!match) return null;
 
     if (match.currentPlayer === "contestant") {
         match.contestant.score++;
     } else {
         match.chaser.score++;
+
+        if (
+            match.chaser.score >=
+            match.targetScore
+        ) {
+            match.winner = match.chaser.name;
+            match.roundActive = false;
+            match.phaseStatus = "complete";
+        }
     }
 
-    checkWinner();
-
-    if (!match.winner) {
-        advanceTurn();
-    }
-
+    advanceQuestion();
     return match;
 }
 
 function markIncorrect() {
-
     if (!match) return null;
 
-    if (!match.winner) {
-        advanceTurn();
-    }
-
+    advanceQuestion();
     return match;
 }
 
@@ -241,25 +244,23 @@ function processAnswer(
     submittedAnswer,
     expectedQuestionToken
 ) {
-
     if (!match?.roundActive) {
-        if (expectedQuestionToken) {
-            return {
-                correct: false,
-                error: "Question is no longer active",
-                stale: true
-            };
-        }
-
         return {
             correct: false,
-            error: "No active round"
+            error: expectedQuestionToken
+                ? "Question is no longer active"
+                : "No active round",
+            ...(expectedQuestionToken
+                ? { stale: true }
+                : {})
         };
     }
 
     const question = getCurrentQuestion();
     const questionToken =
         getCurrentQuestionToken();
+    const phaseToken =
+        getActivePhaseToken();
 
     if (!question) {
         return {
@@ -299,16 +300,15 @@ function processAnswer(
     ) {
         return {
             correct: false,
-            error: "Current question has no valid correct answer"
+            error:
+                "Current question has no valid correct answer"
         };
     }
 
     const correctAnswer =
         question.correct.toLowerCase();
-
     const answer =
         submittedAnswer.toLowerCase();
-
     const isCorrect =
         answer === correctAnswer;
     const player = match.currentPlayer;
@@ -321,7 +321,7 @@ function processAnswer(
     } else {
         markIncorrect();
     }
-    match.roundActive = false;
+
     match.lastRoundResult = {
         correct: isCorrect,
         correctAnswer,
@@ -333,64 +333,64 @@ function processAnswer(
     return {
         correct: isCorrect,
         submittedAnswer: answer,
-        correctAnswer: correctAnswer,
+        correctAnswer,
         questionToken,
+        phaseToken,
+        nextQuestionToken:
+            getCurrentQuestionToken(),
         match
     };
 }
 
-function processTimeout(expectedQuestionToken) {
-    if (!match?.roundActive) {
-        return {
-            correct: false,
-            error: "Question is no longer active",
-            stale: true
-        };
-    }
-
-    const question = getCurrentQuestion();
-    const questionToken =
-        getCurrentQuestionToken();
-
+function processPhaseTimeout(expectedPhaseToken) {
     if (
-        !question ||
-        expectedQuestionToken !== questionToken
+        !match?.roundActive ||
+        expectedPhaseToken !==
+            getActivePhaseToken()
     ) {
         return {
-            correct: false,
-            error: "Question is no longer active",
+            error: "Round is no longer active",
             stale: true
         };
     }
 
-    const player = match.currentPlayer;
-    const playerName = player === "chaser"
-        ? match.chaser.name
-        : match.contestant.name;
-    const correctAnswer =
-        typeof question.correct === "string"
-            ? question.correct.toLowerCase()
-            : "";
-
-    markIncorrect();
+    const completedPlayer =
+        match.currentPlayer;
     match.roundActive = false;
-    match.lastRoundResult = {
-        correct: false,
-        correctAnswer,
-        player,
-        playerName,
-        timeout: true
-    };
+    match.lastRoundResult = null;
+
+    if (completedPlayer === "contestant") {
+        match.targetScore =
+            match.contestant.score;
+
+        if (match.targetScore === 0) {
+            match.winner = match.chaser.name;
+            match.phaseStatus = "complete";
+        } else {
+            match.currentPlayer = "chaser";
+            match.phaseStatus = "waiting";
+        }
+    } else {
+        match.winner = match.contestant.name;
+        match.phaseStatus = "complete";
+    }
 
     return {
-        correct: false,
-        correctAnswer,
-        questionToken,
         timeout: true,
-        player,
-        playerName,
+        player: completedPlayer,
+        playerName:
+            completedPlayer === "chaser"
+                ? match.chaser.name
+                : match.contestant.name,
+        winner: match.winner,
         match
     };
+}
+
+function processTimeout(expectedPhaseToken) {
+    return processPhaseTimeout(
+        expectedPhaseToken
+    );
 }
 
 function resetMatch() {
@@ -402,11 +402,13 @@ module.exports = {
     getMatch,
     getCurrentQuestion,
     getCurrentQuestionToken,
+    getActivePhaseToken,
     startRound,
     getUpcomingQuestion,
     markCorrect,
     markIncorrect,
     processAnswer,
+    processPhaseTimeout,
     processTimeout,
     resetMatch
 };

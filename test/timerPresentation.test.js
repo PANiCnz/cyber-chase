@@ -38,7 +38,7 @@ const intro =
 test("presenter provides round and timer controls", () => {
     assert.match(
         presenterHtml,
-        /QUESTION TIMER/
+        /ROUND TIMER/
     );
     assert.match(
         presenterHtml,
@@ -120,7 +120,7 @@ test("audience display announces timer updates and timeouts", () => {
     );
     assert.match(
         display,
-        /'WAITING FOR NEXT ROUND'/
+        /TARGET SET:/
     );
     assert.match(
         displayCss,
@@ -128,14 +128,14 @@ test("audience display announces timer updates and timeouts", () => {
     );
 });
 
-test("only the start-round endpoint arms the question timer", () => {
+test("only the start-phase endpoint arms the two-minute timer", () => {
     assert.match(
         questionRoutes,
         /router\.post\("\/start"/
     );
     assert.match(
         questionRoutes,
-        /timerService\.startQuestion/
+        /timerService\.startQuestion\([\s\S]*result\.phaseToken[\s\S]*120/
     );
     assert.match(
         questionRoutes,
@@ -151,7 +151,7 @@ test("only the start-round endpoint arms the question timer", () => {
     );
 });
 
-test("intro countdown automatically starts only the opening round", () => {
+test("intro countdown automatically starts only the contestant phase", () => {
     assert.match(
         intro,
         /let remaining = 5/
@@ -170,18 +170,18 @@ test("intro countdown automatically starts only the opening round", () => {
     );
 });
 
-test("server converts expiry into an incorrect realtime result", () => {
+test("server converts expiry into a phase transition", () => {
     assert.match(
         server,
         /setExpirationHandler/
     );
     assert.match(
         server,
-        /matchService\.processTimeout/
+        /matchService\.processPhaseTimeout/
     );
     assert.match(
         server,
-        /timeout: true/
+        /io\.emit\("phaseEnded"/
     );
     assert.match(
         server,

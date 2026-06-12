@@ -39,11 +39,15 @@ test("display renders five discrete score segments per player", () => {
     );
     assert.match(
         css,
-        /\.score-segments\{[^}]*grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/
+        /\.score-segments\{[^}]*var\(--score-segments,5\)/
     );
     assert.match(
         script,
         /segment\.classList\.toggle\(\s*'filled'/
+    );
+    assert.match(
+        script,
+        /Math\.max\(\s*5,[\s\S]*state\.targetScore/
     );
 });
 

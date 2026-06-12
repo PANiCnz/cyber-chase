@@ -133,8 +133,12 @@ body::before{
 .chaser-card .player-name{text-shadow:0 0 20px var(--chaser-glow)}
 .score-segments{
   display:grid;
-  gap:12px;
-  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:clamp(4px,.45vw,8px);
+  grid-template-columns:
+    repeat(
+      var(--score-segments,5),
+      minmax(0,1fr)
+    );
   padding:0 10px;
 }
 .score-segment{
@@ -181,7 +185,7 @@ body::before{
   color:white;
   display:flex;
   font-family:"Arial Narrow",Impact,sans-serif;
-  font-size:4.7rem;
+  font-size:4rem;
   font-weight:900;
   height:132px;
   justify-content:center;
@@ -354,6 +358,6 @@ body::before{
   .display-shell{height:auto;min-height:100vh;padding:20px}
   .scoreboard{grid-template-columns:1fr 130px 1fr}
   .player-details{height:100px}
-  .timer{height:105px;width:105px;font-size:3.7rem}
+  .timer{height:105px;width:105px;font-size:3.2rem}
   #answers{grid-template-columns:1fr}
 }

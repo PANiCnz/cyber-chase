@@ -10,7 +10,7 @@ router.get("/state", (req, res) => {
 
 router.post("/start", (req, res) => {
     const questionToken =
-        matchService.getCurrentQuestionToken();
+        matchService.getActivePhaseToken();
 
     if (!questionToken) {
         return res.status(409).json({
@@ -26,9 +26,7 @@ router.post("/start", (req, res) => {
 });
 
 router.post("/pause", (req, res) => {
-    if (
-        !matchService.getCurrentQuestionToken()
-    ) {
+    if (!matchService.getActivePhaseToken()) {
         return res.status(409).json({
             error: "No active round"
         });
@@ -39,7 +37,7 @@ router.post("/pause", (req, res) => {
 
 router.post("/reset", (req, res) => {
     const questionToken =
-        matchService.getCurrentQuestionToken();
+        matchService.getActivePhaseToken();
 
     if (!questionToken) {
         return res.status(409).json({

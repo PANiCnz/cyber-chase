@@ -77,6 +77,38 @@ function renderMatchState(state) {
       state.contestant?.score || 0;
    const chaserScore =
       state.chaser?.score || 0;
+   const scoreScale =
+      Math.max(
+         5,
+         state.targetScore || 0,
+         contestantScore,
+         chaserScore
+      );
+
+   while (
+      contestantSegments.length < scoreScale
+   ) {
+      const segment =
+         document.createElement('span');
+      segment.className = 'score-segment';
+      contestantBar.appendChild(segment);
+      contestantSegments.push(segment);
+   }
+   while (chaserSegments.length < scoreScale) {
+      const segment =
+         document.createElement('span');
+      segment.className = 'score-segment';
+      chaserBar.appendChild(segment);
+      chaserSegments.push(segment);
+   }
+   contestantBar.style.setProperty(
+      '--score-segments',
+      scoreScale
+   );
+   chaserBar.style.setProperty(
+      '--score-segments',
+      scoreScale
+   );
 
    renderScore(
       contestantSegments,
@@ -90,17 +122,29 @@ function renderMatchState(state) {
       'aria-valuenow',
       contestantScore
    );
+   contestantBar.setAttribute(
+      'aria-valuemax',
+      scoreScale
+   );
    chaserBar.setAttribute(
       'aria-valuenow',
       chaserScore
    );
+   chaserBar.setAttribute(
+      'aria-valuemax',
+      scoreScale
+   );
 
    currentTurn.textContent =
       state.roundActive
-         ? `${(state.currentPlayer || '').toUpperCase()} TURN`
+         ? state.currentPlayer === 'chaser'
+            ? `CHASER CHASING ${state.targetScore}`
+            : 'CONTESTANT BUILDING THE TARGET'
          : state.firstRoundPending
             ? 'MATCH STARTING'
-            : 'WAITING FOR NEXT ROUND';
+            : state.currentPlayer === 'chaser'
+               ? `TARGET SET: ${state.targetScore}`
+               : 'WAITING';
    currentTurn.className =
       'turn ' +
       (state.currentPlayer === 'chaser'
@@ -248,10 +292,19 @@ function showAnswerResult(result) {
          hideAnswerResult();
          updateFromApi();
       }, 1800);
+   } else {
+      resultTimer = setTimeout(() => {
+         hideAnswerResult();
+         updateFromApi();
+      }, 550);
    }
 }
 
 socket.on('answerResult', showAnswerResult);
+socket.on('phaseEnded', () => {
+   hideAnswerResult();
+   updateFromApi();
+});
 socket.on('gameState', updateFromApi);
 socket.on('newMatch', () => {
    window.location = '/setup.html';

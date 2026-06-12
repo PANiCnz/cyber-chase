@@ -45,7 +45,8 @@ function startRound(req, res, automatic) {
     }
 
     const timer = timerService.startQuestion(
-        result.questionToken
+        result.phaseToken,
+        120
     );
 
     res.json({
@@ -117,12 +118,10 @@ router.post("/respond", (req, res) => {
         return res.status(status).json(result);
     }
 
-    timerService.completeQuestion(
-        result.questionToken
-    );
-
     if (result.match.winner) {
-        timerService.pause();
+        timerService.completePhase(
+            result.phaseToken
+        );
     }
 
     res.json(result);

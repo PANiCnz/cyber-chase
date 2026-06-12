@@ -13,7 +13,7 @@ function renderTimer(timer) {
     const remaining =
         Number.isFinite(timer?.remaining)
             ? timer.remaining
-            : 60;
+            : 120;
     const running = timer?.running === true;
     const active = timer?.active === true;
 
@@ -23,11 +23,11 @@ function renderTimer(timer) {
         remaining <= 10
     );
     timerStatus.textContent = !active
-        ? 'Waiting for next round'
+        ? 'Waiting for phase'
         : remaining === 0
             ? 'Time up'
             : running
-                ? 'Question active'
+                ? 'Rapid-fire phase active'
                 : 'Timer paused';
     pauseTimerBtn.textContent =
         running ? 'PAUSE' : 'RESUME';

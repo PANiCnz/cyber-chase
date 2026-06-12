@@ -7,7 +7,7 @@ function renderDisplayTimer(timer) {
     const remaining =
         Number.isFinite(timer?.remaining)
             ? timer.remaining
-            : 60;
+            : 120;
 
     displayTimer.textContent = remaining;
     displayTimer.classList.toggle(

@@ -21,23 +21,21 @@ const io = new Server(server, {
 app.set("io", io);
 
 timerService.setExpirationHandler(
-    questionToken => {
+    phaseToken => {
         const result =
-            matchService.processTimeout(
-                questionToken
+            matchService.processPhaseTimeout(
+                phaseToken
             );
 
         if (result.error) {
             return;
         }
 
-        io.emit("answerResult", {
-            correct: false,
-            correctAnswer:
-                result.correctAnswer,
+        io.emit("phaseEnded", {
             player: result.player,
             playerName: result.playerName,
-            timeout: true
+            timeout: true,
+            winner: result.winner
         });
         io.emit("gameState", {
             timestamp: Date.now()

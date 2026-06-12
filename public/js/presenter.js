@@ -782,15 +782,21 @@ function renderRoundState(state) {
     );
     roundWaitingText.textContent =
         state?.firstRoundPending
-            ? 'Opening countdown in progress. Round one will start automatically.'
-            : `Ready for the ${state?.currentPlayer || 'next'} round.`;
+            ? 'Opening countdown in progress. The contestant chase will start automatically.'
+            : state?.currentPlayer === 'chaser'
+                ? `Contestant target: ${state.targetScore}. Ready to start the Chaser chase.`
+                : 'Waiting for the contestant chase.';
+    startRoundBtn.textContent =
+        'START CHASER CHASE';
     startRoundBtn.disabled =
         active ||
         Boolean(state?.winner) ||
-        Boolean(state?.firstRoundPending);
+        Boolean(state?.firstRoundPending) ||
+        state?.currentPlayer !== 'chaser';
     startRoundBtn.classList.toggle(
         'hidden',
-        Boolean(state?.firstRoundPending)
+        Boolean(state?.firstRoundPending) ||
+        state?.currentPlayer !== 'chaser'
     );
     currentQuestionToken =
         active ? currentQuestionToken : null;
@@ -912,7 +918,7 @@ async function loadMatchProfile() {
 async function startRound() {
     startRoundBtn.disabled = true;
     resultBanner.textContent =
-        'Starting round...';
+        'Starting Chaser chase...';
 
     try {
         const response = await fetch(
