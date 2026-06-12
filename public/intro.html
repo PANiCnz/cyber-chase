@@ -2,32 +2,60 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Cyber Chase Match Intro</title>
     <link rel="stylesheet" href="/css/intro.css">
 </head>
 <body>
-<div class="intro-container">
-    <h1>CYBER CHASE</h1>
-    <h2>THE CHASE IS ON!</h2>
+<main class="intro-container">
+    <header class="brand-header">
+        <div class="brand-rule red-rule"></div>
+        <div>
+            <div class="brand-kicker">CYBER SMART WEEK</div>
+            <h1>CYBER CHASE</h1>
+            <div class="intro-title">THE CHASE IS ON</div>
+        </div>
+        <div class="brand-rule blue-rule"></div>
+    </header>
 
-    <div class="versus-panel">
-        <div class="player">
-            <div id="contestantName">Contestant</div>
-            <div id="contestantDepartment" class="player-department">Department</div>
+    <section class="versus-panel" aria-label="Match introduction">
+        <article class="player-card contestant-card">
+            <div class="player-side">CONTESTANT</div>
+            <div class="portrait-frame contestant-portrait">
+                <div id="contestantInitials" class="contestant-initials">C</div>
+            </div>
+            <div class="player-content">
+                <div class="player-kicker">READY TO TAKE THE CHASE</div>
+                <div id="contestantName" class="player-name">Contestant</div>
+                <div id="contestantDepartment" class="player-department">Department</div>
+            </div>
+        </article>
+
+        <div class="countdown-stage">
+            <div class="versus-label">HEAD TO HEAD</div>
+            <div class="vs">VS</div>
+            <div class="countdown-label">CHASE BEGINS IN</div>
+            <div id="countdown" role="timer" aria-label="5 seconds remaining">5</div>
         </div>
 
-        <div class="vs">VS</div>
+        <article class="player-card chaser-card">
+            <div class="player-side">CHASER</div>
+            <div id="chaserPhoto" class="portrait-frame chaser-portrait"></div>
+            <div class="player-content">
+                <div id="chaserTitle" class="chaser-title"></div>
+                <div id="chaserName" class="player-name">Chaser</div>
+                <div id="chaserDepartment" class="player-department">Information Security</div>
+                <div id="chaserBio" class="chaser-bio"></div>
+            </div>
+        </article>
+    </section>
 
-        <div class="player">
-            <div id="chaserName">Chaser</div>
-            <div id="chaserTitle" class="chaser-title"></div>
-            <div id="chaserDepartment" class="player-department">Information Security</div>
-            <div id="chaserBio" class="chaser-bio"></div>
-        </div>
-    </div>
-
-    <div id="countdown">5</div>
-</div>
+    <footer class="intro-footer">
+        <div class="footer-rule blue-footer-rule"></div>
+        <div>STAY SMART. STAY SECURE. <strong>TAKE THE CHASE.</strong></div>
+        <div class="footer-rule red-footer-rule"></div>
+    </footer>
+</main>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/intro.js"></script>

@@ -61,6 +61,29 @@ test("setup presents every chaser with image fallback support", () => {
     assert.match(script, /chaser\.bio/);
 });
 
+test("intro presents the selected chaser image with a fallback", () => {
+    const html = read("public/intro.html");
+    const script = read("public/js/intro.js");
+    const css = read("public/css/intro.css");
+
+    assert.match(html, /id="chaserPhoto"/);
+    assert.match(html, /id="contestantInitials"/);
+    assert.match(script, /chaser\?\.image/);
+    assert.match(
+        script,
+        /chaser-photo-placeholder/
+    );
+    assert.match(
+        css,
+        /--contestant:#00aef3/
+    );
+    assert.match(css, /--chaser:#f02b2f/);
+    assert.match(
+        css,
+        /\.versus-panel\{[^}]*grid-template-columns:minmax\(0,1fr\) 220px minmax\(0,1fr\)/
+    );
+});
+
 for (const screen of screens) {
     test(`${screen.name} presents optional chaser profile fields`, () => {
         for (const id of screen.ids) {

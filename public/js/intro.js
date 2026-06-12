@@ -3,6 +3,8 @@ const contestantName =
     document.getElementById('contestantName');
 const contestantDepartment =
     document.getElementById('contestantDepartment');
+const contestantInitials =
+    document.getElementById('contestantInitials');
 const chaserName =
     document.getElementById('chaserName');
 const chaserTitle =
@@ -11,9 +13,45 @@ const chaserDepartment =
     document.getElementById('chaserDepartment');
 const chaserBio =
     document.getElementById('chaserBio');
+const chaserPhoto =
+    document.getElementById('chaserPhoto');
 const countdown =
     document.getElementById('countdown');
 const socket = io();
+
+function initials(name) {
+    return (name || 'Chaser')
+        .split(/\s+/)
+        .filter(Boolean)
+        .map(part => part[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase();
+}
+
+function renderChaserPhoto(chaser) {
+    chaserPhoto.replaceChildren();
+
+    if (chaser?.image) {
+        const image = document.createElement('img');
+        image.src = chaser.image;
+        image.alt = `${chaser.name || 'Chaser'} profile`;
+        chaserPhoto.appendChild(image);
+        return;
+    }
+
+    const placeholder =
+        document.createElement('div');
+    placeholder.className =
+        'chaser-photo-placeholder';
+    placeholder.textContent =
+        initials(chaser?.name);
+    placeholder.setAttribute(
+        'aria-label',
+        `${chaser?.name || 'Chaser'} photo placeholder`
+    );
+    chaserPhoto.appendChild(placeholder);
+}
 
 async function loadMatch() {
     const res = await fetch('/api/match/state');
@@ -24,8 +62,12 @@ async function loadMatch() {
         return;
     }
 
-    contestantName.textContent =
+    const displayedContestantName =
         state.contestant?.name || 'Contestant';
+    contestantName.textContent =
+        displayedContestantName;
+    contestantInitials.textContent =
+        initials(displayedContestantName);
     contestantDepartment.textContent =
         state.contestant?.department || '';
 
@@ -46,17 +88,26 @@ async function loadMatch() {
         'hidden',
         !state.chaser?.bio
     );
+    renderChaserPhoto(state.chaser);
 }
 
 async function startCountdown() {
     let remaining = 5;
     countdown.textContent = remaining;
+    countdown.setAttribute(
+        'aria-label',
+        `${remaining} seconds remaining`
+    );
 
     const timer = setInterval(async () => {
         remaining--;
 
         if(remaining > 0) {
             countdown.textContent = remaining;
+            countdown.setAttribute(
+                'aria-label',
+                `${remaining} seconds remaining`
+            );
             return;
         }
 
@@ -76,8 +127,15 @@ async function startCountdown() {
                 socket.emit('refreshGame');
                 window.location = '/display.html';
             } catch {
+                countdown.classList.add(
+                    'countdown-error'
+                );
                 countdown.textContent =
                     'Unable to start match';
+                countdown.setAttribute(
+                    'aria-label',
+                    'Unable to start match'
+                );
             }
         }
     },1000);
