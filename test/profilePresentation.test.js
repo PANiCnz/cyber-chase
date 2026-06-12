@@ -17,9 +17,7 @@ const screens = [
         script: read("public/js/intro.js"),
         ids: [
             "chaserName",
-            "chaserTitle",
-            "chaserDepartment",
-            "chaserBio"
+            "chaserTitle"
         ]
     },
     {
@@ -94,7 +92,7 @@ for (const screen of screens) {
             screen.script,
             /state\.chaser\?\.title/
         );
-        if (screen.name !== "display") {
+        if (screen.name === "presenter") {
             assert.match(
                 screen.script,
                 /state\.chaser\?\.bio/
@@ -104,7 +102,7 @@ for (const screen of screens) {
             screen.script,
             /textContent/
         );
-        if (screen.name !== "display") {
+        if (screen.name === "presenter") {
             assert.match(
                 screen.script,
                 /Information Security/
@@ -112,3 +110,22 @@ for (const screen of screens) {
         }
     });
 }
+
+test("intro omits the chaser department and bio", () => {
+    const html = read("public/intro.html");
+    const script = read("public/js/intro.js");
+
+    assert.doesNotMatch(
+        html,
+        /id="chaserDepartment"/
+    );
+    assert.doesNotMatch(html, /id="chaserBio"/);
+    assert.doesNotMatch(
+        script,
+        /state\.chaser\?\.department/
+    );
+    assert.doesNotMatch(
+        script,
+        /state\.chaser\?\.bio/
+    );
+});

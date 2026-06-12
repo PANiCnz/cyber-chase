@@ -9,10 +9,6 @@ const chaserName =
     document.getElementById('chaserName');
 const chaserTitle =
     document.getElementById('chaserTitle');
-const chaserDepartment =
-    document.getElementById('chaserDepartment');
-const chaserBio =
-    document.getElementById('chaserBio');
 const chaserPhoto =
     document.getElementById('chaserPhoto');
 const countdown =
@@ -78,15 +74,6 @@ async function loadMatch() {
     chaserTitle.classList.toggle(
         'hidden',
         !state.chaser?.title
-    );
-    chaserDepartment.textContent =
-        state.chaser?.department ||
-        'Information Security';
-    chaserBio.textContent =
-        state.chaser?.bio || '';
-    chaserBio.classList.toggle(
-        'hidden',
-        !state.chaser?.bio
     );
     renderChaserPhoto(state.chaser);
 }
