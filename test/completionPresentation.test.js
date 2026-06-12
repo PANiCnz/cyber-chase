@@ -62,7 +62,7 @@ test("display shows a safe match-complete winner message", () => {
     assert.match(displayHtml, /MATCH COMPLETE/);
     assert.match(
         displayScript,
-        /winnerName\.textContent = state\.winner/
+        /winnerName\.textContent = contestantWon[\s\S]*state\.winner[\s\S]*currentChaserLabel/
     );
     assert.match(
         displayScript,

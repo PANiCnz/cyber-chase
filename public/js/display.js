@@ -2,22 +2,16 @@ const socket = io();
 
 const contestantName =
    document.getElementById('contestantName');
-const chaserName =
-   document.getElementById('chaserName');
 const chaserTitle =
    document.getElementById('chaserTitle');
-const chaserDepartment =
-   document.getElementById('chaserDepartment');
-const chaserBio =
-   document.getElementById('chaserBio');
 const contestantBar =
    document.getElementById('contestantBar');
 const chaserBar =
    document.getElementById('chaserBar');
-const contestantProgress =
-   contestantBar.parentElement;
-const chaserProgress =
-   chaserBar.parentElement;
+const contestantSegments =
+   [...contestantBar.querySelectorAll('.score-segment')];
+const chaserSegments =
+   [...chaserBar.querySelectorAll('.score-segment')];
 const currentTurn =
    document.getElementById('currentTurn');
 const category =
@@ -53,6 +47,16 @@ const winnerMessage =
 
 let resultVisible = false;
 let resultTimer = null;
+let currentChaserLabel = 'The Chaser';
+
+function renderScore(segments, score) {
+   segments.forEach((segment, index) => {
+      segment.classList.toggle(
+         'filled',
+         index < score
+      );
+   });
+}
 
 function hideAnswerResult() {
    clearTimeout(resultTimer);
@@ -64,38 +68,29 @@ function hideAnswerResult() {
 function renderMatchState(state) {
    contestantName.textContent =
       state.contestant?.name || 'Contestant';
-   chaserName.textContent =
-      state.chaser?.name || 'Chaser';
+   currentChaserLabel =
+      state.chaser?.title || 'The Chaser';
    chaserTitle.textContent =
-      state.chaser?.title || '';
-   chaserTitle.classList.toggle(
-      'hidden',
-      !state.chaser?.title
-   );
-   chaserDepartment.textContent =
-      state.chaser?.department ||
-      'Information Security';
-   chaserBio.textContent =
-      state.chaser?.bio || '';
-   chaserBio.classList.toggle(
-      'hidden',
-      !state.chaser?.bio
-   );
+      currentChaserLabel;
 
    const contestantScore =
       state.contestant?.score || 0;
    const chaserScore =
       state.chaser?.score || 0;
 
-   contestantBar.style.width =
-      `${(contestantScore / 5) * 100}%`;
-   chaserBar.style.width =
-      `${(chaserScore / 5) * 100}%`;
-   contestantProgress.setAttribute(
+   renderScore(
+      contestantSegments,
+      contestantScore
+   );
+   renderScore(
+      chaserSegments,
+      chaserScore
+   );
+   contestantBar.setAttribute(
       'aria-valuenow',
       contestantScore
    );
-   chaserProgress.setAttribute(
+   chaserBar.setAttribute(
       'aria-valuenow',
       chaserScore
    );
@@ -124,7 +119,9 @@ function renderMatchState(state) {
       const contestantWon =
          state.winner === state.contestant?.name;
 
-      winnerName.textContent = state.winner;
+      winnerName.textContent = contestantWon
+         ? state.winner
+         : currentChaserLabel;
       winnerRole.textContent = contestantWon
          ? 'CONTESTANT VICTORY'
          : 'CHASER VICTORY';
@@ -211,10 +208,9 @@ function showAnswerResult(result) {
    resultVisible = true;
 
    answerResultPlayer.textContent =
-      result.playerName ||
-      (result.player === 'chaser'
-         ? 'Chaser'
-         : 'Contestant');
+      result.player === 'chaser'
+         ? currentChaserLabel
+         : result.playerName || 'Contestant';
    answerResultMessage.textContent =
       result.timeout
          ? 'TIME UP!'

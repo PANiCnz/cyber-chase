@@ -18,12 +18,16 @@
 
   <section class="scoreboard" aria-label="Match scores">
     <article class="player-card contestant-card">
-      <div class="side-label">CONTESTANT</div>
       <div class="player-details">
         <div id="contestantName" class="player-name">Contestant</div>
+        <div class="side-label">CONTESTANT</div>
       </div>
-      <div class="progress" role="progressbar" aria-label="Contestant score" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0">
-        <div id="contestantBar" class="bar"></div>
+      <div id="contestantBar" class="score-segments" role="progressbar" aria-label="Contestant score" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0">
+        <span class="score-segment"></span>
+        <span class="score-segment"></span>
+        <span class="score-segment"></span>
+        <span class="score-segment"></span>
+        <span class="score-segment"></span>
       </div>
     </article>
 
@@ -38,15 +42,16 @@
     </div>
 
     <article class="player-card chaser-card">
-      <div class="side-label">CHASER</div>
       <div class="player-details">
-        <div id="chaserName" class="player-name">Chaser</div>
-        <div id="chaserTitle" class="chaser-title hidden"></div>
-        <div id="chaserDepartment" class="chaser-department">Information Security</div>
-        <div id="chaserBio" class="chaser-bio hidden"></div>
+        <div id="chaserTitle" class="player-name">The Chaser</div>
+        <div class="side-label">CHASER</div>
       </div>
-      <div class="progress" role="progressbar" aria-label="Chaser score" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0">
-        <div id="chaserBar" class="bar"></div>
+      <div id="chaserBar" class="score-segments" role="progressbar" aria-label="Chaser score" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0">
+        <span class="score-segment"></span>
+        <span class="score-segment"></span>
+        <span class="score-segment"></span>
+        <span class="score-segment"></span>
+        <span class="score-segment"></span>
       </div>
     </article>
   </section>

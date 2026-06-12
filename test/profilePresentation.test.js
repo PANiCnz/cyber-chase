@@ -38,10 +38,7 @@ const screens = [
         html: read("public/display.html"),
         script: read("public/js/display.js"),
         ids: [
-            "chaserName",
-            "chaserTitle",
-            "chaserDepartment",
-            "chaserBio"
+            "chaserTitle"
         ]
     }
 ];
@@ -97,17 +94,21 @@ for (const screen of screens) {
             screen.script,
             /state\.chaser\?\.title/
         );
-        assert.match(
-            screen.script,
-            /state\.chaser\?\.bio/
-        );
+        if (screen.name !== "display") {
+            assert.match(
+                screen.script,
+                /state\.chaser\?\.bio/
+            );
+        }
         assert.match(
             screen.script,
             /textContent/
         );
-        assert.match(
-            screen.script,
-            /Information Security/
-        );
+        if (screen.name !== "display") {
+            assert.match(
+                screen.script,
+                /Information Security/
+            );
+        }
     });
 }
