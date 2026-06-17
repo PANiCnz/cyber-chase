@@ -59,13 +59,22 @@ function createTeamRow(team, index) {
 
   const score = document.createElement('div');
   score.className = 'team-score';
-  score.textContent =
+  const scoreLabel = document.createElement('span');
+  scoreLabel.className = 'team-score-label';
+  scoreLabel.textContent = 'Score';
+  const scoreValue = document.createElement('strong');
+  scoreValue.textContent =
     Number.isFinite(team.score) ? team.score : '-';
+  score.append(scoreLabel, scoreValue);
 
   const toggle = document.createElement('button');
   toggle.type = 'button';
   toggle.className = 'team-toggle';
-  toggle.textContent = 'Players';
+  toggle.textContent = '+';
+  toggle.setAttribute(
+    'aria-label',
+    `Show players for ${team.name}`
+  );
   toggle.setAttribute(
     'aria-expanded',
     'false'
@@ -78,6 +87,11 @@ function createTeamRow(team, index) {
     toggle.setAttribute(
       'aria-expanded',
       String(!expanded)
+    );
+    toggle.textContent = expanded ? '+' : '-';
+    toggle.setAttribute(
+      'aria-label',
+      `${expanded ? 'Show' : 'Hide'} players for ${team.name}`
     );
     members.classList.toggle('hidden', expanded);
   };

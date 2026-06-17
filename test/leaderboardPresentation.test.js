@@ -44,7 +44,19 @@ test("leaderboard exposes expandable team members", () => {
     );
     assert.match(
         script,
+        /toggle\.textContent = '\+'/
+    );
+    assert.match(
+        script,
+        /toggle\.textContent = expanded \? '\+' : '-'/
+    );
+    assert.match(
+        script,
         /aria-expanded/
+    );
+    assert.match(
+        script,
+        /aria-label/
     );
     assert.match(
         script,
@@ -53,6 +65,29 @@ test("leaderboard exposes expandable team members", () => {
     assert.match(
         css,
         /\.team-members\{[^}]*grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/
+    );
+});
+
+test("leaderboard labels team scores clearly", () => {
+    assert.match(
+        script,
+        /scoreLabel\.textContent = 'Score'/
+    );
+    assert.match(
+        script,
+        /score\.append\(scoreLabel, scoreValue\)/
+    );
+    assert.match(
+        css,
+        /\.team-score-label\{[^}]*text-transform:uppercase/
+    );
+    assert.match(
+        css,
+        /\.team-row\{[^}]*grid-template-columns:80px 1fr 180px 72px/
+    );
+    assert.match(
+        css,
+        /\.team-toggle\{[^}]*width:52px/
     );
 });
 
