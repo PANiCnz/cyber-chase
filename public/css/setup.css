@@ -229,12 +229,18 @@ h1{
   -webkit-line-clamp:2;
 }
 .tournament-score-panel{
+  align-self:start;
   background:linear-gradient(180deg,rgba(0,174,243,.08),rgba(8,16,28,.96));
   border:1px solid var(--contestant);
   box-shadow:0 18px 45px rgba(0,0,0,.48),inset 0 -4px 0 var(--contestant);
   display:flex;
   flex-direction:column;
+  height:calc(
+    var(--profile-image-height) +
+    var(--profile-content-height)
+  );
   min-height:0;
+  overflow:hidden;
   padding:18px;
 }
 .scoreboard-kicker{

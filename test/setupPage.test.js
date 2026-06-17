@@ -123,8 +123,24 @@ test("setup includes a fifth live tournament scoreboard panel", () => {
         /\.tournament-score-panel\{[^}]*var\(--contestant\)/
     );
     assert.match(
+        setupCss,
+        /\.tournament-score-panel\{[^}]*height:calc\(\s*var\(--profile-image-height\) \+\s*var\(--profile-content-height\)\s*\)/
+    );
+    assert.match(
+        setupCss,
+        /\.tournament-score-panel\{[^}]*overflow:hidden/
+    );
+    assert.match(
         setupScript,
         /fetch\(\s*'\/api\/tournament\/live'/
+    );
+    assert.match(
+        setupScript,
+        /SETUP_TOURNAMENT_TEAM_LIMIT = 6/
+    );
+    assert.match(
+        setupScript,
+        /slice\(0, SETUP_TOURNAMENT_TEAM_LIMIT\)/
     );
     assert.match(
         setupScript,

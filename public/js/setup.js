@@ -9,6 +9,7 @@ const tournamentTeams =
 const tournamentEmpty =
   document.getElementById('tournamentEmpty');
 const socket = io();
+const SETUP_TOURNAMENT_TEAM_LIMIT = 6;
 
 function initials(name) {
   return (name || 'Chaser')
@@ -161,7 +162,9 @@ function renderTournament(tournament) {
   const teams =
     tournament.teams || [];
   tournamentTeams.replaceChildren(
-    ...teams.slice(0, 8).map(createTournamentRow)
+    ...teams
+      .slice(0, SETUP_TOURNAMENT_TEAM_LIMIT)
+      .map(createTournamentRow)
   );
   tournamentEmpty.textContent =
     teams.length > 0
