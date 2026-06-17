@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cyber Chase Leaderboard</title>
+  <link rel="stylesheet" href="/css/leaderboard.css">
+</head>
+<body>
+<main class="leaderboard-shell">
+  <header class="leaderboard-header">
+    <div class="brand-rule red-rule"></div>
+    <div class="leaderboard-brand">
+      <div class="brand-kicker">CYBER SMART WEEK</div>
+      <h1>CYBER CHASE</h1>
+      <div class="leaderboard-title">TOURNAMENT LEADERBOARD</div>
+    </div>
+    <div class="brand-rule blue-rule"></div>
+  </header>
+
+  <section class="leaderboard-panel" aria-label="Tournament leaderboard">
+    <div class="panel-heading">
+      <div>
+        <div class="scoreboard-kicker">LIVE TOURNAMENT</div>
+        <h2 id="leaderboardTournamentName">No live tournament</h2>
+      </div>
+      <div id="leaderboardStatus" class="leaderboard-status">Waiting for scores</div>
+    </div>
+
+    <ol id="leaderboardTeams" class="leaderboard-teams"></ol>
+    <div id="leaderboardEmpty" class="leaderboard-empty">
+      Open a tournament from the presenter console to start tracking the teams.
+    </div>
+  </section>
+</main>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/leaderboard.js"></script>
+</body>
+</html>

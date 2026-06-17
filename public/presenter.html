@@ -10,9 +10,35 @@
     <div class="header">
         <h1>CYBER CHASE</h1>
         <h2>PRESENTER CONSOLE</h2>
+        <button id="manageTournamentBtn" class="manage-chasers-button" type="button">MANAGE TOURNAMENT</button>
         <button id="manageChasersBtn" class="manage-chasers-button" type="button">MANAGE CHASERS</button>
         <button id="newMatchBtn" class="new-match-button hidden">NEW MATCH</button>
     </div>
+
+    <section id="tournamentManager" class="chaser-manager hidden" aria-labelledby="tournamentManagerTitle">
+        <div class="manager-header">
+            <div>
+                <div class="setup-kicker">TOURNAMENT CONTROL</div>
+                <h3 id="tournamentManagerTitle">Manage tournament</h3>
+                <p>Create, open, and close the live tournament. Only one tournament can be live at a time.</p>
+            </div>
+            <button id="closeTournamentManagerBtn" class="manager-close-button" type="button">CLOSE</button>
+        </div>
+
+        <div class="tournament-manager-layout">
+            <form id="tournamentCreator" class="tournament-creator">
+                <label for="newTournamentName">Tournament name</label>
+                <input id="newTournamentName" type="text" maxlength="100" placeholder="Cyber Smart Week Final">
+                <button id="createTournamentBtn" class="save-chaser-button" type="submit">CREATE AND OPEN</button>
+                <div id="tournamentStatus" class="manager-status" role="status" aria-live="polite"></div>
+            </form>
+
+            <div>
+                <div id="liveTournamentPanel" class="live-tournament-panel"></div>
+                <div id="tournamentList" class="tournament-list"></div>
+            </div>
+        </div>
+    </section>
 
     <section id="chaserManager" class="chaser-manager hidden" aria-labelledby="chaserManagerTitle">
         <div class="manager-header">

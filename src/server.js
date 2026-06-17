@@ -7,10 +7,13 @@ const matchRoutes = require("./routes/matchRoutes");
 const questionRoutes = require("./routes/questionRoutes");
 const timerRoutes = require("./routes/timerRoutes");
 const chaserRoutes = require("./routes/chaserRoutes");
+const tournamentRoutes = require("./routes/tournamentRoutes");
 const matchService =
     require("./services/matchService");
 const timerService =
     require("./services/timerService");
+const tournamentService =
+    require("./services/tournamentService");
 
 const app = express();
 const server = http.createServer(app);
@@ -29,6 +32,19 @@ timerService.setExpirationHandler(
 
         if (result.error) {
             return;
+        }
+
+        if (
+            result.match &&
+            result.winner ===
+                result.match.contestant?.name
+        ) {
+            tournamentService.recordWin(
+                result.match
+            );
+            io.emit("tournamentUpdated", {
+                timestamp: Date.now()
+            });
         }
 
         io.emit("phaseEnded", {
@@ -55,6 +71,7 @@ app.use("/api/match", matchRoutes);
 app.use("/api/question", questionRoutes);
 app.use("/api/timer", timerRoutes);
 app.use("/api/chasers", chaserRoutes);
+app.use("/api/tournament", tournamentRoutes);
 
 app.get("/health", (req, res) => {
     res.json({

@@ -2,6 +2,24 @@ const socket = io();
 
 const manageChasersBtn =
     document.getElementById('manageChasersBtn');
+const manageTournamentBtn =
+    document.getElementById('manageTournamentBtn');
+const tournamentManager =
+    document.getElementById('tournamentManager');
+const closeTournamentManagerBtn =
+    document.getElementById('closeTournamentManagerBtn');
+const tournamentCreator =
+    document.getElementById('tournamentCreator');
+const newTournamentName =
+    document.getElementById('newTournamentName');
+const createTournamentBtn =
+    document.getElementById('createTournamentBtn');
+const tournamentStatus =
+    document.getElementById('tournamentStatus');
+const liveTournamentPanel =
+    document.getElementById('liveTournamentPanel');
+const tournamentList =
+    document.getElementById('tournamentList');
 const chaserManager =
     document.getElementById('chaserManager');
 const closeChaserManagerBtn =
@@ -121,6 +139,7 @@ let currentQuestionToken = null;
 let presenterRefreshRunning = false;
 let availableChasers = [];
 let managedChasers = [];
+let managedTournaments = [];
 let difficultiesLoaded = false;
 
 const RANDOM_CHASER_ID = 'random';
@@ -498,6 +517,7 @@ async function loadManagedChasers() {
 }
 
 async function openChaserManager() {
+    tournamentManager.classList.add('hidden');
     chaserManager.classList.remove('hidden');
     await loadManagedChasers();
 
@@ -510,6 +530,190 @@ async function openChaserManager() {
 
 function closeChaserManager() {
     chaserManager.classList.add('hidden');
+}
+
+function renderTournamentCard(tournament) {
+    const card = document.createElement('article');
+    card.className =
+        `tournament-card ${tournament.status}`;
+
+    const title = document.createElement('h4');
+    title.textContent = tournament.name;
+
+    const meta = document.createElement('div');
+    meta.className = 'tournament-meta';
+    meta.textContent =
+        `${tournament.status.toUpperCase()} | ${tournament.teams.length} teams enrolled`;
+
+    const preview = document.createElement('div');
+    preview.className = 'tournament-team-preview';
+    const scoredTeams = tournament.teams.filter(
+        team => Number.isFinite(team.score)
+    );
+    preview.textContent = scoredTeams.length > 0
+        ? `Leader: ${scoredTeams[0].name} (${scoredTeams[0].score})`
+        : 'No winning scores recorded yet.';
+
+    const actions = document.createElement('div');
+    actions.className = 'tournament-actions';
+    const actionButton =
+        document.createElement('button');
+    actionButton.type = 'button';
+    actionButton.textContent =
+        tournament.status === 'open'
+            ? 'CLOSE'
+            : 'OPEN';
+    actionButton.classList.toggle(
+        'close-live',
+        tournament.status === 'open'
+    );
+    actionButton.onclick = () =>
+        updateTournamentStatus(
+            tournament.id,
+            tournament.status === 'open'
+                ? 'close'
+                : 'open'
+        );
+    actions.appendChild(actionButton);
+
+    card.append(title, meta, preview, actions);
+    return card;
+}
+
+function renderTournamentManager(result) {
+    const live = result.live;
+    managedTournaments =
+        result.tournaments || [];
+    liveTournamentPanel.replaceChildren();
+    tournamentList.replaceChildren();
+
+    if (!live) {
+        liveTournamentPanel.className =
+            'live-tournament-panel empty';
+        liveTournamentPanel.textContent =
+            'No live tournament. Create or open one before enrolling teams.';
+    } else {
+        liveTournamentPanel.className =
+            'live-tournament-panel';
+        liveTournamentPanel.append(
+            renderTournamentCard(live)
+        );
+    }
+
+    for (const tournament of managedTournaments) {
+        tournamentList.appendChild(
+            renderTournamentCard(tournament)
+        );
+    }
+
+    tournamentStatus.textContent =
+        live
+            ? `${live.name} is live.`
+            : 'No tournament is currently live.';
+}
+
+async function loadTournamentManager() {
+    tournamentStatus.textContent =
+        'Loading tournaments...';
+
+    try {
+        const response = await fetch(
+            '/api/tournament'
+        );
+
+        if (!response.ok) {
+            throw new Error();
+        }
+
+        renderTournamentManager(
+            await response.json()
+        );
+    } catch {
+        tournamentStatus.textContent =
+            'Unable to load tournaments.';
+    }
+}
+
+async function openTournamentManager() {
+    chaserManager.classList.add('hidden');
+    tournamentManager.classList.remove('hidden');
+    await loadTournamentManager();
+    newTournamentName.focus();
+}
+
+function closeTournamentManager() {
+    tournamentManager.classList.add('hidden');
+}
+
+async function createTournament(event) {
+    event.preventDefault();
+    const name = newTournamentName.value.trim();
+
+    if (!name) {
+        tournamentStatus.textContent =
+            'Enter a tournament name.';
+        newTournamentName.focus();
+        return;
+    }
+
+    createTournamentBtn.disabled = true;
+    tournamentStatus.textContent =
+        'Creating tournament...';
+
+    try {
+        const response = await fetch(
+            '/api/tournament',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type':
+                        'application/json'
+                },
+                body: JSON.stringify({ name })
+            }
+        );
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                result.error ||
+                'Unable to create tournament.'
+            );
+        }
+
+        newTournamentName.value = '';
+        await loadTournamentManager();
+    } catch (error) {
+        tournamentStatus.textContent =
+            error.message;
+    } finally {
+        createTournamentBtn.disabled = false;
+    }
+}
+
+async function updateTournamentStatus(id, action) {
+    tournamentStatus.textContent =
+        `${action === 'open' ? 'Opening' : 'Closing'} tournament...`;
+
+    try {
+        const response = await fetch(
+            `/api/tournament/${encodeURIComponent(id)}/${action}`,
+            { method: 'POST' }
+        );
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                result.error ||
+                'Unable to update tournament.'
+            );
+        }
+
+        await loadTournamentManager();
+    } catch (error) {
+        tournamentStatus.textContent =
+            error.message;
+    }
 }
 
 async function saveChaser(event) {
@@ -1092,8 +1296,15 @@ winnerNewMatchBtn.onclick = startNewMatch;
 startRoundBtn.onclick = startRound;
 launchMatchBtn.onclick = launchMatch;
 manageChasersBtn.onclick = openChaserManager;
+manageTournamentBtn.onclick = openTournamentManager;
 closeChaserManagerBtn.onclick = closeChaserManager;
+closeTournamentManagerBtn.onclick =
+    closeTournamentManager;
 addChaserBtn.onclick = resetChaserEditor;
+tournamentCreator.addEventListener(
+    'submit',
+    createTournament
+);
 chaserEditor.addEventListener(
     'submit',
     saveChaser
@@ -1136,6 +1347,11 @@ socket.on('chasersUpdated', () => {
 
     if (!chaserManager.classList.contains('hidden')) {
         loadManagedChasers();
+    }
+});
+socket.on('tournamentUpdated', () => {
+    if (!tournamentManager.classList.contains('hidden')) {
+        loadTournamentManager();
     }
 });
 setInterval(loadQuestion, 2000);

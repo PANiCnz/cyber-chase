@@ -8,11 +8,28 @@ const timerService =
     require("../src/services/timerService");
 const chaserService =
     require("../src/services/chaserService");
+const tournamentService =
+    require("../src/services/tournamentService");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 
 let baseUrl;
+
+function loadEmptyTournamentStore() {
+    const directory = fs.mkdtempSync(
+        path.join(os.tmpdir(), "cyber-chase-api-tournament-")
+    );
+    const file = path.join(
+        directory,
+        "tournaments.json"
+    );
+    fs.writeFileSync(
+        file,
+        JSON.stringify({ tournaments: [] })
+    );
+    tournamentService.loadTournaments(file);
+}
 
 test.before(async () => {
     await new Promise(resolve => {
@@ -28,6 +45,8 @@ test.beforeEach(() => {
     matchService.resetMatch();
     timerService.reset();
     chaserService.resetCatalog();
+    tournamentService.resetTournaments();
+    loadEmptyTournamentStore();
 });
 
 test.after(async () => {
@@ -131,6 +150,156 @@ test("requires four team member names for team matches", async () => {
         "Four team member names are required"
     );
     assert.equal(matchService.getMatch(), null);
+});
+
+test("manages one live tournament and enrolls created teams", async () => {
+    const createResponse = await fetch(
+        `${baseUrl}/api/tournament`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                name: "Cyber Smart Week"
+            })
+        }
+    );
+    const created = await createResponse.json();
+
+    assert.equal(createResponse.status, 201);
+    assert.equal(created.status, "open");
+
+    const duplicateResponse = await fetch(
+        `${baseUrl}/api/tournament`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                name: "Second Tournament"
+            })
+        }
+    );
+    assert.equal(duplicateResponse.status, 400);
+
+    const startResponse = await fetch(
+        `${baseUrl}/api/match/start-match`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                teamName: "Blue Team",
+                teamMembers: [
+                    "Alex",
+                    "Sam",
+                    "Jordan",
+                    "Taylor"
+                ],
+                chaserId: "maya-voss"
+            })
+        }
+    );
+    const match = await startResponse.json();
+
+    assert.equal(startResponse.status, 200);
+    assert.equal(
+        match.tournament.tournamentName,
+        "Cyber Smart Week"
+    );
+
+    const live = await (
+        await fetch(
+            `${baseUrl}/api/tournament/live`
+        )
+    ).json();
+
+    assert.equal(live.name, "Cyber Smart Week");
+    assert.deepEqual(
+        live.teams.map(team => team.name),
+        ["Blue Team"]
+    );
+    assert.equal(live.teams[0].score, null);
+});
+
+test("records tournament scores only when the team beats the chaser", async () => {
+    await fetch(`${baseUrl}/api/tournament`, {
+        method: "POST",
+        headers: {
+            "content-type": "application/json"
+        },
+        body: JSON.stringify({
+            name: "Cyber Smart Week"
+        })
+    });
+    await fetch(
+        `${baseUrl}/api/match/start-match`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                teamName: "Blue Team",
+                teamMembers: [
+                    "Alex",
+                    "Sam",
+                    "Jordan",
+                    "Taylor"
+                ],
+                chaserId: "maya-voss"
+            })
+        }
+    );
+    const opening = await (
+        await fetch(
+            `${baseUrl}/api/question/start-opening`,
+            { method: "POST" }
+        )
+    ).json();
+    await fetch(
+        `${baseUrl}/api/question/respond`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                answer: opening.question.correct,
+                questionToken:
+                    opening.question.questionToken
+            })
+        }
+    );
+    await fetch(
+        `${baseUrl}/api/timer/end`,
+        { method: "POST" }
+    );
+    await fetch(
+        `${baseUrl}/api/question/start`,
+        { method: "POST" }
+    );
+    await fetch(
+        `${baseUrl}/api/timer/end`,
+        { method: "POST" }
+    );
+
+    const live = await (
+        await fetch(
+            `${baseUrl}/api/tournament/live`
+        )
+    ).json();
+
+    assert.equal(live.teams[0].name, "Blue Team");
+    assert.equal(live.teams[0].score, 1);
 });
 
 test("starts a match by chaser id and snapshots the catalog profile", async () => {

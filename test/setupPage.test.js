@@ -21,6 +21,10 @@ test("setup is a non-interactive chaser showcase", () => {
     );
     assert.match(
         setupHtml,
+        /id="tournamentScorePanel"/
+    );
+    assert.match(
+        setupHtml,
         /MEET THE CHASERS/
     );
     assert.doesNotMatch(setupHtml, /<input\b/);
@@ -67,14 +71,14 @@ test("setup renders image-ready profiles with placeholders", () => {
     );
 });
 
-test("setup shortens portraits without changing the four-card width", () => {
+test("setup shortens portraits for the five-panel layout", () => {
     assert.match(
         setupCss,
-        /--profile-image-height:47vh/
+        /--profile-image-height:39vh/
     );
     assert.match(
         setupCss,
-        /--profile-content-height:220px/
+        /--profile-content-height:205px/
     );
     assert.match(
         setupCss,
@@ -103,6 +107,28 @@ test("setup shortens portraits without changing the four-card width", () => {
     assert.match(
         setupCss,
         /\.showcase-intro strong\{[^}]*font-size:1\.3rem/
+    );
+});
+
+test("setup includes a fifth live tournament scoreboard panel", () => {
+    assert.match(setupHtml, /LIVE TOURNAMENT/);
+    assert.match(setupHtml, /id="tournamentName"/);
+    assert.match(setupHtml, /id="tournamentTeams"/);
+    assert.match(
+        setupCss,
+        /\.showcase-main\{[^}]*grid-template-columns:minmax\(0,4fr\) minmax\(250px,1fr\)/
+    );
+    assert.match(
+        setupCss,
+        /\.tournament-score-panel\{[^}]*var\(--contestant\)/
+    );
+    assert.match(
+        setupScript,
+        /fetch\(\s*'\/api\/tournament\/live'/
+    );
+    assert.match(
+        setupScript,
+        /socket\.on\('tournamentUpdated', loadTournament\)/
     );
 });
 

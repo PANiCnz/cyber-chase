@@ -19,11 +19,19 @@
 
   <div class="showcase-intro">
     <span>FOUR SECURITY SPECIALISTS</span>
-    <strong>ONE CONTESTANT</strong>
+    <strong>ONE TEAM</strong>
     <span>THE CHASE IS ABOUT TO BEGIN</span>
   </div>
 
-  <section id="chaserGallery" class="chaser-gallery" aria-label="Chaser profiles"></section>
+  <section class="showcase-main" aria-label="Chaser profiles and tournament scores">
+    <div id="chaserGallery" class="chaser-gallery" aria-label="Chaser profiles"></div>
+    <aside id="tournamentScorePanel" class="tournament-score-panel" aria-label="Live tournament scores">
+      <div class="scoreboard-kicker">LIVE TOURNAMENT</div>
+      <h2 id="tournamentName">No live tournament</h2>
+      <ol id="tournamentTeams" class="tournament-teams"></ol>
+      <div id="tournamentEmpty" class="tournament-empty">Open a tournament from the presenter console to start tracking winning teams.</div>
+    </aside>
+  </section>
 
   <footer class="showcase-footer">
     <div class="footer-rule"></div>

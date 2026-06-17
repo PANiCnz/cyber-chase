@@ -6,6 +6,8 @@ const chaserService =
     require("../services/chaserService");
 const timerService =
     require("../services/timerService");
+const tournamentService =
+    require("../services/tournamentService");
 
 router.post("/start-match", (req, res) => {
     const {
@@ -97,6 +99,21 @@ router.post("/start-match", (req, res) => {
                 )
                 : []
         );
+        const tournamentEntry =
+            tournamentService.enrollTeam(
+                match.contestant.name,
+                match.contestant.members
+            );
+
+        if (tournamentEntry) {
+            matchService.assignTournamentEntry(
+                tournamentEntry
+            );
+            req.app.get("io")?.emit(
+                "tournamentUpdated",
+                { timestamp: Date.now() }
+            );
+        }
     } catch (error) {
         return res.status(400).json({
             error: error.message

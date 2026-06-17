@@ -70,6 +70,15 @@ function startMatch(
     return match;
 }
 
+function assignTournamentEntry(entry) {
+    if (!match || !entry) {
+        return match;
+    }
+
+    match.tournament = entry;
+    return match;
+}
+
 function getMatch() {
     return match;
 }
@@ -401,6 +410,7 @@ function resetMatch() {
 
 module.exports = {
     startMatch,
+    assignTournamentEntry,
     getMatch,
     getCurrentQuestion,
     getCurrentQuestionToken,

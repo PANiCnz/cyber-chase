@@ -27,6 +27,41 @@ test("presenter exposes new-match controls", () => {
         presenterHtml,
         /id="presenterWinnerText"/
     );
+    assert.match(
+        presenterHtml,
+        /id="manageTournamentBtn"/
+    );
+    assert.match(
+        presenterHtml,
+        /id="tournamentManager"/
+    );
+});
+
+test("presenter manages tournaments", () => {
+    for (const id of [
+        "newTournamentName",
+        "createTournamentBtn",
+        "liveTournamentPanel",
+        "tournamentList"
+    ]) {
+        assert.match(
+            presenterHtml,
+            new RegExp(`id="${id}"`)
+        );
+    }
+
+    assert.match(
+        presenter,
+        /fetch\(\s*'\/api\/tournament'/
+    );
+    assert.match(
+        presenter,
+        /\/api\/tournament\/\$\{encodeURIComponent\(id\)\}\/\$\{action\}/
+    );
+    assert.match(
+        presenter,
+        /socket\.on\('tournamentUpdated'/
+    );
 });
 
 test("presenter owns match configuration and launch", () => {
