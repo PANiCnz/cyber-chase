@@ -13,6 +13,7 @@ function read(relativePath) {
 const server = read("src/server.js");
 const presenterHtml = read("public/presenter.html");
 const presenter = read("public/js/presenter.js");
+const presenterCss = read("public/css/presenter.css");
 const display = read("public/js/display.js");
 const introHtml = read("public/intro.html");
 const intro = read("public/js/intro.js");
@@ -141,6 +142,33 @@ test("presenter owns match configuration and launch", () => {
     assert.match(
         presenter,
         /chaserId:\s*chaser\.id/
+    );
+});
+
+test("presenter setup fits a compact 1080p console", () => {
+    assert.match(
+        presenterCss,
+        /\.header \{[^}]*grid-template-columns:1fr auto auto auto/
+    );
+    assert.match(
+        presenterCss,
+        /\.setup-grid\{[^}]*grid-template-columns:minmax\(560px,1\.35fr\) minmax\(280px,\.65fr\)/
+    );
+    assert.match(
+        presenterCss,
+        /\.team-member-fields\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/
+    );
+    assert.match(
+        presenterCss,
+        /\.setup-chaser-preview\{[^}]*grid-template-columns:96px 1fr/
+    );
+    assert.match(
+        presenterCss,
+        /\.setup-chaser-photo\{[^}]*height:116px/
+    );
+    assert.match(
+        presenterCss,
+        /-webkit-line-clamp:4/
     );
 });
 

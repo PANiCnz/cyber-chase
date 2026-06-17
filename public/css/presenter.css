@@ -4,17 +4,39 @@ body {
     color:white;
     font-family:Arial,sans-serif;
     margin:0;
+    min-height:100vh;
 }
-.dashboard { max-width:1600px; margin:auto; padding:20px; }
-.header { text-align:center; }
-.header h1 { color:#00b7ff; font-size:3rem; }
+.dashboard {
+    max-width:1600px;
+    margin:auto;
+    padding:14px 20px 20px;
+}
+.header {
+    align-items:center;
+    display:grid;
+    gap:10px 14px;
+    grid-template-columns:1fr auto auto auto;
+}
+.header h1 {
+    color:#00b7ff;
+    font-size:2.35rem;
+    line-height:1;
+    margin:0;
+}
+.header h2 {
+    color:#dbe9f6;
+    font-size:1rem;
+    grid-column:1;
+    letter-spacing:.18em;
+    margin:2px 0 0;
+}
 .new-match-button {
     background:#ff4d4f;
-    margin-top:8px;
+    margin-top:0;
 }
 .manage-chasers-button{
     background:#1b5f8a;
-    margin-top:8px;
+    margin-top:0;
 }
 .manage-chasers-button:hover{
     background:#2479ad;
@@ -26,8 +48,8 @@ body {
 .match-setup-panel {
     background:#122c4a;
     border:2px solid #00b7ff;
-    margin-top:20px;
-    padding:30px;
+    margin-top:14px;
+    padding:20px 24px;
 }
 .chaser-manager{
     background:#08111f;
@@ -376,7 +398,7 @@ body {
 }
 .setup-heading{
     border-bottom:1px solid #31516d;
-    padding-bottom:20px;
+    padding-bottom:14px;
 }
 .setup-kicker{
     color:#ffd400;
@@ -385,28 +407,28 @@ body {
     letter-spacing:.22em;
 }
 .setup-heading h3{
-    font-size:2rem;
+    font-size:1.65rem;
     margin:8px 0 0;
 }
 .setup-heading p{
     color:#dbe9f6;
-    margin:10px 0 0;
+    margin:6px 0 0;
 }
 .setup-grid{
     display:grid;
-    gap:30px;
-    grid-template-columns:minmax(320px,.9fr) minmax(420px,1.1fr);
-    margin-top:26px;
+    gap:20px;
+    grid-template-columns:minmax(560px,1.35fr) minmax(280px,.65fr);
+    margin-top:16px;
 }
 .setup-fields{
     display:grid;
-    gap:10px;
+    gap:8px;
 }
 .setup-fields label{
     color:#dbe9f6;
     display:block;
     font-weight:bold;
-    margin-bottom:10px;
+    margin-bottom:6px;
 }
 .setup-fields input,
 .setup-fields select{
@@ -414,8 +436,8 @@ body {
     border:1px solid #52728e;
     border-radius:4px;
     color:white;
-    font-size:1.05rem;
-    padding:13px;
+    font-size:1rem;
+    padding:10px 12px;
     width:100%;
 }
 .setup-fields input:focus,
@@ -433,9 +455,10 @@ body {
     border:1px solid rgba(82,114,142,.7);
     border-radius:8px;
     display:grid;
-    gap:10px;
+    gap:8px;
+    grid-template-columns:repeat(2,minmax(0,1fr));
     margin:4px 0;
-    padding:16px;
+    padding:12px;
 }
 .team-member-fields legend{
     color:#00b7ff;
@@ -446,14 +469,14 @@ body {
 }
 .difficulty-fields{
     display:grid;
-    gap:16px;
+    gap:12px;
     grid-template-columns:repeat(2,minmax(0,1fr));
     margin:4px 0;
 }
 .launch-match-button{
     background:#00d084;
     font-weight:bold;
-    margin-top:10px;
+    margin-top:6px;
     width:100%;
 }
 .launch-match-button:hover{
@@ -469,13 +492,14 @@ body {
     text-align:center;
 }
 .setup-chaser-preview{
-    align-items:center;
+    align-content:start;
     background:#08111f;
     border-left:5px solid #ffd400;
     display:grid;
-    gap:24px;
-    grid-template-columns:180px 1fr;
-    padding:24px;
+    gap:14px;
+    grid-template-columns:96px 1fr;
+    min-height:0;
+    padding:16px;
 }
 .setup-chaser-photo{
     align-items:center;
@@ -484,9 +508,9 @@ body {
         #122c4a;
     color:white;
     display:flex;
-    font-size:4rem;
+    font-size:2.3rem;
     font-weight:bold;
-    height:220px;
+    height:116px;
     justify-content:center;
     overflow:hidden;
 }
@@ -496,7 +520,24 @@ body {
     width:100%;
 }
 .setup-chaser-preview .profile-name{
-    font-size:2.5rem;
+    font-size:1.65rem;
+    line-height:1.05;
+}
+.setup-chaser-preview .profile-title{
+    font-size:1rem;
+}
+.setup-chaser-preview .profile-department{
+    font-size:.9rem;
+    margin-top:6px;
+}
+.setup-chaser-preview .profile-bio{
+    display:-webkit-box;
+    font-size:.92rem;
+    line-height:1.35;
+    margin-top:8px;
+    overflow:hidden;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:4;
 }
 
 .game-status-grid {
