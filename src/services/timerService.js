@@ -79,6 +79,24 @@ function completePhase(phaseToken) {
     return true;
 }
 
+function expireQuestion(questionToken) {
+    if (
+        activeQuestionToken !== questionToken
+    ) {
+        return false;
+    }
+
+    remaining = 0;
+    clearTimer();
+    activeQuestionToken = null;
+
+    if (expirationHandler) {
+        expirationHandler(questionToken);
+    }
+
+    return true;
+}
+
 function tick() {
     remaining--;
 
@@ -142,5 +160,6 @@ module.exports = {
     startQuestion,
     resumeQuestion,
     resetQuestion,
-    completePhase
+    completePhase,
+    expireQuestion
 };

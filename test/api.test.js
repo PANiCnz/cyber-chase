@@ -739,6 +739,104 @@ test("timer endpoints pause resume and reset an active phase", async () => {
     });
 });
 
+test("ending the team round follows the normal timeout transition", async () => {
+    matchService.startMatch("Blue Team", "Rob");
+    const started = await (
+        await fetch(
+            `${baseUrl}/api/question/start-opening`,
+            { method: "POST" }
+        )
+    ).json();
+
+    await fetch(
+        `${baseUrl}/api/question/respond`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                answer:
+                    started.question.correct,
+                questionToken:
+                    started.question.questionToken
+            })
+        }
+    );
+
+    const response = await fetch(
+        `${baseUrl}/api/timer/end`,
+        { method: "POST" }
+    );
+    const timer = await response.json();
+    const match = matchService.getMatch();
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(timer, {
+        remaining: 120,
+        running: false,
+        active: false
+    });
+    assert.equal(match.targetScore, 1);
+    assert.equal(match.currentPlayer, "chaser");
+    assert.equal(match.phaseStatus, "waiting");
+    assert.equal(match.roundActive, false);
+    assert.equal(match.winner, null);
+});
+
+test("ending the chaser round follows the normal timeout transition", async () => {
+    matchService.startMatch("Blue Team", "Rob");
+    const started = await (
+        await fetch(
+            `${baseUrl}/api/question/start-opening`,
+            { method: "POST" }
+        )
+    ).json();
+
+    await fetch(
+        `${baseUrl}/api/question/respond`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                answer:
+                    started.question.correct,
+                questionToken:
+                    started.question.questionToken
+            })
+        }
+    );
+    await fetch(
+        `${baseUrl}/api/timer/end`,
+        { method: "POST" }
+    );
+    await fetch(
+        `${baseUrl}/api/question/start`,
+        { method: "POST" }
+    );
+
+    const response = await fetch(
+        `${baseUrl}/api/timer/end`,
+        { method: "POST" }
+    );
+    const timer = await response.json();
+    const match = matchService.getMatch();
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(timer, {
+        remaining: 120,
+        running: false,
+        active: false
+    });
+    assert.equal(match.winner, "Blue Team");
+    assert.equal(match.phaseStatus, "complete");
+    assert.equal(match.roundActive, false);
+});
+
 test("opening countdown starts the contestant rapid-fire phase", async () => {
     matchService.startMatch("Alex", "Rob");
 
@@ -902,7 +1000,8 @@ test("rejects timer controls between phases", async () => {
     for (const action of [
         "start",
         "pause",
-        "reset"
+        "reset",
+        "end"
     ]) {
         const response = await fetch(
             `${baseUrl}/api/timer/${action}`,

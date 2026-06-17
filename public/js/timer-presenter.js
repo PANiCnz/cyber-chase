@@ -6,6 +6,8 @@ const pauseTimerBtn =
     document.getElementById('pauseTimerBtn');
 const resetTimerBtn =
     document.getElementById('resetTimerBtn');
+const endRoundBtn =
+    document.getElementById('endRoundBtn');
 
 let timerRequestRunning = false;
 
@@ -34,6 +36,8 @@ function renderTimer(timer) {
     pauseTimerBtn.disabled =
         !active || remaining === 0;
     resetTimerBtn.disabled = !active;
+    endRoundBtn.disabled =
+        !active || remaining === 0;
 }
 
 async function refreshTimer() {
@@ -64,6 +68,7 @@ async function refreshTimer() {
 async function timerAction(action) {
     pauseTimerBtn.disabled = true;
     resetTimerBtn.disabled = true;
+    endRoundBtn.disabled = true;
 
     try {
         const response = await fetch(
@@ -99,6 +104,10 @@ pauseTimerBtn.addEventListener(
 resetTimerBtn.addEventListener(
     'click',
     () => timerAction('reset')
+);
+endRoundBtn.addEventListener(
+    'click',
+    () => timerAction('end')
 );
 window.addEventListener(
     'roundStateChanged',

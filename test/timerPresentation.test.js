@@ -58,6 +58,10 @@ test("presenter provides round and timer controls", () => {
     );
     assert.match(
         presenterHtml,
+        /id="endRoundBtn"/
+    );
+    assert.match(
+        presenterHtml,
         /\/js\/timer-presenter\.js/
     );
     assert.match(
@@ -67,6 +71,10 @@ test("presenter provides round and timer controls", () => {
     assert.match(
         presenterTimer,
         /\/api\/timer\/\$\{action\}/
+    );
+    assert.match(
+        presenterTimer,
+        /timerAction\('end'\)/
     );
     assert.match(
         presenterCss,
@@ -144,6 +152,10 @@ test("only the start-phase endpoint arms the two-minute timer", () => {
     assert.match(
         questionRoutes,
         /questionToken/
+    );
+    assert.match(
+        timerService,
+        /expireQuestion/
     );
     assert.match(
         timerService,
