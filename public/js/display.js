@@ -68,7 +68,7 @@ function hideAnswerResult() {
 
 function renderMatchState(state) {
    contestantName.textContent =
-      state.contestant?.name || 'Contestant';
+      state.contestant?.name || 'Team';
    currentChaserLabel =
       state.chaser?.title || 'The Chaser';
    chaserTitle.textContent =
@@ -144,7 +144,7 @@ function renderMatchState(state) {
       state.roundActive
          ? state.currentPlayer === 'chaser'
             ? `CHASER CHASING ${state.targetScore}`
-            : 'CONTESTANT BUILDING THE TARGET'
+            : 'TEAM BUILDING THE TARGET'
          : state.firstRoundPending
             ? 'MATCH STARTING'
             : state.currentPlayer === 'chaser'
@@ -172,7 +172,7 @@ function renderMatchState(state) {
          ? state.winner
          : currentChaserLabel;
       winnerRole.textContent = contestantWon
-         ? 'CONTESTANT VICTORY'
+         ? 'TEAM VICTORY'
          : 'CHASER VICTORY';
       winnerMessage.textContent = contestantWon
          ? 'You have outrun the Chaser, and you have won!'
@@ -257,7 +257,7 @@ function showAnswerResult(result) {
    answerResultPlayer.textContent =
       result.player === 'chaser'
          ? currentChaserLabel
-         : result.playerName || 'Contestant';
+         : result.playerName || 'Team';
    answerResultMessage.textContent =
       result.timeout
          ? 'TIME UP!'

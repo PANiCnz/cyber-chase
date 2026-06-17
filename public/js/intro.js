@@ -1,8 +1,6 @@
 
 const contestantName =
     document.getElementById('contestantName');
-const contestantDepartment =
-    document.getElementById('contestantDepartment');
 const contestantInitials =
     document.getElementById('contestantInitials');
 const chaserName =
@@ -59,13 +57,11 @@ async function loadMatch() {
     }
 
     const displayedContestantName =
-        state.contestant?.name || 'Contestant';
+        state.contestant?.name || 'Team';
     contestantName.textContent =
         displayedContestantName;
     contestantInitials.textContent =
         initials(displayedContestantName);
-    contestantDepartment.textContent =
-        state.contestant?.department || '';
 
     chaserName.textContent =
         state.chaser?.name || 'Chaser';

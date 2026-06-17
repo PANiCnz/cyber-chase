@@ -53,8 +53,13 @@ test("preserves match start and state response fields", async () => {
                     "application/json"
             },
             body: JSON.stringify({
-                contestantName: "Alex",
-                contestantDepartment: "Finance",
+                teamName: "Blue Team",
+                teamMembers: [
+                    "Alex",
+                    "Sam",
+                    "Jordan",
+                    "Taylor"
+                ],
                 chaserName: "Maya Voss"
             })
         }
@@ -64,8 +69,12 @@ test("preserves match start and state response fields", async () => {
     assert.equal(startResponse.status, 200);
     assert.equal(match.started, true);
     assert.equal(
-        match.contestant.department,
-        "Finance"
+        match.contestant.name,
+        "Blue Team"
+    );
+    assert.deepEqual(
+        match.contestant.members,
+        ["Alex", "Sam", "Jordan", "Taylor"]
     );
     assert.equal(match.chaser.id, "maya-voss");
     assert.equal(match.chaser.name, "Maya Voss");
@@ -89,8 +98,39 @@ test("preserves match start and state response fields", async () => {
     assert.equal(stateResponse.status, 200);
     assert.equal(
         state.contestant.name,
-        "Alex"
+        "Blue Team"
     );
+});
+
+test("requires four team member names for team matches", async () => {
+    const response = await fetch(
+        `${baseUrl}/api/match/start-match`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                teamName: "Blue Team",
+                teamMembers: [
+                    "Alex",
+                    "Sam",
+                    "Jordan",
+                    ""
+                ],
+                chaserId: "maya-voss"
+            })
+        }
+    );
+    const result = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.equal(
+        result.error,
+        "Four team member names are required"
+    );
+    assert.equal(matchService.getMatch(), null);
 });
 
 test("starts a match by chaser id and snapshots the catalog profile", async () => {
@@ -174,7 +214,7 @@ test("returns 400 when no chaser selection is supplied", async () => {
     assert.equal(matchService.getMatch(), null);
 });
 
-test("requires a contestant name before creating a match", async () => {
+test("requires a team or contestant name before creating a match", async () => {
     const response = await fetch(
         `${baseUrl}/api/match/start-match`,
         {
@@ -194,7 +234,7 @@ test("requires a contestant name before creating a match", async () => {
     assert.equal(response.status, 400);
     assert.equal(
         result.error,
-        "Contestant name is required"
+        "Team name is required"
     );
     assert.equal(matchService.getMatch(), null);
 });

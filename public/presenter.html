@@ -85,16 +85,25 @@
         <div class="setup-heading">
             <div class="setup-kicker">NEW MATCH</div>
             <h3 id="matchSetupTitle">Configure the chase</h3>
-            <p>Enter the contestant details, choose a chaser, then launch the audience introduction.</p>
+            <p>Enter the team details, choose a chaser, then launch the audience introduction.</p>
         </div>
 
         <div class="setup-grid">
             <div class="setup-fields">
-                <label for="setupContestantName">Contestant name</label>
-                <input id="setupContestantName" type="text" autocomplete="name" maxlength="80">
+                <label for="setupTeamName">Team name</label>
+                <input id="setupTeamName" type="text" autocomplete="organization" maxlength="80">
 
-                <label for="setupContestantDepartment">Department</label>
-                <input id="setupContestantDepartment" type="text" maxlength="100">
+                <fieldset class="team-member-fields">
+                    <legend>Team members</legend>
+                    <label for="setupTeamMember1">Player 1</label>
+                    <input id="setupTeamMember1" type="text" autocomplete="name" maxlength="80">
+                    <label for="setupTeamMember2">Player 2</label>
+                    <input id="setupTeamMember2" type="text" autocomplete="name" maxlength="80">
+                    <label for="setupTeamMember3">Player 3</label>
+                    <input id="setupTeamMember3" type="text" autocomplete="name" maxlength="80">
+                    <label for="setupTeamMember4">Player 4</label>
+                    <input id="setupTeamMember4" type="text" autocomplete="name" maxlength="80">
+                </fieldset>
 
                 <div class="difficulty-fields">
                     <div>
@@ -154,7 +163,7 @@
     </div>
 
     <section id="roundWaiting" class="round-waiting game-section hidden" role="status">
-        <div id="roundWaitingText">Contestant chase begins after the countdown.</div>
+        <div id="roundWaitingText">Team chase begins after the countdown.</div>
         <button id="startRoundBtn" type="button">START CHASER CHASE</button>
     </section>
 

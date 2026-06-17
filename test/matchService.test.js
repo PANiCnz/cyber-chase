@@ -37,8 +37,27 @@ test("starts a Final Chase match waiting for the contestant", () => {
     assert.equal(match.firstRoundPending, true);
     assert.equal(match.targetScore, null);
     assert.equal(match.contestant.score, 0);
+    assert.deepEqual(match.contestant.members, []);
     assert.equal(match.chaser.score, 0);
     assert.equal(match.winner, null);
+});
+
+test("stores team members while scoring by team name", () => {
+    const match = matchService.startMatch(
+        "Blue Team",
+        "Rob",
+        "",
+        {},
+        ["Alex", "Sam", "Jordan", "Taylor"]
+    );
+
+    assert.equal(match.contestant.name, "Blue Team");
+    assert.deepEqual(match.contestant.members, [
+        "Alex",
+        "Sam",
+        "Jordan",
+        "Taylor"
+    ]);
 });
 
 test("preserves profile snapshots and difficulty filters", () => {

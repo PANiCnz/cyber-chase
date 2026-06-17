@@ -25,7 +25,8 @@ function startMatch(
     contestantName,
     chaser,
     contestantDepartment = "",
-    difficulty = {}
+    difficulty = {},
+    teamMembers = []
 ) {
     const questions =
         questionService.createMatchQuestions({
@@ -41,6 +42,7 @@ function startMatch(
         contestant: {
             name: contestantName,
             department: contestantDepartment,
+            members: teamMembers,
             score: 0
         },
         chaser: createChaserState(chaser),

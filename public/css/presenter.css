@@ -266,6 +266,21 @@ body {
     border-color:#00b7ff;
     outline:2px solid rgba(0,183,255,.3);
 }
+.team-member-fields{
+    border:1px solid rgba(82,114,142,.7);
+    border-radius:8px;
+    display:grid;
+    gap:10px;
+    margin:4px 0;
+    padding:16px;
+}
+.team-member-fields legend{
+    color:#00b7ff;
+    font-weight:bold;
+    letter-spacing:1px;
+    padding:0 8px;
+    text-transform:uppercase;
+}
 .difficulty-fields{
     display:grid;
     gap:16px;

@@ -9,6 +9,8 @@ const timerService =
 
 router.post("/start-match", (req, res) => {
     const {
+        teamName,
+        teamMembers,
         contestantName,
         contestantDepartment,
         chaserId,
@@ -16,14 +18,36 @@ router.post("/start-match", (req, res) => {
         contestantDifficulty,
         chaserDifficulty
     } = req.body;
+    const matchName =
+        typeof teamName === "string"
+            ? teamName
+            : contestantName;
 
     if (
-        typeof contestantName !== "string" ||
-        contestantName.trim() === ""
+        typeof matchName !== "string" ||
+        matchName.trim() === ""
     ) {
         return res.status(400).json({
-            error: "Contestant name is required"
+            error: "Team name is required"
         });
+    }
+
+    if (typeof teamName === "string") {
+        const validTeamMembers =
+            Array.isArray(teamMembers) &&
+            teamMembers.length === 4 &&
+            teamMembers.every(
+                member =>
+                    typeof member === "string" &&
+                    member.trim() !== ""
+            );
+
+        if (!validTeamMembers) {
+            return res.status(400).json({
+                error:
+                    "Four team member names are required"
+            });
+        }
     }
 
     if (
@@ -54,7 +78,7 @@ router.post("/start-match", (req, res) => {
 
     try {
         match = matchService.startMatch(
-            contestantName.trim(),
+            matchName.trim(),
             chaserSnapshot,
             typeof contestantDepartment === "string"
                 ? contestantDepartment.trim()
@@ -64,7 +88,14 @@ router.post("/start-match", (req, res) => {
                     contestantDifficulty,
                 chaser:
                     chaserDifficulty
-            }
+            },
+            Array.isArray(teamMembers)
+                ? teamMembers.map(member =>
+                    typeof member === "string"
+                        ? member.trim()
+                        : ""
+                )
+                : []
         );
     } catch (error) {
         return res.status(400).json({

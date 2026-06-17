@@ -66,7 +66,7 @@ test("display shows a safe match-complete winner message", () => {
     );
     assert.match(
         displayScript,
-        /CONTESTANT VICTORY/
+        /TEAM VICTORY/
     );
     assert.match(
         displayScript,

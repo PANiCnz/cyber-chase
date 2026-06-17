@@ -34,10 +34,14 @@ const saveChaserBtn =
     document.getElementById('saveChaserBtn');
 const managerStatus =
     document.getElementById('managerStatus');
-const setupContestantName =
-    document.getElementById('setupContestantName');
-const setupContestantDepartment =
-    document.getElementById('setupContestantDepartment');
+const setupTeamName =
+    document.getElementById('setupTeamName');
+const setupTeamMembers = [
+    document.getElementById('setupTeamMember1'),
+    document.getElementById('setupTeamMember2'),
+    document.getElementById('setupTeamMember3'),
+    document.getElementById('setupTeamMember4')
+];
 const setupContestantDifficulty =
     document.getElementById('setupContestantDifficulty');
 const setupChaserDifficulty =
@@ -665,8 +669,10 @@ async function loadSetupChasers() {
 }
 
 function resetSetupForm() {
-    setupContestantName.value = '';
-    setupContestantDepartment.value = '';
+    setupTeamName.value = '';
+    for (const memberInput of setupTeamMembers) {
+        memberInput.value = '';
+    }
     setupContestantDifficulty.value = 'all';
     setupChaserDifficulty.value = 'all';
     setupChaser.value = RANDOM_CHASER_ID;
@@ -675,14 +681,31 @@ function resetSetupForm() {
     renderSetupProfile();
 }
 
-async function launchMatch() {
-    const contestantName =
-        setupContestantName.value.trim();
+function teamMembersFromSetup() {
+    return setupTeamMembers.map(
+        input => input.value.trim()
+    );
+}
 
-    if (!contestantName) {
+async function launchMatch() {
+    const teamName =
+        setupTeamName.value.trim();
+
+    if (!teamName) {
         setupStatus.textContent =
-            'Enter the contestant name.';
-        setupContestantName.focus();
+            'Enter the team name.';
+        setupTeamName.focus();
+        return;
+    }
+
+    const teamMembers = teamMembersFromSetup();
+    const missingMemberIndex =
+        teamMembers.findIndex(member => !member);
+
+    if (missingMemberIndex !== -1) {
+        setupStatus.textContent =
+            'Enter all four team member names.';
+        setupTeamMembers[missingMemberIndex].focus();
         return;
     }
 
@@ -701,7 +724,7 @@ async function launchMatch() {
     launchMatchBtn.disabled = true;
     setupStatus.textContent = randomSelected
         ? `Randomly selected ${chaser.name}. Launching...`
-        : `Launching ${contestantName} vs ${chaser.name}...`;
+        : `Launching ${teamName} vs ${chaser.name}...`;
 
     try {
         const response = await fetch(
@@ -712,9 +735,8 @@ async function launchMatch() {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    contestantName,
-                    contestantDepartment:
-                        setupContestantDepartment.value.trim(),
+                    teamName,
+                    teamMembers,
                     contestantDifficulty:
                         setupContestantDifficulty.value,
                     chaserDifficulty:
@@ -782,10 +804,10 @@ function renderRoundState(state) {
     );
     roundWaitingText.textContent =
         state?.firstRoundPending
-            ? 'Opening countdown in progress. The contestant chase will start automatically.'
+            ? 'Opening countdown in progress. The team chase will start automatically.'
             : state?.currentPlayer === 'chaser'
-                ? `Contestant target: ${state.targetScore}. Ready to start the Chaser chase.`
-                : 'Waiting for the contestant chase.';
+                ? `Team target: ${state.targetScore}. Ready to start the Chaser chase.`
+                : 'Waiting for the team chase.';
     startRoundBtn.textContent =
         'START CHASER CHASE';
     startRoundBtn.disabled =

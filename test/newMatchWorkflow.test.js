@@ -31,8 +31,11 @@ test("presenter exposes new-match controls", () => {
 
 test("presenter owns match configuration and launch", () => {
     for (const id of [
-        "setupContestantName",
-        "setupContestantDepartment",
+        "setupTeamName",
+        "setupTeamMember1",
+        "setupTeamMember2",
+        "setupTeamMember3",
+        "setupTeamMember4",
         "setupContestantDifficulty",
         "setupChaserDifficulty",
         "setupChaser",
@@ -59,7 +62,15 @@ test("presenter owns match configuration and launch", () => {
     );
     assert.match(
         presenter,
-        /contestantDepartment:/
+        /teamName,/
+    );
+    assert.match(
+        presenter,
+        /teamMembers,/
+    );
+    assert.match(
+        presenter,
+        /Enter all four team member names/
     );
     assert.match(
         presenter,
