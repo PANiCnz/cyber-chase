@@ -10,6 +10,8 @@ const chaserService =
     require("../src/services/chaserService");
 const tournamentService =
     require("../src/services/tournamentService");
+const questionService =
+    require("../src/services/questionService");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
@@ -31,6 +33,31 @@ function loadEmptyTournamentStore() {
     tournamentService.loadTournaments(file);
 }
 
+function loadTemporaryQuestionStore() {
+    const directory = fs.mkdtempSync(
+        path.join(os.tmpdir(), "cyber-chase-api-questions-")
+    );
+    const header =
+        "id,category,difficulty,question,a,b,c,d,correct";
+
+    fs.writeFileSync(
+        path.join(directory, "contestant.csv"),
+        [
+            header,
+            "1,Passwords,Easy,Question?,A,B,C,D,a"
+        ].join("\n")
+    );
+    fs.writeFileSync(
+        path.join(directory, "chaser.csv"),
+        [
+            header,
+            "1,Incidents,Hard,Question?,A,B,C,D,b"
+        ].join("\n")
+    );
+
+    questionService.loadQuestionBanks(directory);
+}
+
 test.before(async () => {
     await new Promise(resolve => {
         server.listen(0, "127.0.0.1", resolve);
@@ -46,6 +73,7 @@ test.beforeEach(() => {
     timerService.reset();
     chaserService.resetCatalog();
     tournamentService.resetTournaments();
+    questionService.resetQuestionDirectory();
     loadEmptyTournamentStore();
 });
 
@@ -513,6 +541,65 @@ test("lists the available difficulties for each question bank", async () => {
         difficulties.chaser,
         ["Hard", "Expert"]
     );
+});
+
+test("manages question bank uploads and deletes", async () => {
+    loadTemporaryQuestionStore();
+
+    let response = await fetch(
+        `${baseUrl}/api/question/manage`
+    );
+    let result = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(result.contestant.count, 1);
+    assert.deepEqual(
+        result.contestant.difficulties,
+        ["Easy"]
+    );
+
+    const replacement = [
+        "id,category,difficulty,question,a,b,c,d,correct",
+        "2,Malware,Medium,Question?,A,B,C,D,b",
+        "3,Privacy,Hard,Question?,A,B,C,D,c"
+    ].join("\n");
+    response = await fetch(
+        `${baseUrl}/api/question/manage/contestant/upload`,
+        {
+            method: "POST",
+            headers: {
+                "content-type": "text/csv"
+            },
+            body: replacement
+        }
+    );
+    result = await response.json();
+
+    assert.equal(response.status, 201);
+    assert.equal(result.count, 2);
+    assert.deepEqual(result.difficulties, [
+        "Medium",
+        "Hard"
+    ]);
+
+    response = await fetch(
+        `${baseUrl}/api/question/difficulties`
+    );
+    result = await response.json();
+    assert.deepEqual(result.contestant, [
+        "Medium",
+        "Hard"
+    ]);
+
+    response = await fetch(
+        `${baseUrl}/api/question/manage/contestant`,
+        { method: "DELETE" }
+    );
+    result = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.equal(result.count, 0);
+    assert.deepEqual(result.difficulties, []);
 });
 
 test("starts a match with independent question difficulties", async () => {

@@ -34,7 +34,48 @@ test("presenter exposes new-match controls", () => {
     );
     assert.match(
         presenterHtml,
+        /id="manageQuestionsBtn"/
+    );
+    assert.match(
+        presenterHtml,
         /id="tournamentManager"/
+    );
+    assert.match(
+        presenterHtml,
+        /id="questionManager"/
+    );
+});
+
+test("presenter manages question banks", () => {
+    for (const id of [
+        "contestantQuestionUpload",
+        "chaserQuestionUpload",
+        "uploadContestantQuestionsBtn",
+        "uploadChaserQuestionsBtn",
+        "deleteContestantQuestionsBtn",
+        "deleteChaserQuestionsBtn"
+    ]) {
+        assert.match(
+            presenterHtml,
+            new RegExp(`id="${id}"`)
+        );
+    }
+
+    assert.match(
+        presenter,
+        /fetch\(\s*'\/api\/question\/manage'/
+    );
+    assert.match(
+        presenter,
+        /\/api\/question\/manage\/\$\{bank\}\/upload/
+    );
+    assert.match(
+        presenter,
+        /\/api\/question\/manage\/\$\{bank\}/
+    );
+    assert.match(
+        presenter,
+        /socket\.on\('questionsUpdated'/
     );
 });
 
@@ -148,7 +189,7 @@ test("presenter owns match configuration and launch", () => {
 test("presenter setup fits a compact 1080p console", () => {
     assert.match(
         presenterCss,
-        /\.header \{[^}]*grid-template-columns:1fr auto auto auto/
+        /\.header \{[^}]*grid-template-columns:1fr auto auto auto auto/
     );
     assert.match(
         presenterCss,

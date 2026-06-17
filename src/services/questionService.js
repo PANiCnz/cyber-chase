@@ -13,6 +13,15 @@ const REQUIRED_FIELDS = [
     "d",
     "correct"
 ];
+const QUESTION_BANKS = {
+    contestant: "contestant.csv",
+    chaser: "chaser.csv"
+};
+const DEFAULT_QUESTION_DIRECTORY = path.join(
+    process.cwd(),
+    "questions"
+);
+let questionDirectory = DEFAULT_QUESTION_DIRECTORY;
 
 function parseRows(content) {
     const rows = [];
@@ -154,30 +163,40 @@ function parseCsv(file) {
 let contestantPool = [];
 let chaserPool = [];
 
-function loadQuestionBanks() {
+function bankPath(bank) {
+    if (!Object.hasOwn(QUESTION_BANKS, bank)) {
+        throw new Error("Unknown question bank");
+    }
 
+    return path.join(
+        questionDirectory,
+        QUESTION_BANKS[bank]
+    );
+}
+
+function loadQuestionBanks(
+    directory = questionDirectory
+) {
+    questionDirectory = directory;
     contestantPool =
         parseCsv(
-            path.join(
-                process.cwd(),
-                "questions",
-                "contestant.csv"
-            )
+            bankPath("contestant")
         );
 
     chaserPool =
         parseCsv(
-            path.join(
-                process.cwd(),
-                "questions",
-                "chaser.csv"
-            )
+            bankPath("chaser")
         );
 }
 
 function resetQuestionBanks() {
     contestantPool = [];
     chaserPool = [];
+}
+
+function resetQuestionDirectory() {
+    questionDirectory = DEFAULT_QUESTION_DIRECTORY;
+    resetQuestionBanks();
 }
 
 function ensureQuestionBanks() {
@@ -208,6 +227,75 @@ function getAvailableDifficulties() {
         chaser:
             uniqueDifficulties(chaserPool)
     };
+}
+
+function bankSummary(bank) {
+    const questions = parseCsv(bankPath(bank));
+
+    return {
+        bank,
+        file: QUESTION_BANKS[bank],
+        count: questions.length,
+        difficulties: uniqueDifficulties(questions)
+    };
+}
+
+function getQuestionBankStatus() {
+    return {
+        contestant: bankSummary("contestant"),
+        chaser: bankSummary("chaser")
+    };
+}
+
+function replaceQuestionBank(bank, content) {
+    if (
+        !Buffer.isBuffer(content) ||
+        content.length === 0
+    ) {
+        throw new Error("Upload a CSV question file");
+    }
+
+    const target = bankPath(bank);
+    const temporaryFile =
+        `${target}.${process.pid}.upload`;
+
+    fs.mkdirSync(path.dirname(target), {
+        recursive: true
+    });
+    fs.writeFileSync(
+        temporaryFile,
+        content
+    );
+
+    try {
+        parseCsv(temporaryFile);
+        fs.renameSync(temporaryFile, target);
+        resetQuestionBanks();
+        return bankSummary(bank);
+    } catch (error) {
+        fs.rmSync(temporaryFile, {
+            force: true
+        });
+        throw error;
+    }
+}
+
+function clearQuestionBank(bank) {
+    const target = bankPath(bank);
+    const header =
+        `${REQUIRED_FIELDS.join(",")}\n`;
+
+    fs.mkdirSync(path.dirname(target), {
+        recursive: true
+    });
+    fs.writeFileSync(
+        target,
+        header,
+        "utf8"
+    );
+    resetQuestionBanks();
+
+    return bankSummary(bank);
 }
 
 function filterByDifficulty(
@@ -308,8 +396,12 @@ module.exports = {
     parseCsv,
 
     loadQuestionBanks,
+    resetQuestionDirectory,
 
     getAvailableDifficulties,
+    getQuestionBankStatus,
+    replaceQuestionBank,
+    clearQuestionBank,
 
     createMatchQuestions,
 

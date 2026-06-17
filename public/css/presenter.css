@@ -20,7 +20,7 @@ body {
     align-items:center;
     display:grid;
     gap:10px 14px;
-    grid-template-columns:1fr auto auto auto;
+    grid-template-columns:1fr auto auto auto auto;
 }
 .header h1 {
     color:#00b7ff;
@@ -93,6 +93,53 @@ body {
     gap:28px;
     grid-template-columns:minmax(380px,1fr) minmax(320px,.8fr) minmax(420px,1fr);
     margin-top:28px;
+}
+.question-manager-layout{
+    display:grid;
+    gap:28px;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    margin-top:28px;
+}
+.question-bank-card{
+    background:#07101c;
+    border:1px solid #29485f;
+    box-shadow:inset 4px 0 0 #00b7ff;
+    display:grid;
+    gap:14px;
+    padding:24px;
+}
+.question-bank-card.chaser-bank-card{
+    box-shadow:inset 4px 0 0 #ff4d4f;
+}
+.question-bank-heading h4{
+    font-family:"Arial Narrow",Impact,sans-serif;
+    font-size:2rem;
+    letter-spacing:.08em;
+    margin:8px 0 0;
+    text-transform:uppercase;
+}
+.question-bank-heading p{
+    color:#b9cad9;
+    line-height:1.35;
+    margin:8px 0 0;
+}
+.question-bank-card label{
+    color:#dbe9f6;
+    font-weight:bold;
+}
+.question-bank-card input[type="file"]{
+    background:#08111f;
+    border:1px solid #52728e;
+    color:#dbe9f6;
+    padding:14px;
+    width:100%;
+}
+.delete-question-button{
+    background:#9d1e23;
+    font-weight:bold;
+}
+.delete-question-button:hover{
+    background:#be2a30;
 }
 .tournament-live-column,
 .tournament-history-column{

@@ -11,9 +11,51 @@
         <h1>CYBER CHASE</h1>
         <h2>PRESENTER CONSOLE</h2>
         <button id="manageTournamentBtn" class="manage-chasers-button" type="button">MANAGE TOURNAMENT</button>
+        <button id="manageQuestionsBtn" class="manage-chasers-button" type="button">MANAGE QUESTIONS</button>
         <button id="manageChasersBtn" class="manage-chasers-button" type="button">MANAGE CHASERS</button>
         <button id="newMatchBtn" class="new-match-button hidden">NEW MATCH</button>
     </div>
+
+    <section id="questionManager" class="chaser-manager hidden" aria-labelledby="questionManagerTitle">
+        <div class="manager-header">
+            <div>
+                <div class="setup-kicker">QUESTION BANKS</div>
+                <h3 id="questionManagerTitle">Manage questions</h3>
+                <p>Upload a replacement CSV for each question set, or clear the existing questions.</p>
+            </div>
+            <button id="closeQuestionManagerBtn" class="manager-close-button" type="button">CLOSE</button>
+        </div>
+
+        <div class="question-manager-layout">
+            <section class="question-bank-card" aria-labelledby="contestantQuestionTitle">
+                <div class="question-bank-heading">
+                    <div class="setup-kicker">TEAM ROUND</div>
+                    <h4 id="contestantQuestionTitle">Contestant questions</h4>
+                    <p id="contestantQuestionMeta">Loading question bank...</p>
+                </div>
+
+                <label for="contestantQuestionUpload">Upload replacement CSV</label>
+                <input id="contestantQuestionUpload" type="file" accept=".csv,text/csv">
+                <button id="uploadContestantQuestionsBtn" class="save-chaser-button" type="button">UPLOAD AND REPLACE</button>
+                <button id="deleteContestantQuestionsBtn" class="delete-question-button" type="button">DELETE EXISTING QUESTIONS</button>
+                <div id="contestantQuestionStatus" class="manager-status" role="status" aria-live="polite"></div>
+            </section>
+
+            <section class="question-bank-card chaser-bank-card" aria-labelledby="chaserQuestionTitle">
+                <div class="question-bank-heading">
+                    <div class="setup-kicker">CHASER ROUND</div>
+                    <h4 id="chaserQuestionTitle">Chaser questions</h4>
+                    <p id="chaserQuestionMeta">Loading question bank...</p>
+                </div>
+
+                <label for="chaserQuestionUpload">Upload replacement CSV</label>
+                <input id="chaserQuestionUpload" type="file" accept=".csv,text/csv">
+                <button id="uploadChaserQuestionsBtn" class="save-chaser-button" type="button">UPLOAD AND REPLACE</button>
+                <button id="deleteChaserQuestionsBtn" class="delete-question-button" type="button">DELETE EXISTING QUESTIONS</button>
+                <div id="chaserQuestionStatus" class="manager-status" role="status" aria-live="polite"></div>
+            </section>
+        </div>
+    </section>
 
     <section id="tournamentManager" class="chaser-manager hidden" aria-labelledby="tournamentManagerTitle">
         <div class="manager-header">

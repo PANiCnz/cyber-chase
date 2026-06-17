@@ -9,10 +9,74 @@ const timerService =
 const questionService =
     require("../services/questionService");
 
+function emitQuestionUpdate(req) {
+    req.app.get("io")?.emit(
+        "questionsUpdated",
+        { timestamp: Date.now() }
+    );
+}
+
 router.get("/difficulties", (req, res) => {
     res.json(
         questionService.getAvailableDifficulties()
     );
+});
+
+router.get("/manage", (req, res) => {
+    try {
+        res.json(
+            questionService.getQuestionBankStatus()
+        );
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        });
+    }
+});
+
+router.post(
+    "/manage/:bank/upload",
+    express.raw({
+        type: [
+            "text/csv",
+            "application/csv",
+            "application/vnd.ms-excel",
+            "application/octet-stream"
+        ],
+        limit: "3mb"
+    }),
+    (req, res) => {
+        try {
+            const summary =
+                questionService.replaceQuestionBank(
+                    req.params.bank,
+                    req.body
+                );
+
+            emitQuestionUpdate(req);
+            res.status(201).json(summary);
+        } catch (error) {
+            res.status(400).json({
+                error: error.message
+            });
+        }
+    }
+);
+
+router.delete("/manage/:bank", (req, res) => {
+    try {
+        const summary =
+            questionService.clearQuestionBank(
+                req.params.bank
+            );
+
+        emitQuestionUpdate(req);
+        res.json(summary);
+    } catch (error) {
+        res.status(400).json({
+            error: error.message
+        });
+    }
 });
 
 router.get("/current", (req, res) => {

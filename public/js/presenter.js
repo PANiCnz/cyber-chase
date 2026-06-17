@@ -4,6 +4,32 @@ const manageChasersBtn =
     document.getElementById('manageChasersBtn');
 const manageTournamentBtn =
     document.getElementById('manageTournamentBtn');
+const manageQuestionsBtn =
+    document.getElementById('manageQuestionsBtn');
+const questionManager =
+    document.getElementById('questionManager');
+const closeQuestionManagerBtn =
+    document.getElementById('closeQuestionManagerBtn');
+const contestantQuestionUpload =
+    document.getElementById('contestantQuestionUpload');
+const chaserQuestionUpload =
+    document.getElementById('chaserQuestionUpload');
+const uploadContestantQuestionsBtn =
+    document.getElementById('uploadContestantQuestionsBtn');
+const uploadChaserQuestionsBtn =
+    document.getElementById('uploadChaserQuestionsBtn');
+const deleteContestantQuestionsBtn =
+    document.getElementById('deleteContestantQuestionsBtn');
+const deleteChaserQuestionsBtn =
+    document.getElementById('deleteChaserQuestionsBtn');
+const contestantQuestionMeta =
+    document.getElementById('contestantQuestionMeta');
+const chaserQuestionMeta =
+    document.getElementById('chaserQuestionMeta');
+const contestantQuestionStatus =
+    document.getElementById('contestantQuestionStatus');
+const chaserQuestionStatus =
+    document.getElementById('chaserQuestionStatus');
 const tournamentManager =
     document.getElementById('tournamentManager');
 const closeTournamentManagerBtn =
@@ -522,6 +548,7 @@ async function loadManagedChasers() {
 }
 
 async function openChaserManager() {
+    questionManager.classList.add('hidden');
     tournamentManager.classList.add('hidden');
     chaserManager.classList.remove('hidden');
     await loadManagedChasers();
@@ -535,6 +562,174 @@ async function openChaserManager() {
 
 function closeChaserManager() {
     chaserManager.classList.add('hidden');
+}
+
+function questionBankElements(bank) {
+    return bank === 'contestant'
+        ? {
+            upload: contestantQuestionUpload,
+            meta: contestantQuestionMeta,
+            status: contestantQuestionStatus,
+            uploadButton: uploadContestantQuestionsBtn,
+            deleteButton: deleteContestantQuestionsBtn,
+            label: 'contestant'
+        }
+        : {
+            upload: chaserQuestionUpload,
+            meta: chaserQuestionMeta,
+            status: chaserQuestionStatus,
+            uploadButton: uploadChaserQuestionsBtn,
+            deleteButton: deleteChaserQuestionsBtn,
+            label: 'chaser'
+        };
+}
+
+function renderQuestionBankSummary(bank, summary) {
+    const elements = questionBankElements(bank);
+    const difficulties =
+        summary?.difficulties?.length
+            ? summary.difficulties.join(', ')
+            : 'No difficulties available';
+    elements.meta.textContent =
+        `${summary?.count || 0} questions | ${difficulties}`;
+}
+
+function renderQuestionBankManager(result) {
+    renderQuestionBankSummary(
+        'contestant',
+        result.contestant
+    );
+    renderQuestionBankSummary(
+        'chaser',
+        result.chaser
+    );
+}
+
+async function loadQuestionManager() {
+    contestantQuestionStatus.textContent =
+        'Loading question banks...';
+    chaserQuestionStatus.textContent = '';
+
+    try {
+        const response = await fetch(
+            '/api/question/manage'
+        );
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                result.error ||
+                'Unable to load question banks.'
+            );
+        }
+
+        renderQuestionBankManager(result);
+        contestantQuestionStatus.textContent = '';
+    } catch (error) {
+        contestantQuestionStatus.textContent =
+            error.message;
+    }
+}
+
+async function openQuestionManager() {
+    chaserManager.classList.add('hidden');
+    tournamentManager.classList.add('hidden');
+    questionManager.classList.remove('hidden');
+    await loadQuestionManager();
+}
+
+function closeQuestionManager() {
+    questionManager.classList.add('hidden');
+}
+
+async function uploadQuestionBank(bank) {
+    const elements = questionBankElements(bank);
+    const [file] = elements.upload.files;
+
+    if (!file) {
+        elements.status.textContent =
+            'Choose a CSV file first.';
+        elements.upload.focus();
+        return;
+    }
+
+    elements.uploadButton.disabled = true;
+    elements.status.textContent =
+        `Uploading ${elements.label} questions...`;
+
+    try {
+        const response = await fetch(
+            `/api/question/manage/${bank}/upload`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type':
+                        file.type || 'text/csv'
+                },
+                body: file
+            }
+        );
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                result.error ||
+                'Unable to upload questions.'
+            );
+        }
+
+        elements.upload.value = '';
+        renderQuestionBankSummary(bank, result);
+        elements.status.textContent =
+            `${result.count} ${elements.label} questions uploaded.`;
+        await loadDifficulties();
+    } catch (error) {
+        elements.status.textContent =
+            error.message;
+    } finally {
+        elements.uploadButton.disabled = false;
+    }
+}
+
+async function deleteQuestionBank(bank) {
+    const elements = questionBankElements(bank);
+
+    if (
+        !window.confirm(
+            `Delete all ${elements.label} questions?`
+        )
+    ) {
+        return;
+    }
+
+    elements.deleteButton.disabled = true;
+    elements.status.textContent =
+        `Deleting ${elements.label} questions...`;
+
+    try {
+        const response = await fetch(
+            `/api/question/manage/${bank}`,
+            { method: 'DELETE' }
+        );
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                result.error ||
+                'Unable to delete questions.'
+            );
+        }
+
+        renderQuestionBankSummary(bank, result);
+        elements.status.textContent =
+            `${elements.label} questions deleted.`;
+        await loadDifficulties();
+    } catch (error) {
+        elements.status.textContent =
+            error.message;
+    } finally {
+        elements.deleteButton.disabled = false;
+    }
 }
 
 function renderTournamentCard(tournament) {
@@ -678,6 +873,7 @@ async function loadTournamentManager() {
 
 async function openTournamentManager() {
     chaserManager.classList.add('hidden');
+    questionManager.classList.add('hidden');
     tournamentManager.classList.remove('hidden');
     await loadTournamentManager();
     newTournamentName.focus();
@@ -1413,7 +1609,9 @@ startRoundBtn.onclick = startRound;
 launchMatchBtn.onclick = launchMatch;
 manageChasersBtn.onclick = openChaserManager;
 manageTournamentBtn.onclick = openTournamentManager;
+manageQuestionsBtn.onclick = openQuestionManager;
 closeChaserManagerBtn.onclick = closeChaserManager;
+closeQuestionManagerBtn.onclick = closeQuestionManager;
 closeTournamentManagerBtn.onclick =
     closeTournamentManager;
 addChaserBtn.onclick = resetChaserEditor;
@@ -1429,6 +1627,14 @@ editorChaserImageUpload.addEventListener(
     'change',
     previewSelectedImage
 );
+uploadContestantQuestionsBtn.onclick =
+    () => uploadQuestionBank('contestant');
+uploadChaserQuestionsBtn.onclick =
+    () => uploadQuestionBank('chaser');
+deleteContestantQuestionsBtn.onclick =
+    () => deleteQuestionBank('contestant');
+deleteChaserQuestionsBtn.onclick =
+    () => deleteQuestionBank('chaser');
 setupChaser.addEventListener(
     'change',
     renderSetupProfile
@@ -1470,6 +1676,13 @@ socket.on('tournamentUpdated', () => {
 
     if (!tournamentManager.classList.contains('hidden')) {
         loadTournamentManager();
+    }
+});
+socket.on('questionsUpdated', () => {
+    loadDifficulties();
+
+    if (!questionManager.classList.contains('hidden')) {
+        loadQuestionManager();
     }
 });
 setInterval(loadQuestion, 2000);

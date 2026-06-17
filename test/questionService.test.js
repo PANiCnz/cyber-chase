@@ -7,8 +7,24 @@ const path = require("node:path");
 const questionService =
     require("../src/services/questionService");
 
+function writeQuestionBanks(directory) {
+    const csv = [
+        "id,category,difficulty,question,a,b,c,d,correct",
+        "1,Passwords,Easy,Question?,A,B,C,D,a"
+    ].join("\n");
+
+    fs.writeFileSync(
+        path.join(directory, "contestant.csv"),
+        csv
+    );
+    fs.writeFileSync(
+        path.join(directory, "chaser.csv"),
+        csv.replace("Easy", "Hard")
+    );
+}
+
 test.beforeEach(() => {
-    questionService.resetQuestionBanks();
+    questionService.resetQuestionDirectory();
 });
 
 test("creates separate full shuffled match banks", () => {
@@ -253,5 +269,52 @@ test("rejects malformed question rows clearly", () => {
     assert.throws(
         () => questionService.parseCsv(file),
         /has 7 columns; expected 9/
+    );
+});
+
+test("replaces and clears managed question banks", () => {
+    const directory = fs.mkdtempSync(
+        path.join(os.tmpdir(), "cyber-chase-managed-")
+    );
+    writeQuestionBanks(directory);
+    questionService.loadQuestionBanks(directory);
+
+    const replacement = Buffer.from(
+        [
+            "id,category,difficulty,question,a,b,c,d,correct",
+            "2,Malware,Medium,Question?,A,B,C,D,b",
+            "3,Privacy,Hard,Question?,A,B,C,D,c"
+        ].join("\n")
+    );
+    const updated =
+        questionService.replaceQuestionBank(
+            "contestant",
+            replacement
+        );
+
+    assert.equal(updated.count, 2);
+    assert.deepEqual(
+        updated.difficulties,
+        ["Medium", "Hard"]
+    );
+    assert.match(
+        fs.readFileSync(
+            path.join(directory, "contestant.csv"),
+            "utf8"
+        ),
+        /Malware/
+    );
+
+    const cleared =
+        questionService.clearQuestionBank(
+            "contestant"
+        );
+
+    assert.equal(cleared.count, 0);
+    assert.deepEqual(cleared.difficulties, []);
+    assert.deepEqual(
+        questionService.getQuestionBankStatus()
+            .contestant,
+        cleared
     );
 });
