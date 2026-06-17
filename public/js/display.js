@@ -16,6 +16,10 @@ const currentTurn =
    document.getElementById('currentTurn');
 const category =
    document.getElementById('category');
+const targetPanel =
+   document.getElementById('targetPanel');
+const targetScoreValue =
+   document.getElementById('targetScoreValue');
 const questionPanel =
    document.getElementById('questionPanel');
 const questionText =
@@ -67,6 +71,13 @@ function hideAnswerResult() {
 }
 
 function renderMatchState(state) {
+   const targetReady =
+      !state.roundActive &&
+      !state.firstRoundPending &&
+      !state.winner &&
+      state.currentPlayer === 'chaser' &&
+      state.targetScore !== null;
+
    contestantName.textContent =
       state.contestant?.name || 'Team';
    currentChaserLabel =
@@ -148,7 +159,7 @@ function renderMatchState(state) {
          : state.firstRoundPending
             ? 'MATCH STARTING'
             : state.currentPlayer === 'chaser'
-               ? `TARGET SET: ${state.targetScore}`
+               ? 'CHASER ROUND READY'
                : 'WAITING';
    currentTurn.className =
       'turn ' +
@@ -191,14 +202,21 @@ function renderMatchState(state) {
       );
       currentTurn.textContent = 'MATCH COMPLETE';
       questionPanel.classList.add('hidden');
+      targetPanel.classList.add('hidden');
       category.classList.add('hidden');
       return false;
    }
 
    winnerScreen.classList.add('hidden');
+   targetScoreValue.textContent =
+      state.targetScore ?? 0;
+   targetPanel.classList.toggle(
+      'hidden',
+      !targetReady
+   );
    questionPanel.classList.toggle(
       'hidden',
-      !state.roundActive
+      !state.roundActive || targetReady
    );
    category.classList.toggle(
       'hidden',

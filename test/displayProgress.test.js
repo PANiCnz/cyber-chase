@@ -145,3 +145,29 @@ test("display uses a compact 1080p question-first layout", () => {
         /\.answer-key\{[^}]*font-size:2\.15rem/
     );
 });
+
+test("display presents the team target as a central stage state", () => {
+    assert.match(html, /id="targetPanel"/);
+    assert.match(html, /TARGET SET BY THE TEAM/);
+    assert.match(html, /id="targetScoreValue"/);
+    assert.match(
+        css,
+        /\.target-panel\{[^}]*justify-content:center/
+    );
+    assert.match(
+        css,
+        /\.target-score-value\{[^}]*font-size:clamp\(8rem,13vw,15rem\)/
+    );
+    assert.match(
+        script,
+        /const targetReady =[\s\S]*state\.currentPlayer === 'chaser'[\s\S]*state\.targetScore !== null/
+    );
+    assert.match(
+        script,
+        /targetPanel\.classList\.toggle\(\s*'hidden',\s*!targetReady/
+    );
+    assert.match(
+        script,
+        /questionPanel\.classList\.toggle\(\s*'hidden',[\s\S]*!state\.roundActive \|\| targetReady/
+    );
+});

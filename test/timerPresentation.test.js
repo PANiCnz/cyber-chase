@@ -120,7 +120,11 @@ test("audience display announces timer updates and timeouts", () => {
     );
     assert.match(
         display,
-        /TARGET SET:/
+        /CHASER ROUND READY/
+    );
+    assert.match(
+        display,
+        /targetPanel\.classList\.toggle/
     );
     assert.match(
         displayCss,
