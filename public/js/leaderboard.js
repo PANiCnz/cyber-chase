@@ -7,6 +7,27 @@ const leaderboardTeams =
 const leaderboardEmpty =
   document.getElementById('leaderboardEmpty');
 const socket = io();
+const DEFAULT_VISIBLE_TEAMS = 8;
+const ROW_HEIGHT = 118;
+const ROW_GAP = 14;
+let currentTournament = null;
+
+function getVisibleTeamLimit() {
+  const availableHeight =
+    leaderboardTeams.clientHeight;
+
+  if (!availableHeight) {
+    return DEFAULT_VISIBLE_TEAMS;
+  }
+
+  return Math.max(
+    1,
+    Math.floor(
+      (availableHeight + ROW_GAP) /
+        (ROW_HEIGHT + ROW_GAP)
+    )
+  );
+}
 
 function createMemberList(team) {
   const list = document.createElement('div');
@@ -67,6 +88,7 @@ function createTeamRow(team, index) {
 }
 
 function renderLeaderboard(tournament) {
+  currentTournament = tournament;
   leaderboardTeams.replaceChildren();
 
   if (!tournament) {
@@ -82,16 +104,24 @@ function renderLeaderboard(tournament) {
 
   tournamentName.textContent =
     tournament.name;
+  const teams =
+    tournament.teams || [];
+  const visibleLimit =
+    getVisibleTeamLimit();
+  const visibleTeams =
+    teams.slice(0, visibleLimit);
   leaderboardStatus.textContent =
-    `${tournament.teams.length} teams enrolled`;
+    teams.length > visibleTeams.length
+      ? `Showing top ${visibleTeams.length} of ${teams.length} teams`
+      : `${teams.length} teams enrolled`;
   leaderboardTeams.replaceChildren(
-    ...(tournament.teams || []).map(createTeamRow)
+    ...visibleTeams.map(createTeamRow)
   );
   leaderboardEmpty.textContent =
     'Teams will appear here when they are enrolled.';
   leaderboardEmpty.classList.toggle(
     'hidden',
-    tournament.teams.length > 0
+    teams.length > 0
   );
 }
 
@@ -118,5 +148,10 @@ async function loadLeaderboard() {
 }
 
 socket.on('tournamentUpdated', loadLeaderboard);
+window.addEventListener('resize', () => {
+  if (currentTournament) {
+    renderLeaderboard(currentTournament);
+  }
+});
 loadLeaderboard();
 setInterval(loadLeaderboard, 5000);

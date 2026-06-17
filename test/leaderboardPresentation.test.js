@@ -55,3 +55,30 @@ test("leaderboard exposes expandable team members", () => {
         /\.team-members\{[^}]*grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/
     );
 });
+
+test("leaderboard keeps fixed rows and shows only visible leaders", () => {
+    assert.match(
+        css,
+        /--leaderboard-row-height:118px/
+    );
+    assert.match(
+        css,
+        /\.leaderboard-teams\{[^}]*grid-auto-rows:var\(--leaderboard-row-height\)/
+    );
+    assert.match(
+        css,
+        /\.leaderboard-teams\{[^}]*overflow:hidden/
+    );
+    assert.match(
+        script,
+        /function getVisibleTeamLimit\(\)/
+    );
+    assert.match(
+        script,
+        /teams\.slice\(0, visibleLimit\)/
+    );
+    assert.match(
+        script,
+        /Showing top \$\{visibleTeams\.length\} of \$\{teams\.length\} teams/
+    );
+});

@@ -6,6 +6,8 @@
   --chaser:#f02b2f;
   --chaser-glow:rgba(240,43,47,.42);
   --panel:#0b1016;
+  --leaderboard-row-height:118px;
+  --leaderboard-row-gap:14px;
 }
 *{box-sizing:border-box}
 body{
@@ -122,24 +124,31 @@ h1{
 }
 .leaderboard-teams{
   display:grid;
-  gap:14px;
+  gap:var(--leaderboard-row-gap);
+  grid-auto-rows:var(--leaderboard-row-height);
   list-style:none;
   margin:22px 0 0;
   min-height:0;
-  overflow:auto;
+  overflow:hidden;
   padding:0 6px 0 0;
 }
 .leaderboard-team{
   background:rgba(0,0,0,.32);
   border-left:5px solid var(--contestant);
   box-shadow:0 10px 24px rgba(0,0,0,.28);
+  display:grid;
+  grid-template-rows:72px 46px;
+  height:var(--leaderboard-row-height);
+  min-height:0;
+  overflow:hidden;
 }
 .team-row{
   align-items:center;
   display:grid;
   gap:18px;
   grid-template-columns:80px 1fr 110px 180px;
-  padding:16px 18px;
+  min-height:0;
+  padding:10px 18px;
 }
 .team-rank,
 .team-score{
@@ -181,12 +190,16 @@ h1{
   gap:8px;
   grid-template-columns:repeat(4,minmax(0,1fr));
   margin:0;
-  padding:0 18px 18px 116px;
+  min-height:0;
+  padding:7px 18px 8px 116px;
 }
 .team-members span{
   background:#07101c;
   border:1px solid #29485f;
-  padding:10px;
+  overflow:hidden;
+  padding:6px 10px;
+  text-overflow:ellipsis;
+  white-space:nowrap;
   text-align:center;
 }
 .leaderboard-empty{
