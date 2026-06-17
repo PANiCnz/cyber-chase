@@ -74,6 +74,34 @@ async function loadMatch() {
     renderChaserPhoto(state.chaser);
 }
 
+async function continueIfOpeningStarted() {
+    const stateResponse =
+        await fetch('/api/match/state');
+    const state = await stateResponse.json();
+
+    if (
+        state?.started &&
+        !state.firstRoundPending
+    ) {
+        window.location = '/display.html';
+        return true;
+    }
+
+    return false;
+}
+
+function showStartError() {
+    countdown.classList.add(
+        'countdown-error'
+    );
+    countdown.textContent =
+        'Unable to start match';
+    countdown.setAttribute(
+        'aria-label',
+        'Unable to start match'
+    );
+}
+
 async function startCountdown() {
     let remaining = 5;
     countdown.textContent = remaining;
@@ -104,21 +132,20 @@ async function startCountdown() {
                 );
 
                 if (!response.ok) {
+                    const continued =
+                        await continueIfOpeningStarted();
+
+                    if (continued) {
+                        return;
+                    }
+
                     throw new Error();
                 }
 
                 socket.emit('refreshGame');
                 window.location = '/display.html';
             } catch {
-                countdown.classList.add(
-                    'countdown-error'
-                );
-                countdown.textContent =
-                    'Unable to start match';
-                countdown.setAttribute(
-                    'aria-label',
-                    'Unable to start match'
-                );
+                showStartError();
             }
         }
     },1000);

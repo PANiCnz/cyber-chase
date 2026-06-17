@@ -186,6 +186,25 @@ test("intro countdown automatically starts only the contestant phase", () => {
     );
 });
 
+test("intro continues to display if opening phase already started", () => {
+    assert.match(
+        intro,
+        /continueIfOpeningStarted/
+    );
+    assert.match(
+        intro,
+        /state\?\.started &&[\s\S]*!state\.firstRoundPending/
+    );
+    assert.match(
+        intro,
+        /window\.location = '\/display\.html'/
+    );
+    assert.match(
+        intro,
+        /if \(!response\.ok\) \{[\s\S]*continueIfOpeningStarted/
+    );
+});
+
 test("server converts expiry into a phase transition", () => {
     assert.match(
         server,
