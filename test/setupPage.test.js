@@ -74,6 +74,14 @@ test("setup renders image-ready profiles with placeholders", () => {
 test("setup shortens portraits for the five-panel layout", () => {
     assert.match(
         setupCss,
+        /\.showcase\{[^}]*align-content:center/
+    );
+    assert.match(
+        setupCss,
+        /\.showcase\{[^}]*grid-template-rows:auto auto auto auto/
+    );
+    assert.match(
+        setupCss,
         /--profile-image-height:39vh/
     );
     assert.match(

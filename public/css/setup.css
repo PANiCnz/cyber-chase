@@ -33,9 +33,10 @@ body::before{
   position:fixed;
 }
 .showcase{
+  align-content:center;
   display:grid;
   gap:14px;
-  grid-template-rows:auto auto minmax(0,1fr) auto;
+  grid-template-rows:auto auto auto auto;
   height:100vh;
   margin:auto;
   max-width:1920px;
