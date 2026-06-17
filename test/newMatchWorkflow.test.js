@@ -156,7 +156,19 @@ test("presenter setup fits a compact 1080p console", () => {
     );
     assert.match(
         presenterCss,
+        /\*,\s*\*::before,\s*\*::after \{[\s\S]*box-sizing:border-box/
+    );
+    assert.match(
+        presenterCss,
         /\.team-member-fields\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/
+    );
+    assert.match(
+        presenterCss,
+        /#setupTeamMember1\{[^}]*grid-column:1/
+    );
+    assert.match(
+        presenterCss,
+        /#setupTeamMember2\{[^}]*grid-column:2/
     );
     assert.match(
         presenterCss,
