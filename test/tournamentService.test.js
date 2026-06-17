@@ -129,3 +129,27 @@ test("leaderboard sorts scored teams ahead by score", () => {
         ["Red Team", "Blue Team"]
     );
 });
+
+test("reset clears enrolled teams while keeping tournament open", () => {
+    tempTournamentFile();
+    const tournament =
+        tournamentService.createTournament(
+            "Cyber Smart Week"
+        );
+    tournamentService.enrollTeam(
+        "Blue Team",
+        ["Alex", "Sam", "Jordan", "Taylor"]
+    );
+
+    const reset =
+        tournamentService.resetTournament(
+            tournament.id
+        );
+
+    assert.equal(reset.status, "open");
+    assert.deepEqual(reset.teams, []);
+    assert.deepEqual(
+        tournamentService.getLiveTournament().teams,
+        []
+    );
+});

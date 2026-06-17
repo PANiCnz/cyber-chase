@@ -18,7 +18,8 @@ router.post("/start-match", (req, res) => {
         chaserId,
         chaserName,
         contestantDifficulty,
-        chaserDifficulty
+        chaserDifficulty,
+        enrollInTournament
     } = req.body;
     const matchName =
         typeof teamName === "string"
@@ -100,10 +101,12 @@ router.post("/start-match", (req, res) => {
                 : []
         );
         const tournamentEntry =
-            tournamentService.enrollTeam(
-                match.contestant.name,
-                match.contestant.members
-            );
+            enrollInTournament === false
+                ? null
+                : tournamentService.enrollTeam(
+                    match.contestant.name,
+                    match.contestant.members
+                );
 
         if (tournamentEntry) {
             matchService.assignTournamentEntry(

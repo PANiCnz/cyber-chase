@@ -66,6 +66,10 @@ const setupChaserDifficulty =
     document.getElementById('setupChaserDifficulty');
 const setupChaser =
     document.getElementById('setupChaser');
+const setupTournamentEnrollment =
+    document.getElementById('setupTournamentEnrollment');
+const setupTournamentHint =
+    document.getElementById('setupTournamentHint');
 const launchMatchBtn =
     document.getElementById('launchMatchBtn');
 const setupStatus =
@@ -140,6 +144,7 @@ let presenterRefreshRunning = false;
 let availableChasers = [];
 let managedChasers = [];
 let managedTournaments = [];
+let liveTournament = null;
 let difficultiesLoaded = false;
 
 const RANDOM_CHASER_ID = 'random';
@@ -537,6 +542,10 @@ function renderTournamentCard(tournament) {
     card.className =
         `tournament-card ${tournament.status}`;
 
+    const header = document.createElement('div');
+    header.className = 'tournament-card-header';
+
+    const titleWrap = document.createElement('div');
     const title = document.createElement('h4');
     title.textContent = tournament.name;
 
@@ -544,14 +553,35 @@ function renderTournamentCard(tournament) {
     meta.className = 'tournament-meta';
     meta.textContent =
         `${tournament.status.toUpperCase()} | ${tournament.teams.length} teams enrolled`;
+    titleWrap.append(title, meta);
 
-    const preview = document.createElement('div');
-    preview.className = 'tournament-team-preview';
+    const status = document.createElement('div');
+    status.className =
+        `tournament-status-pill ${tournament.status}`;
+    status.textContent =
+        tournament.status.toUpperCase();
+    header.append(titleWrap, status);
+
     const scoredTeams = tournament.teams.filter(
         team => Number.isFinite(team.score)
     );
+    const leader = scoredTeams[0];
+    const stats = document.createElement('div');
+    stats.className = 'tournament-stat-grid';
+    const teamStat = document.createElement('div');
+    teamStat.className = 'tournament-stat';
+    teamStat.innerHTML =
+        `<span>Teams</span><strong>${tournament.teams.length}</strong>`;
+    const scoreStat = document.createElement('div');
+    scoreStat.className = 'tournament-stat';
+    scoreStat.innerHTML =
+        `<span>Leader</span><strong>${leader ? leader.score : '-'}</strong>`;
+    stats.append(teamStat, scoreStat);
+
+    const preview = document.createElement('div');
+    preview.className = 'tournament-team-preview';
     preview.textContent = scoredTeams.length > 0
-        ? `Leader: ${scoredTeams[0].name} (${scoredTeams[0].score})`
+        ? `Leading team: ${leader.name}`
         : 'No winning scores recorded yet.';
 
     const actions = document.createElement('div');
@@ -575,13 +605,22 @@ function renderTournamentCard(tournament) {
                 : 'open'
         );
     actions.appendChild(actionButton);
+    const resetButton =
+        document.createElement('button');
+    resetButton.type = 'button';
+    resetButton.className = 'reset-tournament';
+    resetButton.textContent = 'RESET SCORES';
+    resetButton.onclick = () =>
+        resetTournament(tournament);
+    actions.appendChild(resetButton);
 
-    card.append(title, meta, preview, actions);
+    card.append(header, stats, preview, actions);
     return card;
 }
 
 function renderTournamentManager(result) {
     const live = result.live;
+    liveTournament = live || null;
     managedTournaments =
         result.tournaments || [];
     liveTournamentPanel.replaceChildren();
@@ -600,7 +639,9 @@ function renderTournamentManager(result) {
         );
     }
 
-    for (const tournament of managedTournaments) {
+    for (const tournament of managedTournaments.filter(
+        tournament => tournament.id !== live?.id
+    )) {
         tournamentList.appendChild(
             renderTournamentCard(tournament)
         );
@@ -610,6 +651,7 @@ function renderTournamentManager(result) {
         live
             ? `${live.name} is live.`
             : 'No tournament is currently live.';
+    updateTournamentEnrollmentChoice();
 }
 
 async function loadTournamentManager() {
@@ -706,6 +748,39 @@ async function updateTournamentStatus(id, action) {
             throw new Error(
                 result.error ||
                 'Unable to update tournament.'
+            );
+        }
+
+        await loadTournamentManager();
+    } catch (error) {
+        tournamentStatus.textContent =
+            error.message;
+    }
+}
+
+async function resetTournament(tournament) {
+    if (
+        !window.confirm(
+            `Reset all teams and scores for ${tournament.name}?`
+        )
+    ) {
+        return;
+    }
+
+    tournamentStatus.textContent =
+        'Resetting tournament...';
+
+    try {
+        const response = await fetch(
+            `/api/tournament/${encodeURIComponent(tournament.id)}/reset`,
+            { method: 'POST' }
+        );
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                result.error ||
+                'Unable to reset tournament.'
             );
         }
 
@@ -872,6 +947,43 @@ async function loadSetupChasers() {
     }
 }
 
+async function loadLiveTournamentForSetup() {
+    try {
+        const response = await fetch(
+            '/api/tournament/live'
+        );
+
+        if (!response.ok) {
+            throw new Error();
+        }
+
+        liveTournament = await response.json();
+    } catch {
+        liveTournament = null;
+    }
+
+    updateTournamentEnrollmentChoice();
+}
+
+function updateTournamentEnrollmentChoice() {
+    const hasLiveTournament =
+        Boolean(liveTournament);
+    const wasDisabled =
+        setupTournamentEnrollment.disabled;
+    setupTournamentEnrollment.disabled =
+        !hasLiveTournament;
+    setupTournamentEnrollment.value =
+        hasLiveTournament
+            ? wasDisabled
+                ? 'auto'
+                : setupTournamentEnrollment.value
+            : 'skip';
+    setupTournamentHint.textContent =
+        hasLiveTournament
+            ? `Live tournament: ${liveTournament.name}. Choose whether this team is enrolled.`
+            : 'No live tournament is open. This match will not be enrolled.';
+}
+
 function resetSetupForm() {
     setupTeamName.value = '';
     for (const memberInput of setupTeamMembers) {
@@ -880,6 +992,8 @@ function resetSetupForm() {
     setupContestantDifficulty.value = 'all';
     setupChaserDifficulty.value = 'all';
     setupChaser.value = RANDOM_CHASER_ID;
+    setupTournamentEnrollment.value =
+        liveTournament ? 'auto' : 'skip';
     setupStatus.textContent = '';
     updateLaunchAvailability();
     renderSetupProfile();
@@ -945,6 +1059,8 @@ async function launchMatch() {
                         setupContestantDifficulty.value,
                     chaserDifficulty:
                         setupChaserDifficulty.value,
+                    enrollInTournament:
+                        setupTournamentEnrollment.value !== 'skip',
                     chaserId: chaser.id,
                     chaserName: chaser.name
                 })
@@ -1350,11 +1466,14 @@ socket.on('chasersUpdated', () => {
     }
 });
 socket.on('tournamentUpdated', () => {
+    loadLiveTournamentForSetup();
+
     if (!tournamentManager.classList.contains('hidden')) {
         loadTournamentManager();
     }
 });
 setInterval(loadQuestion, 2000);
 loadSetupChasers();
+loadLiveTournamentForSetup();
 loadDifficulties();
 loadQuestion();

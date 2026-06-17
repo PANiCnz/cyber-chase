@@ -26,17 +26,29 @@
         </div>
 
         <div class="tournament-manager-layout">
+            <section class="tournament-live-column" aria-label="Live tournament status">
+                <div id="liveTournamentPanel" class="live-tournament-panel"></div>
+            </section>
+
             <form id="tournamentCreator" class="tournament-creator">
+                <div class="tournament-form-heading">
+                    <div class="setup-kicker">CREATE</div>
+                    <h4>Start a tournament</h4>
+                    <p>Create opens the tournament immediately. Close or reset it from the live card.</p>
+                </div>
                 <label for="newTournamentName">Tournament name</label>
                 <input id="newTournamentName" type="text" maxlength="100" placeholder="Cyber Smart Week Final">
                 <button id="createTournamentBtn" class="save-chaser-button" type="submit">CREATE AND OPEN</button>
                 <div id="tournamentStatus" class="manager-status" role="status" aria-live="polite"></div>
             </form>
 
-            <div>
-                <div id="liveTournamentPanel" class="live-tournament-panel"></div>
+            <section class="tournament-history-column" aria-label="Tournament history">
+                <div class="tournament-section-heading">
+                    <div class="setup-kicker">HISTORY</div>
+                    <h4>Saved tournaments</h4>
+                </div>
                 <div id="tournamentList" class="tournament-list"></div>
-            </div>
+            </section>
         </div>
     </section>
 
@@ -151,6 +163,13 @@
                 <select id="setupChaser" disabled>
                     <option value="">Loading chasers...</option>
                 </select>
+
+                <label for="setupTournamentEnrollment">Tournament entry</label>
+                <select id="setupTournamentEnrollment">
+                    <option value="auto">Enroll in live tournament</option>
+                    <option value="skip">Practice match only</option>
+                </select>
+                <div id="setupTournamentHint" class="setup-helper-text">Teams are added to the live tournament when one is open.</div>
 
                 <button id="launchMatchBtn" class="launch-match-button" type="button" disabled>LAUNCH GAME</button>
                 <div id="setupStatus" class="setup-status" role="status" aria-live="polite"></div>

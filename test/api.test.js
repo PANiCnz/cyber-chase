@@ -228,6 +228,96 @@ test("manages one live tournament and enrolls created teams", async () => {
     assert.equal(live.teams[0].score, null);
 });
 
+test("can reset a tournament and skip enrolling a match", async () => {
+    const createResponse = await fetch(
+        `${baseUrl}/api/tournament`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                name: "Cyber Smart Week"
+            })
+        }
+    );
+    const tournament =
+        await createResponse.json();
+
+    await fetch(
+        `${baseUrl}/api/match/start-match`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                teamName: "Blue Team",
+                teamMembers: [
+                    "Alex",
+                    "Sam",
+                    "Jordan",
+                    "Taylor"
+                ],
+                chaserId: "maya-voss"
+            })
+        }
+    );
+
+    let live = await (
+        await fetch(
+            `${baseUrl}/api/tournament/live`
+        )
+    ).json();
+    assert.equal(live.teams.length, 1);
+
+    const resetResponse = await fetch(
+        `${baseUrl}/api/tournament/${tournament.id}/reset`,
+        { method: "POST" }
+    );
+    const reset =
+        await resetResponse.json();
+
+    assert.equal(resetResponse.status, 200);
+    assert.equal(reset.status, "open");
+    assert.deepEqual(reset.teams, []);
+
+    const skippedResponse = await fetch(
+        `${baseUrl}/api/match/start-match`,
+        {
+            method: "POST",
+            headers: {
+                "content-type":
+                    "application/json"
+            },
+            body: JSON.stringify({
+                teamName: "Practice Team",
+                teamMembers: [
+                    "Ari",
+                    "Blair",
+                    "Casey",
+                    "Dev"
+                ],
+                chaserId: "maya-voss",
+                enrollInTournament: false
+            })
+        }
+    );
+    const skipped =
+        await skippedResponse.json();
+
+    assert.equal(skippedResponse.status, 200);
+    assert.equal(skipped.tournament, undefined);
+    live = await (
+        await fetch(
+            `${baseUrl}/api/tournament/live`
+        )
+    ).json();
+    assert.deepEqual(live.teams, []);
+});
+
 test("records tournament scores only when the team beats the chaser", async () => {
     await fetch(`${baseUrl}/api/tournament`, {
         method: "POST",

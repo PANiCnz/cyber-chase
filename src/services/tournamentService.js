@@ -368,6 +368,19 @@ function openTournament(id) {
     }));
 }
 
+function resetTournament(id) {
+    const tournament = findTournament(id);
+
+    if (!tournament) {
+        return null;
+    }
+
+    return updateTournament(id, current => ({
+        ...current,
+        teams: []
+    }));
+}
+
 function enrollTeam(name, members = []) {
     const live = getState().tournaments.find(
         tournament =>
@@ -470,6 +483,7 @@ module.exports = {
     createTournament,
     closeTournament,
     openTournament,
+    resetTournament,
     enrollTeam,
     recordWin,
     resetTournaments

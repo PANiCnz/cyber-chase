@@ -74,4 +74,20 @@ router.post("/:id/close", (req, res) => {
     res.json(tournament);
 });
 
+router.post("/:id/reset", (req, res) => {
+    const tournament =
+        tournamentService.resetTournament(
+            req.params.id
+        );
+
+    if (!tournament) {
+        return res.status(404).json({
+            error: "Tournament not found"
+        });
+    }
+
+    emitTournamentUpdate(req);
+    res.json(tournament);
+});
+
 module.exports = router;

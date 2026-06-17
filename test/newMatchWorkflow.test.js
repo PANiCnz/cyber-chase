@@ -42,7 +42,9 @@ test("presenter manages tournaments", () => {
         "newTournamentName",
         "createTournamentBtn",
         "liveTournamentPanel",
-        "tournamentList"
+        "tournamentList",
+        "setupTournamentEnrollment",
+        "setupTournamentHint"
     ]) {
         assert.match(
             presenterHtml,
@@ -62,6 +64,18 @@ test("presenter manages tournaments", () => {
         presenter,
         /socket\.on\('tournamentUpdated'/
     );
+    assert.match(
+        presenter,
+        /resetTournament\(tournament\)/
+    );
+    assert.match(
+        presenter,
+        /\/api\/tournament\/\$\{encodeURIComponent\(tournament\.id\)\}\/reset/
+    );
+    assert.match(
+        presenter,
+        /updateTournamentEnrollmentChoice/
+    );
 });
 
 test("presenter owns match configuration and launch", () => {
@@ -74,6 +88,7 @@ test("presenter owns match configuration and launch", () => {
         "setupContestantDifficulty",
         "setupChaserDifficulty",
         "setupChaser",
+        "setupTournamentEnrollment",
         "launchMatchBtn",
         "setupChaserProfile"
     ]) {
@@ -118,6 +133,10 @@ test("presenter owns match configuration and launch", () => {
     assert.match(
         presenter,
         /chaserDifficulty:\s*setupChaserDifficulty\.value/
+    );
+    assert.match(
+        presenter,
+        /enrollInTournament:\s*setupTournamentEnrollment\.value !== 'skip'/
     );
     assert.match(
         presenter,
